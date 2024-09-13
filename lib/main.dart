@@ -10,6 +10,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 void main() {
   runApp(const ProviderScope(child: MyApp()));
 }
+class app extends StatelessWidget {
+  
+}
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
