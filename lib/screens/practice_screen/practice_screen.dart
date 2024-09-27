@@ -85,13 +85,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   String _getOperatorSymbol(Operation operation) {
-    if (operation == Operation.addition) {
+    if (
+        operation == Operation.addition2A ||
+        operation == Operation.additionA ||
+        operation == Operation.additionB) {
       return '+';
-    } else if (operation == Operation.subtraction) {
+    } else if (
+               operation == Operation.subtractionA ||
+               operation == Operation.subtractionB) {
       return '-';
-    } else if (operation == Operation.multiplication) {
+    } else if (
+               operation == Operation.multiplicationC ||
+               operation == Operation.multiplicationD) {
       return 'x';
-    } else if (operation == Operation.division) {
+    } else if (
+               operation == Operation.divisionC ||
+               operation == Operation.divisionD) {
       return '÷';
     }
     return '';
@@ -99,13 +108,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _triggerTTSSpeech() {
     String operatorWord = '';
-    if (widget.selectedOperation == Operation.addition) {
+    if (
+        widget.selectedOperation == Operation.addition2A ||
+        widget.selectedOperation == Operation.additionA ||
+        widget.selectedOperation == Operation.additionB) {
       operatorWord = 'plus';
-    } else if (widget.selectedOperation == Operation.subtraction) {
+    } else if (
+               widget.selectedOperation == Operation.subtractionA ||
+               widget.selectedOperation == Operation.subtractionB) {
       operatorWord = 'minus';
-    } else if (widget.selectedOperation == Operation.multiplication) {
+    } else if (
+               widget.selectedOperation == Operation.multiplicationC ||
+               widget.selectedOperation == Operation.multiplicationD) {
       operatorWord = 'times';
-    } else if (widget.selectedOperation == Operation.division) {
+    } else if (
+               widget.selectedOperation == Operation.divisionC ||
+               widget.selectedOperation == Operation.divisionD) {
       operatorWord = 'divided by';
     }
 

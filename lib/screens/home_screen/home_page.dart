@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app_new/question_logic/question_generator.dart';
+import 'package:oral_app_new/question_logic/question_generator.dart'; // Import the Operation enum
 import 'package:oral_app_new/screens/home_screen/drawer/drawer.dart'; // Import the custom drawer
 import 'package:oral_app_new/screens/home_screen/drawer/settings_screen.dart'; // Import the settings screen
 import 'package:oral_app_new/screens/home_screen/dropdown_widgets.dart'; // Import the dropdown widgets
@@ -16,7 +16,7 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  Operation _selectedOperation = Operation.addition; // Default operation
+  Operation _selectedOperation = Operation.addition2A; // Default operation
   String _selectedRange = 'Upto +5'; // Default range
 
   void _navigateToSettings() {
@@ -123,21 +123,33 @@ class _StartScreenState extends State<StartScreen> {
   }
 
   String _getDefaultRange(Operation operation) {
-    if (operation == Operation.addition) {
+    if (operation == Operation.addition2A) {
       return 'Upto +5';
-    } else if (operation == Operation.subtraction) {
+    } else if (operation == Operation.additionA) {
+      return 'Upto +10';
+    } else if (operation == Operation.additionB) {
+      return 'Upto +15';
+    } else if (operation == Operation.subtractionA) {
       return 'Upto -5';
-    } else if (operation == Operation.multiplication) {
+    } else if (operation == Operation.subtractionB) {
+      return 'Upto -10';
+    } else if (operation == Operation.multiplicationC) {
       return 'Upto x5';
-    } else if (operation == Operation.division) {
+    } else if (operation == Operation.multiplicationD) {
+      return 'Upto x10';
+    } else if (operation == Operation.divisionC) {
       return 'Upto ÷5';
+    } else if (operation == Operation.divisionD) {
+      return 'Upto ÷10';
     } else {
       return 'Select an option';
     }
   }
 
   List<DropdownMenuItem<String>> _getDropdownItems() {
-    if (_selectedOperation == Operation.addition) {
+    if (_selectedOperation == Operation.addition2A ||
+        _selectedOperation == Operation.additionA ||
+        _selectedOperation == Operation.additionB) {
       return [
         const DropdownMenuItem(
           value: 'Upto +5',
@@ -147,8 +159,13 @@ class _StartScreenState extends State<StartScreen> {
           value: 'Upto +10',
           child: Text('Upto +10', style: TextStyle(color: Colors.grey)),
         ),
+        const DropdownMenuItem(
+          value: 'Upto +15',
+          child: Text('Upto +15', style: TextStyle(color: Colors.grey)),
+        ),
       ];
-    } else if (_selectedOperation == Operation.subtraction) {
+    } else if (_selectedOperation == Operation.subtractionA ||
+               _selectedOperation == Operation.subtractionB) {
       return [
         const DropdownMenuItem(
           value: 'Upto -3',
@@ -158,8 +175,13 @@ class _StartScreenState extends State<StartScreen> {
           value: 'Upto -5',
           child: Text('Upto -5', style: TextStyle(color: Colors.grey)),
         ),
+        const DropdownMenuItem(
+          value: 'Upto -10',
+          child: Text('Upto -10', style: TextStyle(color: Colors.grey)),
+        ),
       ];
-    } else if (_selectedOperation == Operation.multiplication) {
+    } else if (_selectedOperation == Operation.multiplicationC ||
+               _selectedOperation == Operation.multiplicationD) {
       return [
         const DropdownMenuItem(
           value: 'Upto x3',
@@ -169,8 +191,13 @@ class _StartScreenState extends State<StartScreen> {
           value: 'Upto x5',
           child: Text('Upto x5', style: TextStyle(color: Colors.grey)),
         ),
+        const DropdownMenuItem(
+          value: 'Upto x10',
+          child: Text('Upto x10', style: TextStyle(color: Colors.grey)),
+        ),
       ];
-    } else if (_selectedOperation == Operation.division) {
+    } else if (_selectedOperation == Operation.divisionC ||
+               _selectedOperation == Operation.divisionD) {
       return [
         const DropdownMenuItem(
           value: 'Upto ÷3',
@@ -179,6 +206,10 @@ class _StartScreenState extends State<StartScreen> {
         const DropdownMenuItem(
           value: 'Upto ÷5',
           child: Text('Upto ÷5', style: TextStyle(color: Colors.grey)),
+        ),
+        const DropdownMenuItem(
+          value: 'Upto ÷10',
+          child: Text('Upto ÷10', style: TextStyle(color: Colors.grey)),
         ),
       ];
     } else {
@@ -191,4 +222,3 @@ class _StartScreenState extends State<StartScreen> {
     }
   }
 }
-

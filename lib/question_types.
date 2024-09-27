@@ -1,4 +1,5 @@
 additon - 2a upto +5 and upto +10, a, b
+    2a - x+1, x+2, x+3, x+4, x+5
     a - Sum of 15, 18, 20 , 22, 24, 26 28, 50
     b - Sum of 2 digit numbers, sum upto 100, 150, 200, 250
 
@@ -19,72 +20,12 @@ division - c, d
 gcf - do not do gcf for now.
 lcm - upto 50, upto 100.
 
-
-
-
-
-
-
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:3: error: cannot find symbol
-import androidx.annotation.Keep;
-  symbol:   class Keep
-  location: package androidx.annotation
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:4: error: cannot find symbol
-import androidx.annotation.NonNull;
-                          ^
-  symbol:   class NonNull
-  location: package androidx.annotation
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:5: error: cannot find symbol
-import io.flutter.Log;
-                 ^
-  symbol:   class Log
-
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:7: error: package io.flutter.embedding.engine does not exist
-import io.flutter.embedding.engine.FlutterEngine;
-                                  ^
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:14: error: cannot find symbol
-@Keep
- ^
-  symbol: class Keep
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:17: error: cannot find symbol
-  public static void registerWith(@NonNull FlutterEngine flutterEngine) {
-                                           ^
-  symbol:   class FlutterEngine
-  location: class GeneratedPluginRegistrant
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:17: error: cannot find symbol
-  public static void registerWith(@NonNull FlutterEngine flutterEngine) {
-                                   ^
-  symbol:   class NonNull
-  location: class GeneratedPluginRegistrant
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:19: error: package com.tundralabs.fluttertts does not exist
-      flutterEngine.getPlugins().add(new com.tundralabs.fluttertts.FlutterTtsPlugin());
-                                                                  ^
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:21: error: cannot find symbol
-
-location: class GeneratedPluginRegistrant
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:24: error: package io.flutter.plugins.pathprovider does not exist
-      flutterEngine.getPlugins().add(new io.flutter.plugins.pathprovider.PathProviderPlugin());
-                                                                        ^
-/Users/Hacer/Desktop/flutter_projects/oral_app2/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java:26: error: cannot find symbol
-      Log.e(TAG, "Error registering plugin path_provider_android, io.flutter.plugins.pathprovider.PathProviderPlugin", e);
-      ^
-  symbol:   variable Log
-  location: class GeneratedPluginRegistrant
-11 errors
-
-FAILURE: Build failed with an exception.
-* What went wrong:
-Execution failed for task ':app:compileDebugJavaWithJavac'.
-> Compilation failed; see the compiler error output for details.
-
-* Try:
-> Run with --stacktrace option to get the stack trace.
-> Run with --info or --debug option to get more log output.
-> Run with --scan to get full insights.
-
-* Get more help at https://help.gradle.org
-
-BUILD FAILED in 21s
-Error: Gradle task assembleDebug failed with exit code 1
-
-Exited (1).
+addition 2A
+addition A
+addition B
+subtaction A
+subtaction B
+multiplication C
+multiplication D
+division C
+division D

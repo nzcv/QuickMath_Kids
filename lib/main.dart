@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
   int totalTimeInSeconds = 0;
-  Operation _selectedOperation = Operation.addition;
+  Operation _selectedOperation = Operation.addition2A;
   String _selectedRange = 'Upto +5'; // Default range
 
   void switchToPracticeScreen(Operation operation, String range) {

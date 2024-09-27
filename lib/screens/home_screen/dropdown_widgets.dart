@@ -15,6 +15,19 @@ class OperationDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Map enum values to readable text
+    Map<Operation, String> operationNames = {
+      Operation.addition2A: 'Addition 2A',
+      Operation.additionA: 'Addition A',
+      Operation.additionB: 'Addition B',
+      Operation.subtractionA: 'Subtraction A',
+      Operation.subtractionB: 'Subtraction B',
+      Operation.multiplicationC: 'Multiplication C',
+      Operation.multiplicationD: 'Multiplication D',
+      Operation.divisionC: 'Division C',
+      Operation.divisionD: 'Division D',
+    };
+
     return SizedBox(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 40.0),
@@ -24,7 +37,7 @@ class OperationDropdown extends StatelessWidget {
             return DropdownMenuItem(
               value: operation,
               child: Text(
-                operation.name.toUpperCase(),
+                operationNames[operation]!,
                 style: const TextStyle(color: Colors.grey),
               ),
             );
@@ -48,6 +61,7 @@ class OperationDropdown extends StatelessWidget {
     );
   }
 }
+
 
 class RangeDropdown extends StatelessWidget {
   final String selectedRange;
