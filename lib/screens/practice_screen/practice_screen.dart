@@ -19,7 +19,8 @@ class PracticeScreen extends StatefulWidget {
   _PracticeScreenState createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen> {
+class _PracticeScreenState extends State<PracticeScreen>
+    with SingleTickerProviderStateMixin {
   List<int> numbers = [0, 0, 0];
   List<int> answerOptions = [];
   int correctAnswer = 0;
@@ -28,6 +29,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
   List<bool> answeredCorrectly = [];
 
   final QuizTimer _quizTimer = QuizTimer(); // Use the new timer class
+
+  late AnimationController _controller;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
 
   @override
   void initState() {
@@ -38,6 +43,37 @@ class _PracticeScreenState extends State<PracticeScreen> {
         // Timer callback
       });
     });
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _quizTimer.stopTimer();
+    super.dispose();
   }
 
   void stopTimer() {
@@ -85,22 +121,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   String _getOperatorSymbol(Operation operation) {
-    if (
-        operation == Operation.addition2A ||
-        operation == Operation.additionA ||
-        operation == Operation.additionB) {
+    if (operation == Operation.addition_2A ||
+        operation == Operation.addition_A ||
+        operation == Operation.addition_B) {
       return '+';
-    } else if (
-               operation == Operation.subtractionA ||
-               operation == Operation.subtractionB) {
+    } else if (operation == Operation.subtraction_A ||
+        operation == Operation.subtraction_B) {
       return '-';
-    } else if (
-               operation == Operation.multiplicationC ||
-               operation == Operation.multiplicationD) {
+    } else if (operation == Operation.multiplication_C) {
       return 'x';
-    } else if (
-               operation == Operation.divisionC ||
-               operation == Operation.divisionD) {
+    } else if (operation == Operation.division_C ||
+        operation == Operation.division_D) {
       return '÷';
     }
     return '';
@@ -108,22 +139,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _triggerTTSSpeech() {
     String operatorWord = '';
-    if (
-        widget.selectedOperation == Operation.addition2A ||
-        widget.selectedOperation == Operation.additionA ||
-        widget.selectedOperation == Operation.additionB) {
+    if (widget.selectedOperation == Operation.addition_2A ||
+        widget.selectedOperation == Operation.addition_A ||
+        widget.selectedOperation == Operation.addition_B) {
       operatorWord = 'plus';
-    } else if (
-               widget.selectedOperation == Operation.subtractionA ||
-               widget.selectedOperation == Operation.subtractionB) {
+    } else if (widget.selectedOperation == Operation.subtraction_A ||
+        widget.selectedOperation == Operation.subtraction_B) {
       operatorWord = 'minus';
-    } else if (
-               widget.selectedOperation == Operation.multiplicationC ||
-               widget.selectedOperation == Operation.multiplicationD) {
+    } else if (widget.selectedOperation == Operation.multiplication_C) {
       operatorWord = 'times';
-    } else if (
-               widget.selectedOperation == Operation.divisionC ||
-               widget.selectedOperation == Operation.divisionD) {
+    } else if (widget.selectedOperation == Operation.division_C ||
+        widget.selectedOperation == Operation.division_D) {
       operatorWord = 'divided by';
     }
 
@@ -209,63 +235,89 @@ class _PracticeScreenState extends State<PracticeScreen> {
         alignment: Alignment.topCenter,
         child: Stack(
           children: [
-            Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Display the formatted timer
-                  Text(
-                    formatTime(_quizTimer.secondsPassed),
-                    style: theme.textTheme.headlineMedium?.copyWith(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  IconButton(
-                    icon: const Icon(Icons.speaker),
-                    iconSize: 150,
-                    color: Colors.black,
-                    onPressed: _triggerTTSSpeech,
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    questionText,
-                    style: theme.textTheme.headlineMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _slideAnimation,
+                child: Center(
+                  child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                      // Display the formatted timer
+                      Text(
+                        formatTime(_quizTimer.secondsPassed),
+                        style: theme.textTheme.headlineMedium?.copyWith(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      IconButton(
+                        icon: const Icon(Icons.speaker),
+                        iconSize: 150,
+                        color: Colors.black,
+                        onPressed: _triggerTTSSpeech,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        questionText,
+                        style: theme.textTheme.headlineMedium,
+                      ),
+                      const SizedBox(height: 16),
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(
-                            width: 150,
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: () {
-                                checkAnswer(answerOptions[0]);
-                                regenerateNumbers();
-                              },
-                              style: ElevatedButton.styleFrom(
-                                shape: const StadiumBorder(),
-                                backgroundColor: theme.colorScheme.primary,
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(
+                                width: 150,
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    checkAnswer(answerOptions[0]);
+                                    regenerateNumbers();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const StadiumBorder(),
+                                    backgroundColor: theme.colorScheme.primary,
+                                  ),
+                                  child: Text(
+                                    answerOptions[0].toString(),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                                ),
                               ),
-                              child: Text(
-                                answerOptions[0].toString(),
-                                style: const TextStyle(
-                                    color: Colors.white, fontSize: 20),
+                              const SizedBox(width: 16),
+                              SizedBox(
+                                width: 150,
+                                height: 50,
+                                child: ElevatedButton(
+                                  onPressed: () {
+                                    checkAnswer(answerOptions[1]);
+                                    regenerateNumbers();
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    shape: const StadiumBorder(),
+                                    backgroundColor: theme.colorScheme.primary,
+                                  ),
+                                  child: Text(
+                                    answerOptions[1].toString(),
+                                    style: const TextStyle(
+                                        color: Colors.white, fontSize: 20),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(height: 16),
                           SizedBox(
                             width: 150,
                             height: 50,
                             child: ElevatedButton(
                               onPressed: () {
-                                checkAnswer(answerOptions[1]);
+                                checkAnswer(answerOptions[2]);
                                 regenerateNumbers();
                               },
                               style: ElevatedButton.styleFrom(
@@ -273,7 +325,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                 backgroundColor: theme.colorScheme.primary,
                               ),
                               child: Text(
-                                answerOptions[1].toString(),
+                                answerOptions[2].toString(),
                                 style: const TextStyle(
                                     color: Colors.white, fontSize: 20),
                               ),
@@ -281,48 +333,28 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                      SizedBox(
-                        width: 150,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: () {
-                            checkAnswer(answerOptions[2]);
-                            regenerateNumbers();
-                          },
-                          style: ElevatedButton.styleFrom(
-                            shape: const StadiumBorder(),
-                            backgroundColor: theme.colorScheme.primary,
-                          ),
-                          child: Text(
-                            answerOptions[2].toString(),
-                            style: const TextStyle(
-                                color: Colors.white, fontSize: 20),
-                          ),
-                        ),
-                      ),
                     ],
                   ),
-                ],
+                ),
               ),
             ),
             // Add the pause button at the bottom-right corner
             Positioned(
-              bottom: 10, // Position the button
-              right: 10, // Position the button
+              bottom: 10, 
+              right: 10, 
               child: ElevatedButton(
-                onPressed: _showPauseDialog, // Show the pause dialog
+                onPressed: _showPauseDialog, 
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                   shape: const CircleBorder(),
-                  fixedSize: const Size(60, 60), // Button size
-                  padding: EdgeInsets.zero, // Ensures no extra padding
+                  fixedSize: const Size(60, 60), 
+                  padding: EdgeInsets.zero, 
                 ),
                 child: const Center(
                   child: Icon(
                     Icons.pause,
-                    size: 30, // Icon size
+                    size: 30, 
                   ),
                 ),
               ),

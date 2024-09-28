@@ -25,7 +25,7 @@ class _MyAppState extends State<MyApp> {
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
   int totalTimeInSeconds = 0;
-  Operation _selectedOperation = Operation.addition2A;
+  Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5'; // Default range
 
   void switchToPracticeScreen(Operation operation, String range) {
@@ -72,6 +72,7 @@ class _MyAppState extends State<MyApp> {
     );
 
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: theme,
       home: Scaffold(
         backgroundColor: theme.colorScheme.surface,

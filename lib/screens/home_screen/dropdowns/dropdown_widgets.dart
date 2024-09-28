@@ -15,53 +15,37 @@ class OperationDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    // Map enum values to readable text
-    Map<Operation, String> operationNames = {
-      Operation.addition2A: 'Addition 2A',
-      Operation.additionA: 'Addition A',
-      Operation.additionB: 'Addition B',
-      Operation.subtractionA: 'Subtraction A',
-      Operation.subtractionB: 'Subtraction B',
-      Operation.multiplicationC: 'Multiplication C',
-      Operation.multiplicationD: 'Multiplication D',
-      Operation.divisionC: 'Division C',
-      Operation.divisionD: 'Division D',
-    };
-
-    return SizedBox(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 40.0),
-        child: DropdownButtonFormField<Operation>(
-          value: selectedOperation,
-          items: Operation.values.map((operation) {
-            return DropdownMenuItem(
-              value: operation,
-              child: Text(
-                operationNames[operation]!,
-                style: const TextStyle(color: Colors.grey),
-              ),
-            );
-          }).toList(),
-          onChanged: onChanged,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 40.0),
+      child: DropdownButtonFormField<Operation>(
+        value: selectedOperation,
+        items: Operation.values.map((operation) {
+          return DropdownMenuItem(
+            value: operation,
+            child: Text(
+              operation.name.toUpperCase(),
+              style: const TextStyle(color: Colors.grey),
             ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
-            ),
+          );
+        }).toList(),
+        onChanged: onChanged,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
           ),
         ),
       ),
     );
   }
 }
-
 
 class RangeDropdown extends StatelessWidget {
   final String selectedRange;

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app_new/question_logic/question_generator.dart'; // Import the Operation enum
-import 'package:oral_app_new/screens/home_screen/drawer/drawer.dart'; // Import the custom drawer
-import 'package:oral_app_new/screens/home_screen/drawer/settings_screen.dart'; // Import the settings screen
-import 'package:oral_app_new/screens/home_screen/dropdown_widgets.dart'; // Import the dropdown widgets
+import 'package:oral_app_new/question_logic/question_generator.dart';
+import 'package:oral_app_new/screens/home_screen/drawer/drawer.dart';
+import 'package:oral_app_new/screens/home_screen/drawer/settings_screen.dart';
+import 'package:oral_app_new/screens/home_screen/dropdowns/dropdown_widgets.dart';
+import 'package:oral_app_new/screens/home_screen/dropdowns/dropdown_parameters.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String) switchToPracticeScreen;
@@ -16,21 +17,8 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  Operation _selectedOperation = Operation.addition2A; // Default operation
+  Operation _selectedOperation = Operation.addition_2A; // Default operation
   String _selectedRange = 'Upto +5'; // Default range
-
-  void _navigateToSettings() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-          builder: (context) =>
-              const SettingsScreen()), // Navigate to the settings screen
-    );
-  }
-
-  void _navigateToHome() {
-    Navigator.pop(context);
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -44,7 +32,7 @@ class _StartScreenState extends State<StartScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: _navigateToSettings, // Directly open settings
+            onPressed: _navigateToSettings,
           ),
         ],
       ),
@@ -58,23 +46,31 @@ class _StartScreenState extends State<StartScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const SizedBox(height: 40),
+            const SizedBox(height: 20),
+            Image.asset(
+              '/Users/Hacer/Desktop/flutter_projects/oral_app2/assets/kumon_logo.png',
+              height: 80,
+            ),
+            const SizedBox(height: 60),
             const Icon(Icons.volume_up, size: 200, color: Colors.black),
-            const SizedBox(height: 80),
+            const SizedBox(height: 60),
             const Text(
               "Choose an Operation and Start Practicing",
               style: TextStyle(color: Colors.black, fontSize: 20),
               textAlign: TextAlign.center,
             ),
-            const SizedBox(height: 30),
+            const SizedBox(height: 20),
             OperationDropdown(
               selectedOperation: _selectedOperation,
               onChanged: (Operation? newValue) {
                 if (newValue != null) {
                   setState(() {
                     _selectedOperation = newValue;
-                    _selectedRange = _getDefaultRange(
-                        newValue); // Update the range when operation changes
+                    _selectedRange = getDefaultRange(newValue);
+                    if (!getDropdownItems(_selectedOperation)
+                        .any((item) => item.value == _selectedRange)) {
+                      _selectedRange = getDropdownItems(_selectedOperation).first.value!;
+                    }
                   });
                 }
               },
@@ -82,7 +78,7 @@ class _StartScreenState extends State<StartScreen> {
             const SizedBox(height: 20),
             RangeDropdown(
               selectedRange: _selectedRange,
-              items: _getDropdownItems(),
+              items: getDropdownItems(_selectedOperation),
               onChanged: (String? newValue) {
                 if (newValue != null) {
                   setState(() {
@@ -91,20 +87,15 @@ class _StartScreenState extends State<StartScreen> {
                 }
               },
             ),
-            const SizedBox(height: 70),
+            const SizedBox(height: 40),
             ElevatedButton.icon(
               iconAlignment: IconAlignment.end,
-              icon: const Icon(
-                Icons.arrow_forward,
-                color: Colors.black,
-              ),
+              icon: const Icon(Icons.arrow_forward, color: Colors.black),
               onPressed: () {
-                widget.switchToPracticeScreen(
-                    _selectedOperation, _selectedRange);
+                widget.switchToPracticeScreen(_selectedOperation, _selectedRange);
               },
               style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+                padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
                 backgroundColor: theme.colorScheme.primary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -122,103 +113,14 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
-  String _getDefaultRange(Operation operation) {
-    if (operation == Operation.addition2A) {
-      return 'Upto +5';
-    } else if (operation == Operation.additionA) {
-      return 'Upto +10';
-    } else if (operation == Operation.additionB) {
-      return 'Upto +15';
-    } else if (operation == Operation.subtractionA) {
-      return 'Upto -5';
-    } else if (operation == Operation.subtractionB) {
-      return 'Upto -10';
-    } else if (operation == Operation.multiplicationC) {
-      return 'Upto x5';
-    } else if (operation == Operation.multiplicationD) {
-      return 'Upto x10';
-    } else if (operation == Operation.divisionC) {
-      return 'Upto ÷5';
-    } else if (operation == Operation.divisionD) {
-      return 'Upto ÷10';
-    } else {
-      return 'Select an option';
-    }
+  void _navigateToSettings() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+    );
   }
 
-  List<DropdownMenuItem<String>> _getDropdownItems() {
-    if (_selectedOperation == Operation.addition2A ||
-        _selectedOperation == Operation.additionA ||
-        _selectedOperation == Operation.additionB) {
-      return [
-        const DropdownMenuItem(
-          value: 'Upto +5',
-          child: Text('Upto +5', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto +10',
-          child: Text('Upto +10', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto +15',
-          child: Text('Upto +15', style: TextStyle(color: Colors.grey)),
-        ),
-      ];
-    } else if (_selectedOperation == Operation.subtractionA ||
-               _selectedOperation == Operation.subtractionB) {
-      return [
-        const DropdownMenuItem(
-          value: 'Upto -3',
-          child: Text('Upto -3', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto -5',
-          child: Text('Upto -5', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto -10',
-          child: Text('Upto -10', style: TextStyle(color: Colors.grey)),
-        ),
-      ];
-    } else if (_selectedOperation == Operation.multiplicationC ||
-               _selectedOperation == Operation.multiplicationD) {
-      return [
-        const DropdownMenuItem(
-          value: 'Upto x3',
-          child: Text('Upto x3', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto x5',
-          child: Text('Upto x5', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto x10',
-          child: Text('Upto x10', style: TextStyle(color: Colors.grey)),
-        ),
-      ];
-    } else if (_selectedOperation == Operation.divisionC ||
-               _selectedOperation == Operation.divisionD) {
-      return [
-        const DropdownMenuItem(
-          value: 'Upto ÷3',
-          child: Text('Upto ÷3', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto ÷5',
-          child: Text('Upto ÷5', style: TextStyle(color: Colors.grey)),
-        ),
-        const DropdownMenuItem(
-          value: 'Upto ÷10',
-          child: Text('Upto ÷10', style: TextStyle(color: Colors.grey)),
-        ),
-      ];
-    } else {
-      return [
-        const DropdownMenuItem(
-          value: 'Select an option',
-          child: Text('Select an option', style: TextStyle(color: Colors.grey)),
-        ),
-      ];
-    }
+  void _navigateToHome() {
+    Navigator.pop(context);
   }
 }

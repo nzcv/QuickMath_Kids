@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-class ResultScreen extends StatelessWidget {
+class ResultScreen extends StatefulWidget {
   final List<String> answeredQuestions;
   final List<bool> answeredCorrectly;
   final int totalTime;
@@ -11,117 +11,170 @@ class ResultScreen extends StatelessWidget {
       {super.key});
 
   @override
+  _ResultScreenState createState() => _ResultScreenState();
+}
+
+class _ResultScreenState extends State<ResultScreen>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _fadeAnimation;
+  late Animation<Offset> _slideAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 1),
+      vsync: this,
+    );
+
+    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeIn),
+    );
+
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0, 1),
+      end: Offset.zero,
+    ).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _controller.forward(); // Start the animations
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    int minutes = totalTime ~/ 60;
-    int seconds = totalTime % 60;
+    int minutes = widget.totalTime ~/ 60;
+    int seconds = widget.totalTime % 60;
 
-    // Calculate the number of correct answers
-    int correctAnswers = answeredCorrectly.where((correct) => correct).length;
+    int correctAnswers =
+        widget.answeredCorrectly.where((correct) => correct).length;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Result Screen'),
-      ),
       backgroundColor: theme.colorScheme.surface,
       body: Padding(
         padding: const EdgeInsets.all(24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Quiz Results',
-              style: theme.textTheme.headlineMedium?.copyWith(
-                color: theme.colorScheme.primary,
-                fontWeight: FontWeight.bold,
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: Text(
+                'Quiz Results',
+                style: theme.textTheme.headlineMedium?.copyWith(
+                  color: theme.colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
               ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
-            Text(
-              'Time Taken: $minutes:${seconds.toString().padLeft(2, '0')}',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: Column(
+                children: [
+                  Text(
+                    'Time Taken: $minutes:${seconds.toString().padLeft(2, '0')}',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Questions Attended: ${widget.answeredQuestions.length}',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    'Correct Answers: $correctAnswers',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSurface,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Questions Attended: ${answeredQuestions.length}',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 10),
-            // Display the number of correct answers
-            Text(
-              'Correct Answers: $correctAnswers',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: theme.colorScheme.onSurface,
-                fontWeight: FontWeight.w600,
-              ),
-              textAlign: TextAlign.center,
             ),
             const SizedBox(height: 30),
             Expanded(
-              child: answeredQuestions.isEmpty
+              child: widget.answeredQuestions.isEmpty
                   ? Center(
-                      child: Text(
-                        'No questions attended',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          color: theme.colorScheme.error,
-                          fontSize: 20,
-                          fontStyle: FontStyle.italic,
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Text(
+                          'No questions attended',
+                          style: theme.textTheme.bodyLarge?.copyWith(
+                            color: theme.colorScheme.error,
+                            fontSize: 20,
+                            fontStyle: FontStyle.italic,
+                          ),
                         ),
                       ),
                     )
-                  : ListView.separated(
-                      itemCount: answeredQuestions.length,
-                      separatorBuilder: (context, index) => const Divider(),
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          leading: CircleAvatar(
-                            backgroundColor: answeredCorrectly[index]
-                                ? theme.colorScheme.primary
-                                : Colors.red, // Red for wrong answers
-                            child: Text(
-                              (index + 1).toString(),
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: theme.colorScheme.onPrimary,
-                                fontWeight: FontWeight.bold,
+                  : SlideTransition(
+                      position: _slideAnimation,
+                      child: ListView.separated(
+                        itemCount: widget.answeredQuestions.length,
+                        separatorBuilder: (context, index) => const Divider(),
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            leading: CircleAvatar(
+                              backgroundColor: widget.answeredCorrectly[index]
+                                  ? theme.colorScheme.primary
+                                  : Colors.red, // Red for wrong answers
+                              child: Text(
+                                (index + 1).toString(),
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.colorScheme.onPrimary,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
-                          ),
-                          title: Text(
-                            answeredQuestions[index],
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: theme.colorScheme.onSurface,
+                            title: Text(
+                              widget.answeredQuestions[index],
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: theme.colorScheme.onSurface,
+                              ),
                             ),
-                          ),
-                        );
-                      },
+                          );
+                        },
+                      ),
                     ),
             ),
             const SizedBox(height: 30),
-            ElevatedButton.icon(
-              icon: const Icon(Icons.home, color: Colors.white),
-              onPressed: () {
-                switchToStartScreen();
-              },
-              style: ElevatedButton.styleFrom(
-                padding: const EdgeInsets.symmetric(
-                    vertical: 12.0, horizontal: 24.0),
-                backgroundColor: theme.colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+            FadeTransition(
+              opacity: _fadeAnimation,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.home, color: Colors.white),
+                onPressed: () {
+                  widget.switchToStartScreen();
+                },
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 12.0, horizontal: 24.0),
+                  backgroundColor: theme.colorScheme.primary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
-              ),
-              label: const Text(
-                'Go to Start Screen',
-                style: TextStyle(color: Colors.white),
+                label: const Text(
+                  'Go to Start Screen',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ),
           ],
