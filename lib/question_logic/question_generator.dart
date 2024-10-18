@@ -1,20 +1,22 @@
+// question_generator.dart
+
+// ignore_for_file: constant_identifier_names
+
 import 'dart:math';
 
-enum Operation { 
-  addition_2A, 
+enum Operation {
+  addition_2A,
   addition_A,
   addition_B,
   subtraction_A,
-  subtraction_B, 
-  multiplication_C, 
+  subtraction_B,
+  multiplication_C,
   division_C,
   division_D,
 }
 
 class QuestionGenerator {
   int getRangeLimit(String dropdownValue) {
-    // Existing logic...
-    
     if (dropdownValue == 'Divided by 2') {
       return 2;
     } else if (dropdownValue == 'Divided by 5') {
@@ -30,13 +32,12 @@ class QuestionGenerator {
     return 10; // Default value
   }
 
-  List<int> generateTwoRandomNumbers(Operation operation, String dropdownValue) {
+  List<int> generateTwoRandomNumbers(
+      Operation operation, String dropdownValue) {
     final random = Random();
     int num1 = 0;
     int num2 = 0;
     int correctAnswer = 0;
-
-    int rangeLimit = getRangeLimit(dropdownValue);
 
     if (operation == Operation.addition_2A) {
       if (dropdownValue == 'Upto +5') {
@@ -85,39 +86,53 @@ class QuestionGenerator {
           num2 = random.nextInt(27);
         } while (num1 + num2 > 26);
         correctAnswer = num1 + num2;
+      } else if (dropdownValue == 'Sum of 28') {
+        do {
+          num1 = random.nextInt(29);
+          num2 = random.nextInt(29);
+        } while (num1 + num2 > 28);
+        correctAnswer = num1 + num2;
       } else if (dropdownValue == 'Sum of 50') {
         num1 = random.nextInt(51);
         num2 = random.nextInt(51);
         correctAnswer = num1 + num2;
       }
     } else if (operation == Operation.addition_B) {
-      if (dropdownValue == 'Upto 5') {
-        num1 = random.nextInt(6);
-        num2 = random.nextInt(6);
+      if (dropdownValue == 'Sum upto 100') {
+        do {
+          num1 = random.nextInt(101);
+          num2 = random.nextInt(101);
+        } while (num1 + num2 > 100);
         correctAnswer = num1 + num2;
-      } else if (dropdownValue == 'Upto 10') {
-        num1 = random.nextInt(11);
-        num2 = random.nextInt(11);
+      } else if (dropdownValue == 'Sum upto 150') {
+        do {
+          num1 = random.nextInt(151);
+          num2 = random.nextInt(151);
+        } while (num1 + num2 > 150);
         correctAnswer = num1 + num2;
-      } else if (dropdownValue == 'Upto 15') {
-        num1 = random.nextInt(16);
-        num2 = random.nextInt(16);
+      }
+      else if (dropdownValue == 'Sum upto 200') {
+        do {
+          num1 = random.nextInt(200);
+          num2 = random.nextInt(200);
+        } while (num1 + num2 > 200);
         correctAnswer = num1 + num2;
-      } else if (dropdownValue == 'Upto 20') {
-        num1 = random.nextInt(21);
-        num2 = random.nextInt(21);
+      }
+      else if (dropdownValue == 'Sum upto 250') {
+        do {
+          num1 = random.nextInt(251);
+          num2 = random.nextInt(251);
+        } while (num1 + num2 > 250);
         correctAnswer = num1 + num2;
       }
     } else if (operation == Operation.subtraction_A) {
-      // Handle subtractionA logic
       if (dropdownValue.startsWith('Upto')) {
         int maxLimit = int.parse(dropdownValue.split(' ')[1]);
         num1 = random.nextInt(maxLimit + 1);
-        num2 = random.nextInt(num1 + 1);
-        correctAnswer = num1 - num2;
+        num2 = random.nextInt(maxLimit + 10);
+        correctAnswer = num2 - num1;
       }
     } else if (operation == Operation.subtraction_B) {
-      // Handle subtractionB logic based on the difference
       if (dropdownValue == 'Less than 20') {
         num1 = random.nextInt(20) + 20;
         num2 = random.nextInt(num1);
@@ -137,18 +152,24 @@ class QuestionGenerator {
       } else if (dropdownValue == 'Less than 100') {
         num1 = random.nextInt(100) + 100;
         num2 = random.nextInt(num1);
-        correctAnswer = num1 - num2;
+        correctAnswer = num1 - num2; 
+        
       }
     } else if (operation == Operation.multiplication_C) {
-      num1 = random.nextInt(10) + 1;
-      num2 = rangeLimit;
-      correctAnswer = num1 * num2;
+      if (dropdownValue.startsWith('x')) {
+        int multiplier = int.parse(dropdownValue.substring(1));
+        num1 = random.nextInt(10) + 1;
+        num2 = multiplier;
+        correctAnswer = num1 * num2;
+      }
     } else if (operation == Operation.division_C) {
-      num2 = random.nextInt(10) + 1; // num2 should be between 1 and rangeLimit
-      correctAnswer = random.nextInt(10) + 1; // correctAnswer should be between 1 and rangeLimit
-      num1 = num2 * correctAnswer; // num1 is a multiple of num2
+      if (dropdownValue.startsWith('Divided')) {
+        int divisor = int.parse(dropdownValue.split(' ')[2]);
+        correctAnswer = random.nextInt(10) + 1;
+        num1 = correctAnswer * divisor;
+        num2 = divisor;
+      }
     } else if (operation == Operation.division_D) {
-      // Handle divisionD logic based on the dropdown options
       num2 = random.nextInt(5) + 1; // Randomly choose divisor
       correctAnswer = random.nextInt(10) + 1; // Random correct answer
       num1 = num2 * correctAnswer; // num1 should be a multiple of num2

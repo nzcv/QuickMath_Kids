@@ -10,15 +10,13 @@ subtaction - a, b
 multiplication - c, d
     c - 2 tables, 3, 4, 5, 6, 7, 8, 9,
          x2, x3, x4, x5, x6, x7
-    d(161-191) - gcf
-    e(31) - lcm
+         Single digit into single digit, double digit into single digit(11-50, 51-99)
 
 division - c, d
-    c - divided by 2,3,4,5,6,7,8,9
-    d - division by 2 digit numbers. Quotient of 2 or more digits
+    c - divided by 2,3,4,5,6,7,8,9, double digit by single digit.
 
-gcf - do not do gcf for now.
-lcm - do not do lcm for now
+gcf - 
+lcm - 
 
 values for the first dropdown - addtion 2a, addition a, addtion b, subtaction a, subtraction b, multiplication c, division c, division d
 values for the second dropdown - addtion 2a - upto +5 and upto +10
