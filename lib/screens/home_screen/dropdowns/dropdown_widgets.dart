@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app_new/question_logic/question_generator.dart';
+import 'package:oral_app/question_logic/question_generator.dart';
 
 class OperationDropdown extends StatelessWidget {
   final Operation selectedOperation;

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app_new/question_logic/question_generator.dart';
-import 'package:oral_app_new/screens/practice_screen/quit_modal/quit_modal.dart'; // Import the QuitDialog
-import 'package:oral_app_new/screens/practice_screen/pause_modal.dart';
-import 'package:oral_app_new/screens/practice_screen/quiz_timer.dart'; // Import the new timer utility class
+import 'package:oral_app/question_logic/question_generator.dart';
+import 'package:oral_app/screens/practice_screen/quit_modal/quit_modal.dart'; // Import the QuitDialog
+import 'package:oral_app/screens/practice_screen/pause_modal.dart';
+import 'package:oral_app/screens/practice_screen/quiz_timer.dart'; // Import the new timer utility class
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int) switchToResultScreen;

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app_new/question_logic/question_generator.dart';
-import 'package:oral_app_new/screens/home_screen/drawer/drawer.dart';
-import 'package:oral_app_new/screens/home_screen/drawer/settings_screen.dart';
-import 'package:oral_app_new/screens/home_screen/dropdowns/dropdown_widgets.dart';
-import 'package:oral_app_new/screens/home_screen/dropdowns/dropdown_parameters.dart';
+import 'package:oral_app/question_logic/question_generator.dart';
+import 'package:oral_app/screens/home_screen/drawer/drawer.dart';
+import 'package:oral_app/screens/home_screen/drawer/settings_screen.dart';
+import 'package:oral_app/screens/home_screen/dropdowns/dropdown_widgets.dart';
+import 'package:oral_app/screens/home_screen/dropdowns/dropdown_parameters.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String) switchToPracticeScreen;
