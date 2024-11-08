@@ -18,7 +18,8 @@ A math quiz app with a twist
 ### This app is meant for kids who are under the age fo 11.
 ### This app focuses on increasing the calculation time for math operations, and improving their auditory senses.
 
-## This app is a work in progress, and I have lot in mind to improve on it.![6-removebg-preview (1)](https://github.com/user-attachments/assets/f147be4b-2292-4301-8076-5e10827df4a0)
+## This app is a work in progress, and I have lot in mind to improve on it. 
+![6-removebg-preview (1)](https://github.com/user-attachments/assets/f147be4b-2292-4301-8076-5e10827df4a0)
 ![5-removebg-preview (1)](https://github.com/user-attachments/assets/a43a9023-7a5c-405a-94f9-590c970a1c08)
 ![4-removebg-preview (1)](https://github.com/user-attachments/assets/457c3a7d-cbe3-418e-b178-2ca287ea856d)
 ![3-removebg-preview (1)](https://github.com/user-attachments/assets/5eae8458-b1da-4221-9ded-8d06d8515713)
