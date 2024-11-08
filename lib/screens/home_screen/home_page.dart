@@ -47,10 +47,10 @@ class _StartScreenState extends State<StartScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 20),
-            Image.asset(
-              '/Users/Hacer/Desktop/flutter_projects/oral_app2/assets/kumon_logo.png',
+            /*Image.asset(
+              '/Users/Hacer/Desktop/flutter_projects/oral_app/assets/kumon_logo.png',
               height: 80,
-            ),
+            ),*/
             const SizedBox(height: 60),
             const Icon(Icons.volume_up, size: 200, color: Colors.black),
             const SizedBox(height: 60),

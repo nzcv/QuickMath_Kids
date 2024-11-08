@@ -192,8 +192,8 @@ class _PracticeScreenState extends State<PracticeScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    String questionText =
-        '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = ?';
+    //String questionText =
+        // '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = ?';
 
     return Scaffold(
       appBar: AppBar(
@@ -259,10 +259,10 @@ class _PracticeScreenState extends State<PracticeScreen>
                         onPressed: _triggerTTSSpeech,
                       ),
                       const SizedBox(height: 20),
-                      Text(
+                      /* Text(
                         questionText,
                         style: theme.textTheme.headlineMedium,
-                      ),
+                      ),*/
                       const SizedBox(height: 16),
                       Column(
                         mainAxisSize: MainAxisSize.min,
@@ -340,21 +340,21 @@ class _PracticeScreenState extends State<PracticeScreen>
             ),
             // Add the pause button at the bottom-right corner
             Positioned(
-              bottom: 10, 
-              right: 10, 
+              bottom: 10,
+              right: 10,
               child: ElevatedButton(
-                onPressed: _showPauseDialog, 
+                onPressed: _showPauseDialog,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                   shape: const CircleBorder(),
-                  fixedSize: const Size(60, 60), 
-                  padding: EdgeInsets.zero, 
+                  fixedSize: const Size(60, 60),
+                  padding: EdgeInsets.zero,
                 ),
                 child: const Center(
                   child: Icon(
                     Icons.pause,
-                    size: 30, 
+                    size: 30,
                   ),
                 ),
               ),
