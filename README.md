@@ -4,8 +4,8 @@ A math quiz app with a twist
 
 ## What sets it apart?
 
-  Audio-Based Questions: Instead of reading, kids listen to math problems, making learning more engaging and useful.
-  Text-to-Speech Technology: I have used a text-to-speech feature to convert written questions into spoken words.
+  * Audio-Based Questions: Instead of reading, kids listen to math problems, making learning more engaging and useful.
+  * Text-to-Speech Technology: I have used a text-to-speech feature to convert written questions into spoken words.
 
 ## Features -  
   * Customizable Questions: You can tailor the questions to your child's specific needs and abilities.
