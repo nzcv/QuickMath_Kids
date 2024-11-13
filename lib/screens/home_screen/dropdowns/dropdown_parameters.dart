@@ -135,28 +135,28 @@ List<DropdownMenuItem<String>> getDropdownItems(Operation selectedOperation) {
     case Operation.subtraction_B:
       return const [
         DropdownMenuItem(
-          value: 'Difference less than 20',
+          value: 'Less than 20',
           child: Text('Difference less than 20',
               style: TextStyle(color: Colors.grey)),
         ),
         DropdownMenuItem(
-          value: 'Difference less than 30',
-          child: Text('Difference less than 30',
+          value: 'Less than 40',
+          child: Text('Difference less than 40',
               style: TextStyle(color: Colors.grey)),
         ),
         DropdownMenuItem(
-          value: 'Difference less than 50',
-          child: Text('Difference less than 50',
+          value: 'Less than 60',
+          child: Text('Difference less than 60',
               style: TextStyle(color: Colors.grey)),
         ),
         DropdownMenuItem(
-          value: 'Difference less than 70',
-          child: Text('Difference less than 70',
+          value: 'Less than 80',
+          child: Text('Difference less than 80',
               style: TextStyle(color: Colors.grey)),
         ),
         DropdownMenuItem(
-          value: 'Difference less than 90',
-          child: Text('Difference less than 90',
+          value: 'Less than 100',
+          child: Text('Difference less than 100',
               style: TextStyle(color: Colors.grey)),
         ),
       ];
