@@ -20,6 +20,10 @@ String getDefaultRange(Operation operation) {
       return 'Divided by 2';
     case Operation.division_D:
       return 'Divided by 10';
+    case Operation.lcm:
+      return 'upto 10';
+    case Operation.gcf:
+      return 'upto 10';
     default:
       return 'Select an option';
   }
@@ -239,6 +243,116 @@ List<DropdownMenuItem<String>> getDropdownItems(Operation selectedOperation) {
         DropdownMenuItem(
           value: 'Divided by 10',
           child: Text('Divided by 10', style: TextStyle(color: Colors.grey)),
+        ),
+      ];
+    case Operation.lcm:
+      return const [
+        DropdownMenuItem(
+          value: 'upto 10',
+          child: Text('upto 10', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 20',
+          child: Text('upto 20', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 30',
+          child: Text('upto 30', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 40',
+          child: Text('upto 40', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 50',
+          child: Text('upto 50', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 60',
+          child: Text('upto 60', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 70',
+          child: Text('upto 70', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 80',
+          child: Text('upto 80', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 90',
+          child: Text('upto 90', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 100',
+          child: Text('upto 100', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: '3 numbers upto 10',
+          child: Text('3 numbers upto 10', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: '3 numbers upto 20',
+          child: Text('3 numbers upto 20', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: '3 numbers upto 30',
+          child: Text('3 numbers upto 30', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: '3 numbers upto 40',
+          child: Text('3 numbers upto 40', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: '3 numbers upto 50',
+          child: Text('3 numbers upto 50', style: TextStyle(color: Colors.grey)),
+        ),
+      ];
+    case Operation.gcf:
+      return const [
+        DropdownMenuItem(
+          value: 'None',
+          child: Text('None', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 10',
+          child: Text('upto 10', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 20',
+          child: Text('upto 20', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 30',
+          child: Text('upto 30', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 40',
+          child: Text('upto 40', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 50',
+          child: Text('upto 50', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 60',
+          child: Text('upto 60', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 70',
+          child: Text('upto 70', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 80',
+          child: Text('upto 80', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 90',
+          child: Text('upto 90', style: TextStyle(color: Colors.grey)),
+        ),
+        DropdownMenuItem(
+          value: 'upto 100',
+          child: Text('upto 100', style: TextStyle(color: Colors.grey)),
         ),
       ];
     default:

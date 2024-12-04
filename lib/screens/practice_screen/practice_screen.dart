@@ -133,27 +133,55 @@ class _PracticeScreenState extends State<PracticeScreen>
     } else if (operation == Operation.division_C ||
         operation == Operation.division_D) {
       return '÷';
+    } else if (operation == Operation.lcm) {
+      return 'LCM';
+    } else if (operation == Operation.lcm) {
+      return 'GCF';
     }
     return '';
   }
 
   void _triggerTTSSpeech() {
     String operatorWord = '';
-    if (widget.selectedOperation == Operation.addition_2A ||
-        widget.selectedOperation == Operation.addition_A ||
-        widget.selectedOperation == Operation.addition_B) {
-      operatorWord = 'plus';
-    } else if (widget.selectedOperation == Operation.subtraction_A ||
-        widget.selectedOperation == Operation.subtraction_B) {
-      operatorWord = 'minus';
-    } else if (widget.selectedOperation == Operation.multiplication_C) {
-      operatorWord = 'times';
-    } else if (widget.selectedOperation == Operation.division_C ||
-        widget.selectedOperation == Operation.division_D) {
-      operatorWord = 'divided by';
+    switch (widget.selectedOperation) {
+      case Operation.addition_2A:
+      case Operation.addition_A:
+      case Operation.addition_B:
+        operatorWord = 'plus';
+        break;
+      case Operation.subtraction_A:
+      case Operation.subtraction_B:
+        operatorWord = 'minus';
+        break;
+      case Operation.multiplication_C:
+        operatorWord = 'times';
+        break;
+      case Operation.division_C:
+      case Operation.division_D:
+        operatorWord = 'divided by';
+        break;
+      case Operation.lcm:
+        operatorWord = 'LCM of ';
+        break;
+      case Operation.gcf:
+        operatorWord = 'GCF of ';
+        break;
+      default:
+        operatorWord = '';
+    }
+    String questionText;
+    if (widget.selectedOperation == Operation.lcm ||
+        widget.selectedOperation == Operation.gcf) {
+      if (numbers.length > 3) {
+        questionText =
+            '$operatorWord ${numbers[0]} and ${numbers[1]}';
+      } else {
+        questionText = '$operatorWord ${numbers[0]} and ${numbers[1]}';
+      }
+    } else {
+      questionText = '${numbers[0]} $operatorWord ${numbers[1]} equals?';
     }
 
-    String questionText = '${numbers[0]} $operatorWord ${numbers[1]} equals?';
     widget.triggerTTS(questionText);
   }
 
@@ -193,7 +221,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     final theme = Theme.of(context);
 
     //String questionText =
-        // '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = ?';
+    // '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = ?';
 
     return Scaffold(
       appBar: AppBar(

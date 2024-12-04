@@ -13,6 +13,8 @@ enum Operation {
   multiplication_C,
   division_C,
   division_D,
+  lcm,
+  gcf,
 }
 
 class QuestionGenerator {
@@ -32,11 +34,32 @@ class QuestionGenerator {
     return 10; // Default value
   }
 
+  int calculateGCF(int a, int b) {
+    while (b != 0) {
+      int temp = b;
+      b = a % b;
+      a = temp;
+    }
+    return a > 1 ? a : 2;
+  }
+
+  // Helper method to calculate LCM
+  int calculateLCM(int a, int b) {
+    return (a * b) ~/ calculateGCF(a, b);
+  }
+
+  int calculateLCM3(int a, int b, int c) {
+    int lcm = calculateLCM(a, b);
+    return calculateLCM(lcm, c);
+  }
+
+
   List<int> generateTwoRandomNumbers(
       Operation operation, String dropdownValue) {
     final random = Random();
     int num1 = 0;
     int num2 = 0;
+    int num3 = 0;
     int correctAnswer = 0;
 
     if (operation == Operation.addition_2A) {
@@ -173,9 +196,47 @@ class QuestionGenerator {
       num2 = random.nextInt(5) + 1; // Randomly choose divisor
       correctAnswer = random.nextInt(10) + 1; // Random correct answer
       num1 = num2 * correctAnswer; // num1 should be a multiple of num2
-    }
+    } else if (operation == Operation.lcm) {
+      // LCM logic
+      int maxLimit = 10;
+      if (dropdownValue.startsWith('upto')) {
+        maxLimit = int.parse(dropdownValue.split(' ')[1]);
+      }
 
-    return [num1, num2, correctAnswer];
+      if (dropdownValue.contains('3 numbers')) {
+        // 3-number LCM
+        num1 = random.nextInt(maxLimit) + 1;
+        num2 = random.nextInt(maxLimit) + 1;
+        num3 = random.nextInt(maxLimit) + 1;
+        correctAnswer = calculateLCM3(num1, num2, num3);
+      } else {
+        // 2-number LCM
+        num1 = random.nextInt(maxLimit) + 1;
+        num2 = random.nextInt(maxLimit) + 1;
+        correctAnswer = calculateLCM(num1, num2);
+      }
+    } else if (operation == Operation.gcf) {
+      // GCF logic
+      int maxLimit = 10;
+      if (dropdownValue.startsWith('upto')) {
+        maxLimit = int.parse(dropdownValue.split(' ')[1]);
+      }
+
+      if (dropdownValue == 'None') {
+        // Special case for constant
+        num1 = random.nextInt(10) + 1;
+        num2 = num1;
+        correctAnswer = num1;
+      } else {
+        // Regular GCF
+        num1 = random.nextInt(maxLimit) + 1;
+        num2 = random.nextInt(maxLimit) + 1;
+        correctAnswer = calculateGCF(num1, num2);
+      }
+    }
+    // Existing operations remain the same...
+
+    return num3 != 0 ? [num1, num2, num3, correctAnswer] : [num1, num2, correctAnswer];
   }
 
   int generateRandomNumber() {
