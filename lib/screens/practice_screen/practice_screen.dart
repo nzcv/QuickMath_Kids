@@ -173,8 +173,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     if (widget.selectedOperation == Operation.lcm ||
         widget.selectedOperation == Operation.gcf) {
       if (numbers.length > 3) {
-        questionText =
-            '$operatorWord ${numbers[0]} and ${numbers[1]}';
+        questionText = '$operatorWord ${numbers[0]} and ${numbers[1]}';
       } else {
         questionText = '$operatorWord ${numbers[0]} and ${numbers[1]}';
       }

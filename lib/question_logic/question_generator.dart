@@ -40,7 +40,7 @@ class QuestionGenerator {
       b = a % b;
       a = temp;
     }
-    return a > 1 ? a : 2;
+    return a; // No forced minimum value
   }
 
   // Helper method to calculate LCM
@@ -52,7 +52,6 @@ class QuestionGenerator {
     int lcm = calculateLCM(a, b);
     return calculateLCM(lcm, c);
   }
-
 
   List<int> generateTwoRandomNumbers(
       Operation operation, String dropdownValue) {
@@ -133,15 +132,13 @@ class QuestionGenerator {
           num2 = random.nextInt(151) + 1;
         } while (num1 + num2 > 150);
         correctAnswer = num1 + num2;
-      }
-      else if (dropdownValue == 'Sum upto 200') {
+      } else if (dropdownValue == 'Sum upto 200') {
         do {
           num1 = random.nextInt(200) + 1;
           num2 = random.nextInt(200) + 1;
         } while (num1 + num2 > 200);
         correctAnswer = num1 + num2;
-      }
-      else if (dropdownValue == 'Sum upto 250') {
+      } else if (dropdownValue == 'Sum upto 250') {
         do {
           num1 = random.nextInt(251) + 1;
           num2 = random.nextInt(251) + 1;
@@ -175,8 +172,7 @@ class QuestionGenerator {
       } else if (dropdownValue == 'Less than 100') {
         num1 = random.nextInt(100) + 100;
         num2 = random.nextInt(num1);
-        correctAnswer = num1 - num2; 
-        
+        correctAnswer = num1 - num2;
       }
     } else if (operation == Operation.multiplication_C) {
       if (dropdownValue.startsWith('x')) {
@@ -193,9 +189,9 @@ class QuestionGenerator {
         num2 = divisor;
       }
     } else if (operation == Operation.division_D) {
-      num2 = random.nextInt(5) + 1; // Randomly choose divisor
-      correctAnswer = random.nextInt(10) + 1; // Random correct answer
-      num1 = num2 * correctAnswer; // num1 should be a multiple of num2
+      num2 = random.nextInt(5) + 1; 
+      correctAnswer = random.nextInt(10) + 1; 
+      num1 = num2 * correctAnswer; 
     } else if (operation == Operation.lcm) {
       // LCM logic
       int maxLimit = 10;
@@ -203,17 +199,18 @@ class QuestionGenerator {
         maxLimit = int.parse(dropdownValue.split(' ')[1]);
       }
 
+      num1 = random.nextInt(maxLimit) + 1;
+      num2 = random.nextInt(maxLimit) + 1;
+
       if (dropdownValue.contains('3 numbers')) {
         // 3-number LCM
-        num1 = random.nextInt(maxLimit) + 1;
-        num2 = random.nextInt(maxLimit) + 1;
-        num3 = random.nextInt(maxLimit) + 1;
+        int num3 = random.nextInt(maxLimit) + 1;
         correctAnswer = calculateLCM3(num1, num2, num3);
+        return [num1, num2, num3, correctAnswer];
       } else {
         // 2-number LCM
-        num1 = random.nextInt(maxLimit) + 1;
-        num2 = random.nextInt(maxLimit) + 1;
         correctAnswer = calculateLCM(num1, num2);
+        return [num1, num2, correctAnswer];
       }
     } else if (operation == Operation.gcf) {
       // GCF logic
@@ -222,21 +219,15 @@ class QuestionGenerator {
         maxLimit = int.parse(dropdownValue.split(' ')[1]);
       }
 
-      if (dropdownValue == 'None') {
-        // Special case for constant
-        num1 = random.nextInt(10) + 1;
-        num2 = num1;
-        correctAnswer = num1;
-      } else {
-        // Regular GCF
-        num1 = random.nextInt(maxLimit) + 1;
-        num2 = random.nextInt(maxLimit) + 1;
-        correctAnswer = calculateGCF(num1, num2);
-      }
+      num1 = random.nextInt(maxLimit) + 1;
+      num2 = random.nextInt(maxLimit) + 1;
+      correctAnswer = calculateGCF(num1, num2);
+      return [num1, num2, correctAnswer];
     }
-    // Existing operations remain the same...
 
-    return num3 != 0 ? [num1, num2, num3, correctAnswer] : [num1, num2, correctAnswer];
+    return num3 != 0
+        ? [num1, num2, num3, correctAnswer]
+        : [num1, num2, correctAnswer];
   }
 
   int generateRandomNumber() {
