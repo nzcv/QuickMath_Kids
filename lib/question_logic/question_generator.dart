@@ -53,6 +53,17 @@ class QuestionGenerator {
     return calculateLCM(lcm, c);
   }
 
+  List<int> _generateThreeUniqueRandomNumbers(int maxLimit) {
+    final random = Random();
+    Set<int> nums = {};
+
+    while (nums.length < 3) {
+      nums.add(random.nextInt(maxLimit) + 1);
+    }
+
+    return nums.toList();
+  }
+
   List<int> generateTwoRandomNumbers(
       Operation operation, String dropdownValue) {
     final random = Random();
@@ -189,9 +200,9 @@ class QuestionGenerator {
         num2 = divisor;
       }
     } else if (operation == Operation.division_D) {
-      num2 = random.nextInt(5) + 1; 
-      correctAnswer = random.nextInt(10) + 1; 
-      num1 = num2 * correctAnswer; 
+      num2 = random.nextInt(5) + 1;
+      correctAnswer = random.nextInt(10) + 1;
+      num1 = num2 * correctAnswer;
     } else if (operation == Operation.lcm) {
       // LCM logic
       int maxLimit = 10;
@@ -203,10 +214,30 @@ class QuestionGenerator {
       num2 = random.nextInt(maxLimit) + 1;
 
       if (dropdownValue.contains('3 numbers')) {
-        // 3-number LCM
-        int num3 = random.nextInt(maxLimit) + 1;
-        correctAnswer = calculateLCM3(num1, num2, num3);
-        return [num1, num2, num3, correctAnswer];
+        // 3-number LCM logic for specific ranges
+        List<int> nums = [];
+
+        // Validate range parameter
+        if (dropdownValue == '3 numbers upto 10') {
+          nums = _generateThreeUniqueRandomNumbers(10);
+        } else if (dropdownValue == '3 numbers upto 20') {
+          nums = _generateThreeUniqueRandomNumbers(20);
+        } else if (dropdownValue == '3 numbers upto 30') {
+          nums = _generateThreeUniqueRandomNumbers(30);
+        } else if (dropdownValue == '3 numbers upto 40') {
+          nums = _generateThreeUniqueRandomNumbers(40);
+        } else if (dropdownValue == '3 numbers upto 50') {
+          nums = _generateThreeUniqueRandomNumbers(50);
+        } else {
+          // Fallback to default range
+          nums = _generateThreeUniqueRandomNumbers(10);
+        }
+
+        // Calculate LCM of all three numbers
+        int correctAnswer = calculateLCM3(nums[0], nums[1], nums[2]);
+
+        // Return the three numbers and their LCM
+        return [...nums, correctAnswer];
       } else {
         // 2-number LCM
         correctAnswer = calculateLCM(num1, num2);

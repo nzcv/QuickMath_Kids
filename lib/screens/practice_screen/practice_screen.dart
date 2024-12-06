@@ -98,7 +98,16 @@ class _PracticeScreenState extends State<PracticeScreen>
     setState(() {
       numbers = QuestionGenerator().generateTwoRandomNumbers(
           widget.selectedOperation, widget.selectedRange);
-      correctAnswer = numbers[2];
+
+      // Handle different cases based on the number of elements returned
+      if (numbers.length == 3) {
+        // Standard 2-number operations or 2-number LCM/GCF
+        correctAnswer = numbers[2];
+      } else if (numbers.length == 4) {
+        // 3-number LCM case
+        correctAnswer = numbers[3];
+      }
+
       answerOptions = [correctAnswer];
       while (answerOptions.length < 3) {
         int option = QuestionGenerator().generateRandomNumber();
@@ -114,8 +123,15 @@ class _PracticeScreenState extends State<PracticeScreen>
     bool isCorrect = selectedAnswer == correctAnswer;
 
     setState(() {
-      answeredQuestions.add(
-          '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
+      if (widget.selectedOperation == Operation.lcm && numbers.length > 3) {
+        // For 3-number LCM
+        answeredQuestions.add(
+            'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
+      } else {
+        // Existing logic for other operations
+        answeredQuestions.add(
+            '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
+      }
       answeredCorrectly.add(isCorrect);
     });
   }
@@ -170,15 +186,16 @@ class _PracticeScreenState extends State<PracticeScreen>
         operatorWord = '';
     }
     String questionText;
-    if (widget.selectedOperation == Operation.lcm ||
-        widget.selectedOperation == Operation.gcf) {
-      if (numbers.length > 3) {
+    switch (widget.selectedOperation) {
+      case Operation.lcm:
+        questionText = numbers.length > 3
+            ? 'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]}'
+            : 'LCM of ${numbers[0]} and ${numbers[1]}';
+        break;
+      case Operation.gcf:
         questionText = '$operatorWord ${numbers[0]} and ${numbers[1]}';
-      } else {
-        questionText = '$operatorWord ${numbers[0]} and ${numbers[1]}';
-      }
-    } else {
-      questionText = '${numbers[0]} $operatorWord ${numbers[1]} equals?';
+      default:
+        questionText = '${numbers[0]} $operatorWord ${numbers[1]} equals?';
     }
 
     widget.triggerTTS(questionText);
