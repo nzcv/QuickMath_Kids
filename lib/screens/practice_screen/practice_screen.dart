@@ -182,8 +182,6 @@ class _PracticeScreenState extends State<PracticeScreen>
       case Operation.gcf:
         operatorWord = 'GCF of ';
         break;
-      default:
-        operatorWord = '';
     }
     String questionText;
     switch (widget.selectedOperation) {

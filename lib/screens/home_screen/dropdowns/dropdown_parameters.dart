@@ -24,8 +24,6 @@ String getDefaultRange(Operation operation) {
       return 'upto 10';
     case Operation.gcf:
       return 'upto 10';
-    default:
-      return 'Select an option';
   }
 }
 
@@ -355,7 +353,5 @@ List<DropdownMenuItem<String>> getDropdownItems(Operation selectedOperation) {
           child: Text('upto 100', style: TextStyle(color: Colors.grey)),
         ),
       ];
-    default:
-      return [];
   }
 }
