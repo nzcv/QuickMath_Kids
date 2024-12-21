@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:oral_app/question_logic/question_generator.dart';
-import 'package:oral_app/screens/practice_screen/quit_modal/quit_modal.dart'; // Import the QuitDialog
+import 'package:oral_app/screens/practice_screen/quit_modal/quit_modal.dart';
 import 'package:oral_app/screens/practice_screen/pause_modal.dart';
-import 'package:oral_app/screens/practice_screen/quiz_timer.dart'; // Import the new timer utility class
+import 'package:oral_app/screens/practice_screen/quiz_timer.dart';
+import 'dart:math';
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int) switchToResultScreen;
@@ -27,8 +28,20 @@ class _PracticeScreenState extends State<PracticeScreen>
   String resultText = '';
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
+  String currentHintMessage = '';
+  bool hasListenedToQuestion = false;
 
-  final QuizTimer _quizTimer = QuizTimer(); // Use the new timer class
+  final List<String> hintMessages = [
+    "Tap the speaker to hear the question! 🔊",
+    "Click the black icon to hear me read the question! 📢",
+    "Need help? Press the speaker icon! 🎯",
+    "Tap to hear the question read aloud! 🎧",
+    "Listen to the question by tapping the speaker! 👂",
+    "Press the black speaker for audio help! 🔉",
+    "Tap to hear - I'm here to help! 🎤",
+  ];
+
+  final QuizTimer _quizTimer = QuizTimer();
 
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
@@ -38,6 +51,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   void initState() {
     super.initState();
     regenerateNumbers();
+    _updateHintMessage();
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
         // Timer callback
@@ -76,6 +90,14 @@ class _PracticeScreenState extends State<PracticeScreen>
     super.dispose();
   }
 
+  void _updateHintMessage() {
+    final random = Random();
+    setState(() {
+      currentHintMessage = hintMessages[random.nextInt(hintMessages.length)];
+      hasListenedToQuestion = false;
+    });
+  }
+
   void stopTimer() {
     _quizTimer.stopTimer();
   }
@@ -99,12 +121,9 @@ class _PracticeScreenState extends State<PracticeScreen>
       numbers = QuestionGenerator().generateTwoRandomNumbers(
           widget.selectedOperation, widget.selectedRange);
 
-      // Handle different cases based on the number of elements returned
       if (numbers.length == 3) {
-        // Standard 2-number operations or 2-number LCM/GCF
         correctAnswer = numbers[2];
       } else if (numbers.length == 4) {
-        // 3-number LCM case
         correctAnswer = numbers[3];
       }
 
@@ -115,7 +134,8 @@ class _PracticeScreenState extends State<PracticeScreen>
           answerOptions.add(option);
         }
       }
-      answerOptions.shuffle(); // Randomize answer options
+      answerOptions.shuffle();
+      _updateHintMessage();
     });
   }
 
@@ -124,11 +144,9 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     setState(() {
       if (widget.selectedOperation == Operation.lcm && numbers.length > 3) {
-        // For 3-number LCM
         answeredQuestions.add(
             'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
       } else {
-        // Existing logic for other operations
         answeredQuestions.add(
             '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
       }
@@ -151,7 +169,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       return '÷';
     } else if (operation == Operation.lcm) {
       return 'LCM';
-    } else if (operation == Operation.lcm) {
+    } else if (operation == Operation.gcf) {
       return 'GCF';
     }
     return '';
@@ -183,6 +201,7 @@ class _PracticeScreenState extends State<PracticeScreen>
         operatorWord = 'GCF of ';
         break;
     }
+
     String questionText;
     switch (widget.selectedOperation) {
       case Operation.lcm:
@@ -192,11 +211,15 @@ class _PracticeScreenState extends State<PracticeScreen>
         break;
       case Operation.gcf:
         questionText = '$operatorWord ${numbers[0]} and ${numbers[1]}';
+        break;
       default:
         questionText = '${numbers[0]} $operatorWord ${numbers[1]} equals?';
     }
 
     widget.triggerTTS(questionText);
+    setState(() {
+      hasListenedToQuestion = true;
+    });
   }
 
   void endQuiz() {
@@ -211,8 +234,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       builder: (BuildContext context) {
         return QuitDialog(
           onQuit: () {
-            widget
-                .switchToStartScreen(); // Call the function to switch to start screen
+            widget.switchToStartScreen();
           },
         );
       },
@@ -220,12 +242,12 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void _showPauseDialog() {
-    pauseTimer(); // Pause the timer when the modal opens
+    pauseTimer();
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return PauseDialog(onResume: resumeTimer); // Pass the resume function
+        return PauseDialog(onResume: resumeTimer);
       },
     );
   }
@@ -234,16 +256,13 @@ class _PracticeScreenState extends State<PracticeScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    //String questionText =
-    // '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = ?';
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Practice Quiz'),
-        backgroundColor: const Color(0xFF009DDC), // Kumon blue
+        backgroundColor: const Color(0xFF009DDC),
         actions: [
           ElevatedButton(
-            onPressed: _showQuitDialog, // Show the quit dialog
+            onPressed: _showQuitDialog,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
@@ -285,7 +304,6 @@ class _PracticeScreenState extends State<PracticeScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Display the formatted timer
                       Text(
                         formatTime(_quizTimer.secondsPassed),
                         style: theme.textTheme.headlineMedium?.copyWith(
@@ -294,18 +312,64 @@ class _PracticeScreenState extends State<PracticeScreen>
                         ),
                       ),
                       const SizedBox(height: 20),
-                      IconButton(
-                        icon: const Icon(Icons.speaker),
-                        iconSize: 150,
-                        color: Colors.black,
-                        onPressed: _triggerTTSSpeech,
+                      AnimatedOpacity(
+                        opacity: hasListenedToQuestion ? 0.0 : 1.0,
+                        duration: const Duration(milliseconds: 300),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF009DDC).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(
+                              color: const Color(0xFF009DDC),
+                              width: 1,
+                            ),
+                          ),
+                          child: Text(
+                            currentHintMessage,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF009DDC),
+                              fontWeight: FontWeight.w500,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.speaker),
+                            iconSize: 150,
+                            color: Colors.black,
+                            onPressed: _triggerTTSSpeech,
+                          ),
+                          if (!hasListenedToQuestion)
+                            Positioned(
+                              right: 45,
+                              top: 45,
+                              child: Container(
+                                width: 32,
+                                height: 32,
+                                decoration: const BoxDecoration(
+                                  color: Color(0xFF009DDC),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.touch_app,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                       const SizedBox(height: 20),
-                      /* Text(
-                        questionText,
-                        style: theme.textTheme.headlineMedium,
-                      ),*/
-                      const SizedBox(height: 16),
                       Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -380,7 +444,6 @@ class _PracticeScreenState extends State<PracticeScreen>
                 ),
               ),
             ),
-            // Add the pause button at the bottom-right corner
             Positioned(
               bottom: 10,
               right: 10,
