@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:oral_app/question_logic/tts_translator.dart';
+import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 
 // Providers remain the same
 final volumeProvider = StateProvider<double>((ref) => 1.0);

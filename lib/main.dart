@@ -2,11 +2,11 @@
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:oral_app/screens/home_screen/home_page.dart';
-import 'package:oral_app/screens/practice_screen/practice_screen.dart';
-import 'package:oral_app/screens/result_screen.dart';
-import 'package:oral_app/question_logic/tts_translator.dart';
-import 'package:oral_app/question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/practice_screen.dart';
+import 'package:QuickMath_Kids/screens/result_screen.dart';
+import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
+import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 
 void main() {

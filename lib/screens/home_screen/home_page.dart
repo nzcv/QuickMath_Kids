@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app/question_logic/question_generator.dart';
-import 'package:oral_app/screens/home_screen/drawer/drawer.dart';
-import 'package:oral_app/screens/home_screen/drawer/settings_screen.dart';
-import 'package:oral_app/screens/home_screen/dropdowns/dropdown_widgets.dart';
-import 'package:oral_app/screens/home_screen/dropdowns/dropdown_parameters.dart';
+import 'package:QuickMath_Kids/question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/screens/home_screen/drawer/drawer.dart';
+import 'package:QuickMath_Kids/screens/home_screen/drawer/settings_screen.dart';
+import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
+import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String) switchToPracticeScreen;
@@ -26,7 +26,7 @@ class _StartScreenState extends State<StartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Kumon Oral Practice',
+        title: const Text('QuickMath Kids',
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: theme.colorScheme.primary,
         actions: [
@@ -51,9 +51,9 @@ class _StartScreenState extends State<StartScreen> {
               '/Users/Hacer/Desktop/flutter_projects/oral_app/assets/kumon_logo.png',
               height: 80,
             ),*/
-            const SizedBox(height: 60),
-            const Icon(Icons.volume_up, size: 200, color: Colors.black),
-            const SizedBox(height: 60),
+            //const Icon(Icons.volume_up, size: 200, color: Colors.black),
+            Image.asset('/Users/Hacer/Desktop/flutter_projects/kumon_math_app/oral_app/assets/QuickMath_Kids_logo.png', scale: 2,),
+            const SizedBox(height: 30),
             const Text(
               "Choose an Operation and Start Practicing",
               style: TextStyle(color: Colors.black, fontSize: 20),

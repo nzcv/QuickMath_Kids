@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app/question_logic/question_generator.dart'; // Import the Operation enum
+import 'package:QuickMath_Kids/question_logic/question_generator.dart'; // Import the Operation enum
 
 // Method to get default range based on operation
 String getDefaultRange(Operation operation) {

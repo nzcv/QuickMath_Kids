@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app/question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 
 class OperationDropdown extends StatelessWidget {
   final Operation selectedOperation;
@@ -24,7 +24,7 @@ class OperationDropdown extends StatelessWidget {
             value: operation,
             child: Text(
               operation.name.toUpperCase(),
-              style: const TextStyle(color: Colors.grey),
+              style: const TextStyle(color: Color.fromARGB(137, 56, 52, 52)),
             ),
           );
         }).toList(),
@@ -71,6 +71,7 @@ class RangeDropdown extends StatelessWidget {
           value: selectedRange,
           items: items,
           onChanged: onChanged,
+          style: TextStyle(color: Color.fromARGB(137, 56, 52, 52)),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,

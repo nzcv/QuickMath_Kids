@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:oral_app/question_logic/question_generator.dart';
-import 'package:oral_app/screens/practice_screen/quit_modal/quit_modal.dart';
-import 'package:oral_app/screens/practice_screen/pause_modal.dart';
-import 'package:oral_app/screens/practice_screen/quiz_timer.dart';
+import 'package:QuickMath_Kids/question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/quit_modal/quit_modal.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/pause_modal.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/quiz_timer.dart';
 import 'dart:math';
 
 class PracticeScreen extends StatefulWidget {
