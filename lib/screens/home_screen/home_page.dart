@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/home_screen/drawer/drawer.dart';
-import 'package:QuickMath_Kids/screens/home_screen/drawer/settings_screen.dart';
+import 'package:QuickMath_Kids/screens/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 
@@ -47,13 +47,10 @@ class _StartScreenState extends State<StartScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 20),
-            /*Image.asset(
-              '/Users/Hacer/Desktop/flutter_projects/oral_app/assets/kumon_logo.png',
-              height: 80,
-            ),*/
             //const Icon(Icons.volume_up, size: 200, color: Colors.black),
-            Image.asset('/Users/Hacer/Desktop/flutter_projects/kumon_math_app/oral_app/assets/QuickMath_Kids_logo.png', scale: 2,),
-            const SizedBox(height: 30),
+            Image.asset('assets/QuickMath_Kids_logo.png', scale: 2),
+
+            const SizedBox(height: 15),
             const Text(
               "Choose an Operation and Start Practicing",
               style: TextStyle(color: Colors.black, fontSize: 20),
