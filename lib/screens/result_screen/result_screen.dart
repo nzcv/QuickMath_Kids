@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:QuickMath_Kids/screens/result_screen/result_row.dart'; // Import the new file
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -77,7 +78,6 @@ class _ResultScreenState extends State<ResultScreen>
         widget.answeredCorrectly.where((correct) => correct).length;
 
     return Scaffold(
-      // Light gray background for better contrast with white cards
       backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: Padding(
@@ -100,7 +100,7 @@ class _ResultScreenState extends State<ResultScreen>
                 opacity: _fadeAnimation,
                 child: Card(
                   elevation: 4,
-                  color: Colors.white, // Explicit white background
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -109,21 +109,21 @@ class _ResultScreenState extends State<ResultScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildResultRow(
+                        ResultRowWidget(
                           icon: Icons.timer,
                           label: 'Time Taken:',
                           value: '$minutes:${seconds.toString().padLeft(2, '0')}',
                           theme: theme,
                         ),
                         const SizedBox(height: 10),
-                        _buildResultRow(
+                        ResultRowWidget(
                           icon: Icons.question_answer,
                           label: 'Questions Attempted:',
                           value: '${widget.answeredQuestions.length}',
                           theme: theme,
                         ),
                         const SizedBox(height: 10),
-                        _buildResultRow(
+                        ResultRowWidget(
                           icon: Icons.check_circle,
                           label: 'Correct Answers:',
                           value: '$correctAnswers',
@@ -214,44 +214,4 @@ class _ResultScreenState extends State<ResultScreen>
       ),
     );
   }
-
-  Widget _buildResultRow({
-    required IconData icon,
-    required String label,
-    required String value,
-    required ThemeData theme,
-  }) {
-    return Row(
-      children: [
-        Icon(icon, color: Colors.blue[700]), // Darker blue for icons
-        const SizedBox(width: 10),
-        Text(
-          '$label ',
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.grey[800], // Dark gray for labels
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        Text(
-          value,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.grey[900], // Nearly black for values
-          ),
-        ),
-      ],
-    );
-  }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-//////ofofonofnrfoelobifrioflkoif
