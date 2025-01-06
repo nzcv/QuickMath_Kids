@@ -14,8 +14,9 @@ A math quiz app with a twist
   * Flexible Learning: No time limits or pressure.
   * Pause and Quit: Take breaks or end the session at any time.
   * Detailed Result Screen: Track progress with a breakdown of correct and incorrect answers, time taken, and total questions attempted.
+  * Share quizzes as PDFs via various social apps. The report includes detailed insights on correct and incorrect answers, accuracy, and time taken.
 
-### This app is meant for kids who are under the age fo 11.
+### This app is meant for kids who are under the age of 11.
 ### This app focuses on increasing the calculation time for math operations, and improving their auditory senses.
 
 ## This app is a work in progress, and I have lot in mind to improve on it. 
