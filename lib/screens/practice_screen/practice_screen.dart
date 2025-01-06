@@ -145,11 +145,17 @@ class _PracticeScreenState extends State<PracticeScreen>
       if (widget.selectedOperation == Operation.lcm && numbers.length > 3) {
         answeredQuestions.add(
             'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
-        _confettiController.play();
+        // Only play confetti if the answer is correct
+        if (isCorrect) {
+          _confettiController.play();
+        }
       } else {
         answeredQuestions.add(
             '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
-        _confettiController.play();
+        // Only play confetti if the answer is correct
+        if (isCorrect) {
+          _confettiController.play();
+        }
       }
       answeredCorrectly.add(isCorrect);
     });
@@ -208,7 +214,6 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       backgroundColor: Colors.grey[100], // Matching ResultScreen background
       appBar: AppBar(
@@ -241,7 +246,8 @@ class _PracticeScreenState extends State<PracticeScreen>
             child: ElevatedButton.icon(
               onPressed: endQuiz,
               icon: const Icon(Icons.assessment, color: Colors.white),
-              label: const Text('Results', style: TextStyle(color: Colors.white)),
+              label:
+                  const Text('Results', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
                 shape: RoundedRectangleBorder(
@@ -324,7 +330,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
-                                  Icon(Icons.lightbulb, color: Colors.amber[700]),
+                                  Icon(Icons.lightbulb,
+                                      color: Colors.amber[700]),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Hint',

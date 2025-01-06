@@ -29,7 +29,7 @@ class QuizPDFGenerator {
           pw.Header(
             level: 0,
             child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.center,
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
                 pw.Text('QuickMath Kids - Quiz Report',
                     style: pw.TextStyle(
