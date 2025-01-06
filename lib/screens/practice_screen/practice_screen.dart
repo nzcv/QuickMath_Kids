@@ -6,7 +6,12 @@ import 'package:QuickMath_Kids/screens/practice_screen/helpers/timer_helper.dart
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/tts_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/operation_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/hint_helper.dart';
-import 'package:confetti/confetti.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/helpers/confetti_helper.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/helpers/answer_option_helper.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/ui/hint_card.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int) switchToResultScreen;
@@ -27,18 +32,20 @@ class _PracticeScreenState extends State<PracticeScreen>
     with SingleTickerProviderStateMixin {
   List<int> numbers = [0, 0, 0];
   List<int> answerOptions = [];
-  int correctAnswer = 0;
-  String resultText = '';
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
-  String currentHintMessage = '';
-  bool hasListenedToQuestion = false;
-  final HintManager hintManager = HintManager();
-  late ConfettiController _correctConfettiController;
-  late ConfettiController _wrongConfettiController;
 
+  int correctAnswer = 0;
+
+  String resultText = '';
+  String currentHintMessage = '';
+
+  bool hasListenedToQuestion = false;
+  bool _isHintExpanded = false;
+  final HintManager hintManager = HintManager();
   final QuizTimer _quizTimer = QuizTimer();
 
+  late ConfettiManager confettiManager;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -49,10 +56,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     super.initState();
     regenerateNumbers();
     _updateHintMessage();
-    _correctConfettiController =
-        ConfettiController(duration: const Duration(seconds: 1));
-    _wrongConfettiController =
-        ConfettiController(duration: const Duration(seconds: 1));
+    confettiManager = ConfettiManager();
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
@@ -89,8 +93,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   void dispose() {
     _controller.dispose();
     _quizTimer.stopTimer();
-    _correctConfettiController.dispose();
-    _wrongConfettiController.dispose();
+    confettiManager.dispose();
     super.dispose();
   }
 
@@ -129,14 +132,9 @@ class _PracticeScreenState extends State<PracticeScreen>
         correctAnswer = numbers[3];
       }
 
-      answerOptions = [correctAnswer];
-      while (answerOptions.length < 3) {
-        int option = QuestionGenerator().generateRandomNumber();
-        if (!answerOptions.contains(option)) {
-          answerOptions.add(option);
-        }
-      }
-      answerOptions.shuffle();
+      // Call the function from answer_options.dart
+      answerOptions = generateAnswerOptions(correctAnswer);
+
       _updateHintMessage();
     });
   }
@@ -150,16 +148,16 @@ class _PracticeScreenState extends State<PracticeScreen>
             'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
         // Only play confetti if the answer is correct
         if (isCorrect) {
-          _correctConfettiController.play();
+          confettiManager.correctConfettiController.play();
         }
       } else {
         answeredQuestions.add(
             '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
         // Only play confetti if the answer is correct
         if (isCorrect) {
-          _correctConfettiController.play();
+          confettiManager.correctConfettiController.play();
         } else {
-          _wrongConfettiController.play();
+          confettiManager.wrongConfettiController.play();
         }
       }
       answeredCorrectly.add(isCorrect);
@@ -267,28 +265,8 @@ class _PracticeScreenState extends State<PracticeScreen>
         alignment: Alignment.topCenter,
         child: Stack(
           children: [
-            ConfettiWidget(
-              confettiController: _correctConfettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              blastDirection: -3.14159 / 2,
-              numberOfParticles: 100,
-              gravity: 1,
-              shouldLoop: false,
-              emissionFrequency: 0.1,
-              particleDrag: 0.01,
-              colors: const [Colors.green, Colors.blue, Colors.orange],
-            ),
-            ConfettiWidget(
-              confettiController: _wrongConfettiController,
-              blastDirectionality: BlastDirectionality.explosive,
-              blastDirection: -3.14159 / 2,
-              numberOfParticles: 100,
-              gravity: 1,
-              shouldLoop: false,
-              emissionFrequency: 0.1,
-              particleDrag: 0.01,
-              colors: [Colors.red, Colors.redAccent, Colors.red[700]!],
-            ),
+            confettiManager.buildCorrectConfetti(),
+            confettiManager.buildWrongConfetti(),
             FadeTransition(
               opacity: _fadeAnimation,
               child: SlideTransition(
@@ -299,79 +277,15 @@ class _PracticeScreenState extends State<PracticeScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Timer Card
-                      Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 24,
-                          ),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Time',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  color: Colors.grey[400],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                _quizTimer.formatTime(_quizTimer.secondsPassed),
-                                style: TextStyle(
-                                  fontSize: 36,
-                                  color: Colors.blue[700],
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      buildTimerCard(
+                          _quizTimer.formatTime(_quizTimer.secondsPassed)),
                       const SizedBox(height: 20),
                       // Hint Card
-                      Card(
-                        elevation: 4,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            children: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(Icons.lightbulb,
-                                      color: Colors.amber[700]),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Hint',
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      color: Colors.grey[500],
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                currentHintMessage,
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.grey[300],
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      buildHintCard(currentHintMessage, _isHintExpanded, () {
+                        setState(() {
+                          _isHintExpanded = !_isHintExpanded;
+                        });
+                      }),
                       const SizedBox(height: 20),
                       // Voice Button
                       ElevatedButton(
@@ -384,7 +298,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                         ),
                         child: const Icon(
                           Icons.record_voice_over,
-                          size: 48,
+                          size: 100,
                           color: Colors.white,
                         ),
                       ),
@@ -410,13 +324,16 @@ class _PracticeScreenState extends State<PracticeScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                _buildAnswerButton(answerOptions[0], 0),
+                                buildAnswerButton(answerOptions[0],
+                                    () => checkAnswer(answerOptions[0])),
                                 const SizedBox(width: 16),
-                                _buildAnswerButton(answerOptions[1], 1),
+                                buildAnswerButton(answerOptions[1],
+                                    () => checkAnswer(answerOptions[1])),
                               ],
                             ),
                             const SizedBox(height: 16),
-                            _buildAnswerButton(answerOptions[2], 2),
+                            buildAnswerButton(answerOptions[2],
+                                () => checkAnswer(answerOptions[2])),
                           ],
                         ),
                       ),
@@ -425,51 +342,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                 ),
               ),
             ),
-            // Pause Button
+
             Positioned(
+              child: buildPauseButton(_showPauseDialog),
               bottom: 24,
               right: 24,
-              child: ElevatedButton(
-                onPressed: _showPauseDialog,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue[700],
-                  shape: const CircleBorder(),
-                  padding: const EdgeInsets.all(16),
-                  elevation: 8,
-                ),
-                child: const Icon(
-                  Icons.pause,
-                  size: 32,
-                  color: Colors.white,
-                ),
-              ),
-            ),
+            )
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAnswerButton(int answer, int index) {
-    return SizedBox(
-      width: 140,
-      height: 50,
-      child: ElevatedButton(
-        onPressed: () => checkAnswer(answer),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.blue[700],
-          foregroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-          elevation: 4,
-        ),
-        child: Text(
-          answer.toString(),
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
         ),
       ),
     );
