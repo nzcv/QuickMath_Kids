@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
-import 'package:QuickMath_Kids/screens/home_screen/drawer/drawer.dart';
-import 'package:QuickMath_Kids/screens/settings_screen.dart';
+import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 
@@ -35,10 +34,6 @@ class _StartScreenState extends State<StartScreen> {
             onPressed: _navigateToSettings,
           ),
         ],
-      ),
-      drawer: CustomDrawer(
-        onHomePressed: _navigateToHome,
-        onSettingsPressed: _navigateToSettings,
       ),
       backgroundColor: theme.colorScheme.surface,
       body: SingleChildScrollView(
@@ -115,9 +110,5 @@ class _StartScreenState extends State<StartScreen> {
       context,
       MaterialPageRoute(builder: (context) => const SettingsScreen()),
     );
-  }
-
-  void _navigateToHome() {
-    Navigator.pop(context);
   }
 }

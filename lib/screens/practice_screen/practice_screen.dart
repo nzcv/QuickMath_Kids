@@ -34,7 +34,8 @@ class _PracticeScreenState extends State<PracticeScreen>
   String currentHintMessage = '';
   bool hasListenedToQuestion = false;
   final HintManager hintManager = HintManager();
-  late ConfettiController _confettiController;
+  late ConfettiController _correctConfettiController;
+  late ConfettiController _wrongConfettiController;
 
   final QuizTimer _quizTimer = QuizTimer();
 
@@ -48,9 +49,10 @@ class _PracticeScreenState extends State<PracticeScreen>
     super.initState();
     regenerateNumbers();
     _updateHintMessage();
-    _confettiController =
+    _correctConfettiController =
         ConfettiController(duration: const Duration(seconds: 1));
-    _confettiController.play();
+    _wrongConfettiController =
+        ConfettiController(duration: const Duration(seconds: 1));
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
@@ -87,7 +89,8 @@ class _PracticeScreenState extends State<PracticeScreen>
   void dispose() {
     _controller.dispose();
     _quizTimer.stopTimer();
-    _confettiController.dispose();
+    _correctConfettiController.dispose();
+    _wrongConfettiController.dispose();
     super.dispose();
   }
 
@@ -147,14 +150,16 @@ class _PracticeScreenState extends State<PracticeScreen>
             'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
         // Only play confetti if the answer is correct
         if (isCorrect) {
-          _confettiController.play();
+          _correctConfettiController.play();
         }
       } else {
         answeredQuestions.add(
             '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
         // Only play confetti if the answer is correct
         if (isCorrect) {
-          _confettiController.play();
+          _correctConfettiController.play();
+        } else {
+          _wrongConfettiController.play();
         }
       }
       answeredCorrectly.add(isCorrect);
@@ -263,7 +268,7 @@ class _PracticeScreenState extends State<PracticeScreen>
         child: Stack(
           children: [
             ConfettiWidget(
-              confettiController: _confettiController,
+              confettiController: _correctConfettiController,
               blastDirectionality: BlastDirectionality.explosive,
               blastDirection: -3.14159 / 2,
               numberOfParticles: 100,
@@ -272,6 +277,17 @@ class _PracticeScreenState extends State<PracticeScreen>
               emissionFrequency: 0.1,
               particleDrag: 0.01,
               colors: const [Colors.green, Colors.blue, Colors.orange],
+            ),
+            ConfettiWidget(
+              confettiController: _wrongConfettiController,
+              blastDirectionality: BlastDirectionality.explosive,
+              blastDirection: -3.14159 / 2,
+              numberOfParticles: 100,
+              gravity: 1,
+              shouldLoop: false,
+              emissionFrequency: 0.1,
+              particleDrag: 0.01,
+              colors: [Colors.red, Colors.redAccent, Colors.red[700]!],
             ),
             FadeTransition(
               opacity: _fadeAnimation,
