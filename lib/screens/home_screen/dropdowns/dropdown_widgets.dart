@@ -24,14 +24,20 @@ class OperationDropdown extends StatelessWidget {
             value: operation,
             child: Text(
               operation.name.toUpperCase(),
-              style: const TextStyle(color: Color.fromARGB(137, 56, 52, 52)),
+              style: TextStyle(
+                color: theme.brightness == Brightness.dark
+                    ? theme.colorScheme.onSurface // For dark mode text color
+                    : theme.colorScheme.onBackground, // For light mode text color
+              ),
             ),
           );
         }).toList(),
         onChanged: onChanged,
         decoration: InputDecoration(
           filled: true,
-          fillColor: Colors.white,
+          fillColor: theme.brightness == Brightness.dark
+              ? theme.colorScheme.surface // Dark mode background
+              : Colors.white, // Light mode background
           contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -71,10 +77,16 @@ class RangeDropdown extends StatelessWidget {
           value: selectedRange,
           items: items,
           onChanged: onChanged,
-          style: TextStyle(color: Color.fromARGB(137, 56, 52, 52)),
+          style: TextStyle(
+            color: theme.brightness == Brightness.dark
+                ? theme.colorScheme.onSurface // For dark mode text color
+                : theme.colorScheme.onBackground, // For light mode text color
+          ),
           decoration: InputDecoration(
             filled: true,
-            fillColor: Colors.white,
+            fillColor: theme.brightness == Brightness.dark
+                ? theme.colorScheme.surface // Dark mode background
+                : Colors.white, // Light mode background
             contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),

@@ -1,5 +1,3 @@
-// Root file
-
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
@@ -8,6 +6,7 @@ import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
+import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));
@@ -29,6 +28,7 @@ class _MyAppState extends State<MyApp> {
   int totalTimeInSeconds = 0;
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5'; // Default range
+  bool _isDarkMode = false; // Flag to manage dark mode
 
   void switchToPracticeScreen(Operation operation, String range) {
     setState(() {
@@ -58,16 +58,23 @@ class _MyAppState extends State<MyApp> {
     TTSService().speak(text, ref); // Pass WidgetRef to TTSService
   }
 
+  // Toggle Dark Mode
+  void toggleDarkMode(bool value) {
+    setState(() {
+      _isDarkMode = value;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = ThemeData(
       colorScheme: ColorScheme.fromSeed(
-        brightness: Brightness.dark,
+        brightness: _isDarkMode ? Brightness.dark : Brightness.light,
         seedColor: const Color(0xFF009DDC),
         primary: const Color(0xFF009DDC),
         secondary: Colors.red,
-        surface: Colors.white,
-        onSurface: Colors.black,
+        surface: _isDarkMode ? Colors.black : Colors.white,
+        onSurface: _isDarkMode ? Colors.white : Colors.black,
         error: Colors.red,
       ),
       textTheme: GoogleFonts.latoTextTheme(),
@@ -81,7 +88,11 @@ class _MyAppState extends State<MyApp> {
         body: Consumer(
           builder: (context, ref, child) {
             return activeScreen == 'start_screen'
-                ? StartScreen(switchToPracticeScreen, switchToStartScreen)
+                ? StartScreen(
+                    switchToPracticeScreen, 
+                    switchToStartScreen,
+                    toggleDarkMode // Pass the dark mode toggle function
+                  )
                 : activeScreen == 'practice_screen'
                     ? PracticeScreen(
                         (questions, correctAnswers, time) =>
@@ -100,3 +111,4 @@ class _MyAppState extends State<MyApp> {
     );
   }
 }
+
