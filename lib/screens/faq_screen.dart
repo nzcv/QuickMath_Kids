@@ -27,7 +27,7 @@ class _FAQScreenState extends State<FAQScreen> {
     FAQItem(
       question: "Is the app free to use?",
       answer:
-          "All the functionality in this app is puuchased at a one-time-fee from the Google Play Store.",
+          "All the functionality in this app is purchased at a one-time fee from the Google Play Store.",
     ),
     FAQItem(
       question: "How do I download and install the app?",
@@ -42,7 +42,7 @@ class _FAQScreenState extends State<FAQScreen> {
     FAQItem(
       question: "Can parents track their child's progress?",
       answer:
-          "This app provides the feature to share the report after finishing a quiz in the result screen. But this app does not have to ability to store past quizzes.",
+          "This app provides the feature to share the report after finishing a quiz in the result screen. But this app does not have the ability to store past quizzes.",
     ),
     FAQItem(
       question: "What devices are supported?",
@@ -57,7 +57,7 @@ class _FAQScreenState extends State<FAQScreen> {
     FAQItem(
       question: "Is the app available offline?",
       answer:
-          "Yes, this app works completely offline. You don't need internet connection to play the game.",
+          "Yes, this app works completely offline. You don't need an internet connection to play the game.",
     ),
     FAQItem(
       question: "What age group is this app suitable for?",
@@ -67,7 +67,7 @@ class _FAQScreenState extends State<FAQScreen> {
     FAQItem(
       question: "What languages does the app support?",
       answer:
-          "Currently this app only supports english, othe languages will be added in future updates.",
+          "Currently, this app only supports English. Other languages will be added in future updates.",
     ),
     FAQItem(
       question: "Does the app have a dark mode?",
@@ -76,7 +76,7 @@ class _FAQScreenState extends State<FAQScreen> {
     FAQItem(
       question: "Can I customize the difficulty level?",
       answer:
-          "Yes, you can choose the difficulty level of the math problems in the home page before starting a quiz.",
+          "Yes, you can choose the difficulty level of the math problems on the home page before starting a quiz.",
     ),
     FAQItem(
       question: "Can I share my progress with others?",
@@ -113,27 +113,27 @@ class _FAQScreenState extends State<FAQScreen> {
           "No, this app does not offer rewards or badges for completing quizzes. This functionality may be added in future updates.",
     ),
     FAQItem(
-        question: "How can I contact customer support?",
-        answer:
-            "You can contact customer support by emailing us at master.guru.raghav@gmail.com"
+      question: "How can I contact customer support?",
+      answer:
+          "You can contact customer support by emailing us at master.guru.raghav@gmail.com",
     ),
-    
   ];
 
   List<FAQItem> filteredFAQs = [];
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
-    filteredFAQs = allFAQs; // Initialize with all FAQs
-    _searchController
-        .addListener(_filterFAQs); // Listen for search input changes
+    filteredFAQs = allFAQs;
+    _searchController.addListener(_filterFAQs);
   }
 
   @override
   void dispose() {
-    _searchController.dispose(); // Clean up the controller
+    _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -147,11 +147,28 @@ class _FAQScreenState extends State<FAQScreen> {
     });
   }
 
+  void _scrollToTop() {
+    _scrollController.animateTo(
+      0,
+      duration: const Duration(milliseconds: 500),
+      curve: Curves.easeInOut,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("QuickMath_Kids FAQ"),
+        title: const Text(
+          "QuickMath_Kids FAQ",
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.blueAccent,
+        elevation: 4,
       ),
       body: Column(
         children: [
@@ -161,33 +178,82 @@ class _FAQScreenState extends State<FAQScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: "Search FAQs...",
-                prefixIcon: const Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search, color: Colors.blueAccent),
+                suffixIcon: IconButton(
+                  icon: const Icon(Icons.clear, color: Colors.blueAccent),
+                  onPressed: () {
+                    _searchController.clear();
+                    _filterFAQs();
+                  },
+                ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.blueAccent),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
                 ),
               ),
             ),
           ),
           Expanded(
-            child: ListView.builder(
-              itemCount: filteredFAQs.length,
-              itemBuilder: (context, index) {
-                return ExpansionTile(
-                  title: Text(
-                    filteredFAQs[index].question,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(filteredFAQs[index].answer),
+            child: AnimatedOpacity(
+              opacity: filteredFAQs.isEmpty ? 0.5 : 1.0,
+              duration: const Duration(milliseconds: 300),
+              child: filteredFAQs.isEmpty
+                  ? Center(
+                      child: Text(
+                        "No results found.",
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      controller: _scrollController,
+                      itemCount: filteredFAQs.length,
+                      itemBuilder: (context, index) {
+                        return Card(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          elevation: 2,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: ExpansionTile(
+                            title: Text(
+                              filteredFAQs[index].question,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.blueAccent,
+                              ),
+                            ),
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Text(
+                                  filteredFAQs[index].answer,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
                     ),
-                  ],
-                );
-              },
             ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _scrollToTop,
+        backgroundColor: Colors.blueAccent,
+        child: const Icon(Icons.arrow_upward, color: Colors.white),
       ),
     );
   }
