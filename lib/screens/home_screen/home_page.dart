@@ -3,6 +3,7 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
+import 'package:QuickMath_Kids/screens/faq_screen.dart'; // Import the FAQ screen
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String) switchToPracticeScreen;
@@ -28,13 +29,8 @@ class _StartScreenState extends State<StartScreen> {
         title: const Text('QuickMath Kids',
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: theme.colorScheme.primary,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _navigateToSettings,
-          ),
-        ],
       ),
+      drawer: _buildDrawer(context), // Add the drawer here
       backgroundColor: theme.colorScheme.surface,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -42,9 +38,7 @@ class _StartScreenState extends State<StartScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             const SizedBox(height: 20),
-            //const Icon(Icons.volume_up, size: 200, color: Colors.black),
             Image.asset('assets/QuickMath_Kids_logo.png', scale: 2),
-
             const SizedBox(height: 15),
             const Text(
               "Choose an Operation and Start Practicing",
@@ -105,10 +99,48 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
-  void _navigateToSettings() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const SettingsScreen()),
+  // Build the drawer
+  Widget _buildDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          const DrawerHeader(
+            decoration: BoxDecoration(
+              color: Colors.blue,
+            ),
+            child: Text(
+              'QuickMath Kids',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+              ),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings', style: TextStyle(color: Colors.grey),),
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FAQScreen()),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
