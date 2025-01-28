@@ -5,38 +5,32 @@ class ResultRowWidget extends StatelessWidget {
   final String label;
   final String value;
   final ThemeData theme;
-  final bool isDarkMode;
 
   const ResultRowWidget({
     required this.icon,
     required this.label,
     required this.value,
     required this.theme,
-    required this.isDarkMode,
-    super.key,
-  });
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(
-          icon,
-          color: isDarkMode ? Colors.blue[200] : Colors.blue[800],
-        ),
+        Icon(icon, color: Colors.blue[700]), // Darker blue for icons
         const SizedBox(width: 10),
         Text(
-          label,
+          '$label ',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: isDarkMode ? Colors.grey[200] : Colors.grey[800],
+            color: Colors.grey[800], // Dark gray for labels
+            fontWeight: FontWeight.w600,
           ),
         ),
-        const Spacer(),
         Text(
           value,
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: isDarkMode ? Colors.grey[200] : Colors.grey[800],
-            fontWeight: FontWeight.bold,
+            color: Colors.grey[900], // Nearly black for values
           ),
         ),
       ],

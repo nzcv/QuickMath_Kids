@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:QuickMath_Kids/screens/result_screen/result_row.dart';
+import 'package:QuickMath_Kids/screens/result_screen/result_row.dart'; // Import the new file
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -8,10 +8,9 @@ class ResultScreen extends StatefulWidget {
   final List<bool> answeredCorrectly;
   final int totalTime;
   final Function switchToStartScreen;
-  final bool isDarkMode;
 
   const ResultScreen(this.answeredQuestions, this.answeredCorrectly,
-      this.totalTime, this.switchToStartScreen, this.isDarkMode,
+      this.totalTime, this.switchToStartScreen,
       {super.key});
 
   @override
@@ -62,7 +61,7 @@ class _ResultScreenState extends State<ResultScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error sharing PDF: ${e.toString()}'),
-            backgroundColor: Colors.red.shade700,
+            backgroundColor: Colors.red.shade700, // Darker red for better contrast
           ),
         );
       }
@@ -72,8 +71,6 @@ class _ResultScreenState extends State<ResultScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
-
     int minutes = widget.totalTime ~/ 60;
     int seconds = widget.totalTime % 60;
 
@@ -81,7 +78,7 @@ class _ResultScreenState extends State<ResultScreen>
         widget.answeredCorrectly.where((correct) => correct).length;
 
     return Scaffold(
-      backgroundColor: isDarkMode ? Colors.grey[900] : Colors.grey[100],
+      backgroundColor: Colors.grey[100],
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -93,7 +90,7 @@ class _ResultScreenState extends State<ResultScreen>
                 child: Text(
                   'Quiz Results',
                   style: theme.textTheme.headlineMedium?.copyWith(
-                    color: isDarkMode ? Colors.blue[200] : Colors.blue[800],
+                    color: Colors.blue[800], // Darker blue for better contrast
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -103,7 +100,7 @@ class _ResultScreenState extends State<ResultScreen>
                 opacity: _fadeAnimation,
                 child: Card(
                   elevation: 4,
-                  color: isDarkMode ? Colors.grey[800] : Colors.white,
+                  color: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -117,7 +114,6 @@ class _ResultScreenState extends State<ResultScreen>
                           label: 'Time Taken:',
                           value: '$minutes:${seconds.toString().padLeft(2, '0')}',
                           theme: theme,
-                          isDarkMode: isDarkMode,
                         ),
                         const SizedBox(height: 10),
                         ResultRowWidget(
@@ -125,7 +121,6 @@ class _ResultScreenState extends State<ResultScreen>
                           label: 'Questions Attempted:',
                           value: '${widget.answeredQuestions.length}',
                           theme: theme,
-                          isDarkMode: isDarkMode,
                         ),
                         const SizedBox(height: 10),
                         ResultRowWidget(
@@ -133,7 +128,6 @@ class _ResultScreenState extends State<ResultScreen>
                           label: 'Correct Answers:',
                           value: '$correctAnswers',
                           theme: theme,
-                          isDarkMode: isDarkMode,
                         ),
                       ],
                     ),
@@ -149,7 +143,7 @@ class _ResultScreenState extends State<ResultScreen>
                           child: Text(
                             'No questions attended!',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: isDarkMode ? Colors.red[300] : Colors.red[700],
+                              color: Colors.red[700], // Darker red for better contrast
                               fontSize: 18,
                               fontStyle: FontStyle.italic,
                             ),
@@ -167,13 +161,13 @@ class _ResultScreenState extends State<ResultScreen>
                                   ? Icons.check_circle
                                   : Icons.cancel,
                               color: widget.answeredCorrectly[index]
-                                  ? (isDarkMode ? Colors.green[300] : Colors.green[700])
-                                  : (isDarkMode ? Colors.red[300] : Colors.red[700]),
+                                  ? Colors.green[700] // Darker green
+                                  : Colors.red[700], // Darker red
                             ),
                             title: Text(
                               widget.answeredQuestions[index],
                               style: theme.textTheme.bodyLarge?.copyWith(
-                                color: isDarkMode ? Colors.grey[200] : Colors.grey[800],
+                                color: Colors.grey[800], // Dark gray for text
                               ),
                             ),
                           );
@@ -188,8 +182,8 @@ class _ResultScreenState extends State<ResultScreen>
                     icon: const Icon(Icons.home, color: Colors.white),
                     onPressed: () => widget.switchToStartScreen(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDarkMode ? Colors.blue[800] : Colors.blue[700],
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blue[700], // Darker blue
+                      foregroundColor: Colors.white, // White text
                       padding: const EdgeInsets.symmetric(
                           vertical: 12, horizontal: 20),
                       shape: RoundedRectangleBorder(
@@ -202,8 +196,8 @@ class _ResultScreenState extends State<ResultScreen>
                     icon: const Icon(Icons.share, color: Colors.white),
                     onPressed: _sharePDFReport,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: isDarkMode ? Colors.green[800] : Colors.green[700],
-                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.green[700], // Darker green
+                      foregroundColor: Colors.white, // White text
                       padding: const EdgeInsets.symmetric(
                           vertical: 12, horizontal: 20),
                       shape: RoundedRectangleBorder(

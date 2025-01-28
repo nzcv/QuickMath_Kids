@@ -103,7 +103,7 @@ class _MyAppState extends State<MyApp> {
                         _selectedRange,
                       )
                     : ResultScreen(answeredQuestions, answeredCorrectly,
-                        totalTimeInSeconds, switchToStartScreen, _isDarkMode);
+                        totalTimeInSeconds, switchToStartScreen);
           },
         ),
       ),
