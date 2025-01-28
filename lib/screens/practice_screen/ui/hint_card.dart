@@ -4,6 +4,9 @@ Widget buildHintCard(String currentHintMessage, bool isExpanded, VoidCallback on
   final theme = Theme.of(context); // Get the current theme
 
   return Card(
+    color: theme.brightness == Brightness.dark
+        ? Colors.grey[200] // Dark mode: lighter card color
+        : Colors.grey[800], // Light mode: standard grey
     elevation: 4,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
@@ -29,8 +32,8 @@ Widget buildHintCard(String currentHintMessage, bool isExpanded, VoidCallback on
                   style: TextStyle(
                     fontSize: 18,
                     color: theme.brightness == Brightness.dark
-                        ? Colors.grey[300] // Dark mode: lighter text
-                        : Colors.grey[500], // Light mode: standard grey
+                        ? Colors.black // Dark mode: lighter text
+                        : Colors.grey[300], // Light mode: standard grey
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -47,8 +50,8 @@ Widget buildHintCard(String currentHintMessage, bool isExpanded, VoidCallback on
                   style: TextStyle(
                     fontSize: 16,
                     color: theme.brightness == Brightness.dark
-                        ? Colors.grey[400] // Dark mode: lighter hint message
-                        : Colors.grey[300], // Light mode: standard grey
+                        ? Colors.black // Dark mode: lighter hint message
+                        : Colors.grey[400], // Light mode: standard grey
                   ),
                   textAlign: TextAlign.center,
                 ),

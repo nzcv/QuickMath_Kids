@@ -9,7 +9,7 @@ Widget buildTimerCard(String time, BuildContext context) {
       borderRadius: BorderRadius.circular(16),
     ),
     color:  theme.brightness == Brightness.dark
-                  ? Colors.grey[400] // Light text for dark mode
+                  ? Colors.white // Light text for dark mode
                   : Colors.black, // Grey text for light mode, // Use the card color from the current theme
     child: Padding(
       padding: const EdgeInsets.symmetric(
