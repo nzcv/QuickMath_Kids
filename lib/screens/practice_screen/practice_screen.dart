@@ -217,15 +217,17 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context); // Get the current theme
+
     return Scaffold(
-      backgroundColor: Colors.grey[100], // Matching ResultScreen background
+      backgroundColor: theme.colorScheme.background, // Use background color based on theme
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.blue[700],
+        backgroundColor: theme.appBarTheme.backgroundColor, // Use appBar background color based on theme
         title: Text(
           'Practice',
           style: TextStyle(
-            color: Colors.white,
+            color: theme.appBarTheme.titleTextStyle?.color, // Use title color based on theme
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -249,8 +251,7 @@ class _PracticeScreenState extends State<PracticeScreen>
             child: ElevatedButton.icon(
               onPressed: endQuiz,
               icon: const Icon(Icons.assessment, color: Colors.white),
-              label:
-                  const Text('Results', style: TextStyle(color: Colors.white)),
+              label: const Text('Results', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
                 shape: RoundedRectangleBorder(
@@ -266,7 +267,6 @@ class _PracticeScreenState extends State<PracticeScreen>
         child: Stack(
           children: [
             confettiManager.buildCorrectConfetti(),
-            confettiManager.buildWrongConfetti(),
             FadeTransition(
               opacity: _fadeAnimation,
               child: SlideTransition(
@@ -277,21 +277,20 @@ class _PracticeScreenState extends State<PracticeScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Timer Card
-                      buildTimerCard(
-                          _quizTimer.formatTime(_quizTimer.secondsPassed)),
+                      buildTimerCard(_quizTimer.formatTime(_quizTimer.secondsPassed),context),
                       const SizedBox(height: 20),
                       // Hint Card
                       buildHintCard(currentHintMessage, _isHintExpanded, () {
                         setState(() {
                           _isHintExpanded = !_isHintExpanded;
                         });
-                      }),
+                      }, context),
                       const SizedBox(height: 20),
                       // Voice Button
                       ElevatedButton(
                         onPressed: _triggerTTSSpeech,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.blue[700],
+                          backgroundColor: theme.colorScheme.primary,
                           shape: const CircleBorder(),
                           padding: const EdgeInsets.all(24),
                           elevation: 8,
@@ -306,7 +305,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                       // Answer Options
                       Container(
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: theme.colorScheme.surface, // Use surface color based on theme
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
@@ -324,16 +323,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                buildAnswerButton(answerOptions[0],
-                                    () => checkAnswer(answerOptions[0])),
+                                buildAnswerButton(answerOptions[0], () => checkAnswer(answerOptions[0])),
                                 const SizedBox(width: 16),
-                                buildAnswerButton(answerOptions[1],
-                                    () => checkAnswer(answerOptions[1])),
+                                buildAnswerButton(answerOptions[1], () => checkAnswer(answerOptions[1])),
                               ],
                             ),
                             const SizedBox(height: 16),
-                            buildAnswerButton(answerOptions[2],
-                                () => checkAnswer(answerOptions[2])),
+                            buildAnswerButton(answerOptions[2], () => checkAnswer(answerOptions[2])),
                           ],
                         ),
                       ),
@@ -342,12 +338,11 @@ class _PracticeScreenState extends State<PracticeScreen>
                 ),
               ),
             ),
-
             Positioned(
-              child: buildPauseButton(_showPauseDialog),
+              child: buildPauseButton(_showPauseDialog, context),
               bottom: 24,
               right: 24,
-            )
+            ),
           ],
         ),
       ),

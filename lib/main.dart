@@ -6,7 +6,6 @@ import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
-import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 
 void main() {
   runApp(const ProviderScope(child: MyApp()));

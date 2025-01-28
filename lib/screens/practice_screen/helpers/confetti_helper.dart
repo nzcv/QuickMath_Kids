@@ -28,18 +28,4 @@ class ConfettiManager {
       colors: const [Colors.green, Colors.blue, Colors.orange],
     );
   }
-
-  Widget buildWrongConfetti() {
-    return ConfettiWidget(
-      confettiController: wrongConfettiController,
-      blastDirectionality: BlastDirectionality.explosive,
-      blastDirection: -3.14159 / 2,
-      numberOfParticles: 100,
-      gravity: 1,
-      shouldLoop: false,
-      emissionFrequency: 0.1,
-      particleDrag: 0.01,
-      colors: [Colors.red, Colors.redAccent[100]!, Colors.red[500]!],
-    );
-  }
 }

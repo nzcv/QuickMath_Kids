@@ -4,6 +4,7 @@ import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 import 'package:QuickMath_Kids/screens/faq_screen.dart'; // Import the FAQ screen
+import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String) switchToPracticeScreen;
@@ -150,6 +151,17 @@ class _StartScreenState extends State<StartScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => FAQScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HowToUseScreen()),
               );
             },
           ),
