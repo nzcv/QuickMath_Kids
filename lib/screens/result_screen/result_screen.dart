@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:QuickMath_Kids/screens/result_screen/result_row.dart'; // Import the new file
+import 'package:QuickMath_Kids/screens/result_screen/result_row.dart';
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -61,7 +61,7 @@ class _ResultScreenState extends State<ResultScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error sharing PDF: ${e.toString()}'),
-            backgroundColor: Colors.red.shade700, // Darker red for better contrast
+            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -78,7 +78,7 @@ class _ResultScreenState extends State<ResultScreen>
         widget.answeredCorrectly.where((correct) => correct).length;
 
     return Scaffold(
-      backgroundColor: Colors.grey[100],
+      backgroundColor: theme.colorScheme.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -90,7 +90,7 @@ class _ResultScreenState extends State<ResultScreen>
                 child: Text(
                   'Quiz Results',
                   style: theme.textTheme.headlineMedium?.copyWith(
-                    color: Colors.blue[800], // Darker blue for better contrast
+                    color: theme.colorScheme.primary,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
@@ -100,7 +100,7 @@ class _ResultScreenState extends State<ResultScreen>
                 opacity: _fadeAnimation,
                 child: Card(
                   elevation: 4,
-                  color: Colors.white,
+                  color: theme.colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -112,7 +112,8 @@ class _ResultScreenState extends State<ResultScreen>
                         ResultRowWidget(
                           icon: Icons.timer,
                           label: 'Time Taken:',
-                          value: '$minutes:${seconds.toString().padLeft(2, '0')}',
+                          value:
+                              '$minutes:${seconds.toString().padLeft(2, '0')}',
                           theme: theme,
                         ),
                         const SizedBox(height: 10),
@@ -143,7 +144,7 @@ class _ResultScreenState extends State<ResultScreen>
                           child: Text(
                             'No questions attended!',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.red[700], // Darker red for better contrast
+                              color: theme.colorScheme.error,
                               fontSize: 18,
                               fontStyle: FontStyle.italic,
                             ),
@@ -153,7 +154,7 @@ class _ResultScreenState extends State<ResultScreen>
                     : ListView.separated(
                         itemCount: widget.answeredQuestions.length,
                         separatorBuilder: (context, index) =>
-                            Divider(height: 1, color: Colors.grey[300]),
+                            Divider(height: 1, color: theme.dividerColor),
                         itemBuilder: (context, index) {
                           return ListTile(
                             leading: Icon(
@@ -161,13 +162,13 @@ class _ResultScreenState extends State<ResultScreen>
                                   ? Icons.check_circle
                                   : Icons.cancel,
                               color: widget.answeredCorrectly[index]
-                                  ? Colors.green[700] // Darker green
-                                  : Colors.red[700], // Darker red
+                                  ? theme.colorScheme.primary
+                                  : theme.colorScheme.error,
                             ),
                             title: Text(
                               widget.answeredQuestions[index],
                               style: theme.textTheme.bodyLarge?.copyWith(
-                                color: Colors.grey[800], // Dark gray for text
+                                color: theme.colorScheme.onSurface,
                               ),
                             ),
                           );
@@ -179,11 +180,11 @@ class _ResultScreenState extends State<ResultScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.home, color: Colors.white),
+                    icon: Icon(Icons.home, color: theme.colorScheme.onPrimary),
                     onPressed: () => widget.switchToStartScreen(),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue[700], // Darker blue
-                      foregroundColor: Colors.white, // White text
+                      backgroundColor: theme.colorScheme.primary,
+                      foregroundColor: theme.colorScheme.onPrimary,
                       padding: const EdgeInsets.symmetric(
                           vertical: 12, horizontal: 20),
                       shape: RoundedRectangleBorder(
@@ -193,11 +194,11 @@ class _ResultScreenState extends State<ResultScreen>
                     label: const Text('Start Screen'),
                   ),
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.share, color: Colors.white),
+                    icon: Icon(Icons.share, color: theme.colorScheme.onPrimary),
                     onPressed: _sharePDFReport,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[700], // Darker green
-                      foregroundColor: Colors.white, // White text
+                      backgroundColor: Colors.green,
+                      foregroundColor: theme.colorScheme.onSecondary,
                       padding: const EdgeInsets.symmetric(
                           vertical: 12, horizontal: 20),
                       shape: RoundedRectangleBorder(
