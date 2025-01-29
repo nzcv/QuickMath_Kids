@@ -7,7 +7,8 @@ import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Import Riverpod
 
-void main() {
+// In your main.dart or wherever you want to initialize the notifications:
+void main() async {
   runApp(const ProviderScope(child: MyApp()));
 }
 
