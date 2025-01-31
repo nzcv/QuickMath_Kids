@@ -121,7 +121,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 child: Column(
                   children: [
                     const Text(
-                      'Notification Schedule',
+                      'Notification Schedule with fufku',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
