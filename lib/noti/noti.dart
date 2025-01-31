@@ -1,61 +1,102 @@
+// main.dart
 import 'package:flutter/material.dart';
+import 'noti_service.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:workmanager/workmanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-@pragma('vm:entry-point')
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  print("Handling a background message: ${message.messageId}");
+  runApp(MyApp());
 }
 
-@pragma('vm:entry-point')
-void callbackDispatcher() {
-  Workmanager().executeTask((task, inputData) async {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Notification Demo',
+      theme: ThemeData(
+        primarySwatch: Colors.blue,
+      ),
+      home: NotificationTestScreen(),
+    );
+  }
+}
 
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
+class NotificationTestScreen extends StatefulWidget {
+  @override
+  _NotificationTestScreenState createState() => _NotificationTestScreenState();
+}
 
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
+class _NotificationTestScreenState extends State<NotificationTestScreen> {
+  final NotificationService notificationService = NotificationService();
+  List<Map<String, dynamic>> notificationSchedule = [];
 
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+  @override
+  void initState() {
+    super.initState();
+    notificationService.initialize();
+    loadSchedule();
+  }
 
-    if (task == 'dailyNotification') {
-      const AndroidNotificationDetails androidPlatformChannelSpecifics =
-          AndroidNotificationDetails(
-        'daily_notifications_channel',
-        'Daily Notifications',
-        channelDescription: 'Channel for daily scheduled notifications',
-        importance: Importance.max,
-        priority: Priority.high,
-      );
+  Future<void> loadSchedule() async {
+    notificationSchedule = await notificationService.loadSchedule();
+    setState(() {});
+  }
 
-      const NotificationDetails platformChannelSpecifics =
-          NotificationDetails(android: androidPlatformChannelSpecifics);
+  void updateSchedule(List<Map<String, dynamic>> newSchedule) {
+    setState(() {
+      notificationSchedule = newSchedule;
+    });
+    notificationService.scheduleNotifications(newSchedule);
+  }
 
-      final String notificationTitle =
-          inputData?['title'] ?? 'Scheduled Notification';
-      final String notificationBody =
-          inputData?['body'] ?? 'Time for your daily notification!';
-      final int notificationId = inputData?['id'] ?? 0;
-
-      await flutterLocalNotificationsPlugin.show(
-        notificationId,
-        notificationTitle,
-        notificationBody,
-        platformChannelSpecifics,
-      );
-    }
-
-    return Future.value(true);
-  });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Daily Notifications Demo'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => NotificationSettings(
+                    onScheduleUpdate: updateSchedule,
+                    initialSchedule: notificationSchedule,
+                  ),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+              onPressed: () => notificationService.scheduleNotifications(notificationSchedule),
+              child: const Text('Schedule Daily Notifications'),
+            ),
+            const SizedBox(height: 20),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Text(
+                notificationSchedule.isEmpty
+                    ? 'No notifications scheduled'
+                    : 'Scheduled notifications:\n${notificationSchedule.map((schedule) => '${schedule['title']} at ${schedule['time'].format(context)}').join('\n')}',
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class NotificationSettings extends StatefulWidget {
@@ -208,192 +249,6 @@ class _NotificationSettingsState extends State<NotificationSettings> {
       floatingActionButton: FloatingActionButton(
         onPressed: () => _addOrEditNotification(),
         child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class NotificationTestScreen extends StatefulWidget {
-  const NotificationTestScreen({super.key});
-
-  @override
-  State<NotificationTestScreen> createState() => _NotificationTestScreenState();
-}
-
-class _NotificationTestScreenState extends State<NotificationTestScreen> {
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-  late FirebaseMessaging messaging;
-  String? fcmToken;
-  List<Map<String, dynamic>> notificationSchedule = [];
-
-  @override
-  void initState() {
-    super.initState();
-    setupNotifications();
-    loadSchedule(); // Load saved schedule on startup
-  }
-
-  Future<void> loadSchedule() async {
-    final prefs = await SharedPreferences.getInstance();
-    final scheduleJson = prefs.getString('notification_schedule');
-    if (scheduleJson != null) {
-      final List<dynamic> decoded = json.decode(scheduleJson);
-      setState(() {
-        notificationSchedule = decoded
-            .map((item) => {
-                  'time': TimeOfDay(
-                    hour: item['hour'] as int,
-                    minute: item['minute'] as int,
-                  ),
-                  'title': item['title'] as String,
-                })
-            .toList();
-      });
-    }
-  }
-
-  Future<void> setupNotifications() async {
-    await requestPermissions();
-    await initializeNotifications();
-    await getFCMToken();
-  }
-
-  Future<void> requestPermissions() async {
-    await Permission.notification.request();
-
-    await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-  }
-
-  Future<void> getFCMToken() async {
-    fcmToken = await FirebaseMessaging.instance.getToken();
-    print('FCM Token: $fcmToken');
-  }
-
-  Future<void> initializeNotifications() async {
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
-
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    messaging = FirebaseMessaging.instance;
-  }
-
-  void updateSchedule(List<Map<String, dynamic>> newSchedule) {
-    setState(() {
-      notificationSchedule = newSchedule;
-    });
-    scheduleNotifications(); // Reschedule notifications with new times
-  }
-
-  Future<void> scheduleNotifications() async {
-    if (notificationSchedule.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No notifications scheduled'),
-        ),
-      );
-      return;
-    }
-
-    // Cancel any existing notifications
-    await Workmanager().cancelAll();
-
-    for (int i = 0; i < notificationSchedule.length; i++) {
-      final schedule = notificationSchedule[i];
-      final TimeOfDay notificationTime = schedule['time'];
-
-      // Calculate the initial delay until the next occurrence of the specified time
-      final now = DateTime.now();
-      var scheduledTime = DateTime(
-        now.year,
-        now.month,
-        now.day,
-        notificationTime.hour,
-        notificationTime.minute,
-      );
-
-      // If the time has already passed today, schedule for tomorrow
-      if (scheduledTime.isBefore(now)) {
-        scheduledTime = scheduledTime.add(const Duration(days: 1));
-      }
-
-      final initialDelay = scheduledTime.difference(now);
-
-      // Register the daily task
-      await Workmanager().registerPeriodicTask(
-        'daily_notification_$i',
-        'dailyNotification',
-        frequency: const Duration(days: 1),
-        initialDelay: initialDelay,
-        inputData: {
-          'id': i,
-          'title': schedule['title'],
-          'body':
-              'Your daily notification at ${notificationTime.format(context)}',
-        },
-        constraints: Constraints(
-          networkType: NetworkType.not_required,
-        ),
-      );
-    }
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Daily notifications scheduled'),
-      ),
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daily Notifications Demo'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NotificationSettings(
-                    onScheduleUpdate: updateSchedule,
-                    initialSchedule: notificationSchedule,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: scheduleNotifications,
-              child: const Text('Schedule Daily Notifications'),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                notificationSchedule.isEmpty
-                    ? 'No notifications scheduled'
-                    : 'Scheduled notifications:\n${notificationSchedule.map((schedule) => '${schedule['title']} at ${schedule['time'].format(context)}').join('\n')}',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -162,7 +162,7 @@ class _StartScreenState extends State<StartScreen> {
               Navigator.pop(context);
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => const NotificationTestScreen()),
+                MaterialPageRoute(builder: (context) => NotificationTestScreen()),
               );
             },
           ),

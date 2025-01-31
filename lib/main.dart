@@ -12,6 +12,14 @@ import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+  await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+
+  runApp(const ProviderScope(child: MyApp()));
+}
+
 /// Background notification handler
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -57,14 +65,6 @@ void callbackDispatcher() {
 
     return Future.value(true);
   });
-}
-
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
-
-  runApp(const ProviderScope(child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
