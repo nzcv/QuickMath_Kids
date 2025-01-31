@@ -1,35 +1,14 @@
-// main.dart
 import 'package:flutter/material.dart';
 import 'noti_service.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
+class NotificationScreen extends StatefulWidget {
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Notification Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: NotificationTestScreen(),
-    );
-  }
+  _NotificationScreenState createState() => _NotificationScreenState();
 }
 
-class NotificationTestScreen extends StatefulWidget {
-  @override
-  _NotificationTestScreenState createState() => _NotificationTestScreenState();
-}
-
-class _NotificationTestScreenState extends State<NotificationTestScreen> {
+class _NotificationScreenState extends State<NotificationScreen> {
   final NotificationService notificationService = NotificationService();
   List<Map<String, dynamic>> notificationSchedule = [];
 
@@ -45,110 +24,38 @@ class _NotificationTestScreenState extends State<NotificationTestScreen> {
     setState(() {});
   }
 
-  void updateSchedule(List<Map<String, dynamic>> newSchedule) {
-    setState(() {
-      notificationSchedule = newSchedule;
-    });
-    notificationService.scheduleNotifications(newSchedule);
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Daily Notifications Demo'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => NotificationSettings(
-                    onScheduleUpdate: updateSchedule,
-                    initialSchedule: notificationSchedule,
-                  ),
-                ),
-              );
-            },
-          ),
-        ],
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () => notificationService.scheduleNotifications(notificationSchedule),
-              child: const Text('Schedule Daily Notifications'),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Text(
-                notificationSchedule.isEmpty
-                    ? 'No notifications scheduled'
-                    : 'Scheduled notifications:\n${notificationSchedule.map((schedule) => '${schedule['title']} at ${schedule['time'].format(context)}').join('\n')}',
-                textAlign: TextAlign.center,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class NotificationSettings extends StatefulWidget {
-  final Function(List<Map<String, dynamic>>) onScheduleUpdate;
-  final List<Map<String, dynamic>> initialSchedule;
-
-  const NotificationSettings({
-    super.key,
-    required this.onScheduleUpdate,
-    required this.initialSchedule,
-  });
-
-  @override
-  State<NotificationSettings> createState() => _NotificationSettingsState();
-}
-
-class _NotificationSettingsState extends State<NotificationSettings> {
-  List<Map<String, dynamic>> notificationSchedule = [];
-
-  @override
-  void initState() {
-    super.initState();
-    notificationSchedule = List<Map<String, dynamic>>.from(widget.initialSchedule);
-  }
-
   Future<void> saveSchedule() async {
     final prefs = await SharedPreferences.getInstance();
     final scheduleJson = json.encode(
-      notificationSchedule.map((item) => {
-        'hour': item['time'].hour,
-        'minute': item['time'].minute,
-        'title': item['title'],
-      }).toList(),
+      notificationSchedule
+          .map((item) => {
+                'hour': item['time'].hour,
+                'minute': item['time'].minute,
+                'title': item['title'],
+              })
+          .toList(),
     );
     await prefs.setString('notification_schedule', scheduleJson);
-    widget.onScheduleUpdate(notificationSchedule);
+    notificationService.scheduleNotifications(notificationSchedule);
   }
 
-  Future<void> _addOrEditNotification([Map<String, dynamic>? existing, int? index]) async {
+  Future<void> _addOrEditNotification(
+      [Map<String, dynamic>? existing, int? index]) async {
     TimeOfDay selectedTime = existing?['time'] ?? TimeOfDay.now();
     String title = existing?['title'] ?? '';
 
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(existing == null ? 'Add Notification' : 'Edit Notification'),
+        title:
+            Text(existing == null ? 'Add Notification' : 'Edit Notification'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextFormField(
               initialValue: title,
-              decoration: const InputDecoration(labelText: 'Notification Title'),
+              decoration:
+                  const InputDecoration(labelText: 'Notification Title'),
               onChanged: (value) => title = value,
             ),
             const SizedBox(height: 16),
@@ -202,10 +109,36 @@ class _NotificationSettingsState extends State<NotificationSettings> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Notification Settings'),
+        title: const Text('Daily Notifications'),
       ),
       body: Column(
         children: [
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  children: [
+                    const Text(
+                      'Notification Schedule',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: () => notificationService
+                          .scheduleNotifications(notificationSchedule),
+                      icon: const Icon(Icons.notification_add),
+                      label: const Text('Schedule All Notifications'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
           Expanded(
             child: notificationSchedule.isEmpty
                 ? const Center(
@@ -218,27 +151,59 @@ class _NotificationSettingsState extends State<NotificationSettings> {
                     itemCount: notificationSchedule.length,
                     itemBuilder: (context, index) {
                       final schedule = notificationSchedule[index];
-                      return ListTile(
-                        leading: const Icon(Icons.notifications),
-                        title: Text(schedule['title']),
-                        subtitle: Text('Time: ${schedule['time'].format(context)}'),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.edit),
-                              onPressed: () => _addOrEditNotification(schedule, index),
+                      return Dismissible(
+                        key: Key(schedule['title']),
+                        direction: DismissDirection.endToStart,
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20.0),
+                          child: const Icon(Icons.delete, color: Colors.white),
+                        ),
+                        onDismissed: (direction) {
+                          // Store the deleted notification temporarily
+                          final deletedNotification =
+                              notificationSchedule[index];
+                          final deletedIndex = index;
+
+                          // Remove the notification from the list
+                          setState(() {
+                            notificationSchedule.removeAt(index);
+                          });
+                          saveSchedule();
+
+                          // Show a SnackBar with an "Undo" action
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Notification "${deletedNotification['title']}" deleted'),
+                              action: SnackBarAction(
+                                label: 'Undo',
+                                onPressed: () {
+                                  // Restore the deleted notification
+                                  setState(() {
+                                    notificationSchedule.insert(
+                                        deletedIndex, deletedNotification);
+                                  });
+                                  saveSchedule();
+                                },
+                              ),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () {
-                                setState(() {
-                                  notificationSchedule.removeAt(index);
-                                });
-                                saveSchedule();
-                              },
+                          );
+                        },
+                        child: Card(
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          child: ListTile(
+                            leading: CircleAvatar(
+                              child: Text('${index + 1}'),
                             ),
-                          ],
+                            title: Text(schedule['title']),
+                            subtitle: Text(
+                                'Time: ${schedule['time'].format(context)}'),
+                            onTap: () =>
+                                _addOrEditNotification(schedule, index),
+                          ),
                         ),
                       );
                     },
