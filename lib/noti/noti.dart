@@ -10,7 +10,7 @@ class NotificationScreen extends StatefulWidget {
 
 class _NotificationScreenState extends State<NotificationScreen> {
   final NotificationService notificationService = NotificationService();
-  List<Map<String, dynamic>> notificationSchedule = [];
+  List<TimeOfDay> notificationSchedule = [];
 
   @override
   void initState() {
@@ -28,10 +28,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
     final prefs = await SharedPreferences.getInstance();
     final scheduleJson = json.encode(
       notificationSchedule
-          .map((item) => {
-                'hour': item['time'].hour,
-                'minute': item['time'].minute,
-                'title': item['title'],
+          .map((time) => {
+                'hour': time.hour,
+                'minute': time.minute,
               })
           .toList(),
     );
@@ -39,26 +38,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
     notificationService.scheduleNotifications(notificationSchedule);
   }
 
-  Future<void> _addOrEditNotification(
-      [Map<String, dynamic>? existing, int? index]) async {
-    TimeOfDay selectedTime = existing?['time'] ?? TimeOfDay.now();
-    String title = existing?['title'] ?? '';
+  Future<void> _addOrEditNotification([TimeOfDay? existing, int? index]) async {
+    TimeOfDay selectedTime = existing ?? TimeOfDay.now();
 
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title:
-            Text(existing == null ? 'Add Notification' : 'Edit Notification'),
+        title: Text(existing == null ? 'Add Notification' : 'Edit Notification'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextFormField(
-              initialValue: title,
-              decoration:
-                  const InputDecoration(labelText: 'Notification Title'),
-              onChanged: (value) => title = value,
-            ),
-            const SizedBox(height: 16),
             ListTile(
               title: Text('Time: ${selectedTime.format(context)}'),
               trailing: const Icon(Icons.access_time),
@@ -82,21 +71,15 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           TextButton(
             onPressed: () {
-              if (title.isNotEmpty) {
-                setState(() {
-                  final newSchedule = {
-                    'time': selectedTime,
-                    'title': title,
-                  };
-                  if (existing == null) {
-                    notificationSchedule.add(newSchedule);
-                  } else {
-                    notificationSchedule[index!] = newSchedule;
-                  }
-                });
-                saveSchedule();
-                Navigator.pop(context);
-              }
+              setState(() {
+                if (existing == null) {
+                  notificationSchedule.add(selectedTime);
+                } else {
+                  notificationSchedule[index!] = selectedTime;
+                }
+              });
+              saveSchedule();
+              Navigator.pop(context);
             },
             child: const Text('Save'),
           ),
@@ -150,9 +133,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 : ListView.builder(
                     itemCount: notificationSchedule.length,
                     itemBuilder: (context, index) {
-                      final schedule = notificationSchedule[index];
+                      final time = notificationSchedule[index];
                       return Dismissible(
-                        key: Key(schedule['title']),
+                        key: Key(time.toString()),
                         direction: DismissDirection.endToStart,
                         background: Container(
                           color: Colors.red,
@@ -161,29 +144,24 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         onDismissed: (direction) {
-                          // Store the deleted notification temporarily
-                          final deletedNotification =
-                              notificationSchedule[index];
+                          final deletedTime = notificationSchedule[index];
                           final deletedIndex = index;
 
-                          // Remove the notification from the list
                           setState(() {
                             notificationSchedule.removeAt(index);
                           });
                           saveSchedule();
 
-                          // Show a SnackBar with an "Undo" action
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                  'Notification "${deletedNotification['title']}" deleted'),
+                                  'Notification at ${deletedTime.format(context)} deleted'),
                               action: SnackBarAction(
                                 label: 'Undo',
                                 onPressed: () {
-                                  // Restore the deleted notification
                                   setState(() {
                                     notificationSchedule.insert(
-                                        deletedIndex, deletedNotification);
+                                        deletedIndex, deletedTime);
                                   });
                                   saveSchedule();
                                 },
@@ -198,11 +176,8 @@ class _NotificationScreenState extends State<NotificationScreen> {
                             leading: CircleAvatar(
                               child: Text('${index + 1}'),
                             ),
-                            title: Text(schedule['title']),
-                            subtitle: Text(
-                                'Time: ${schedule['time'].format(context)}'),
-                            onTap: () =>
-                                _addOrEditNotification(schedule, index),
+                            subtitle: Text('Time: ${time.format(context)}'),
+                            onTap: () => _addOrEditNotification(time, index),
                           ),
                         ),
                       );

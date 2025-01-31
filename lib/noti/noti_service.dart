@@ -1,4 +1,3 @@
-// notification_service.dart
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -43,8 +42,7 @@ class NotificationService {
     await flutterLocalNotificationsPlugin.initialize(initializationSettings);
   }
 
-  Future<void> scheduleNotifications(
-      List<Map<String, dynamic>> notificationSchedule) async {
+  Future<void> scheduleNotifications(List<TimeOfDay> notificationSchedule) async {
     if (notificationSchedule.isEmpty) {
       return;
     }
@@ -52,8 +50,7 @@ class NotificationService {
     await Workmanager().cancelAll();
 
     for (int i = 0; i < notificationSchedule.length; i++) {
-      final schedule = notificationSchedule[i];
-      final TimeOfDay notificationTime = schedule['time'];
+      final TimeOfDay notificationTime = notificationSchedule[i];
 
       final now = DateTime.now();
       var scheduledTime = DateTime(
@@ -77,7 +74,6 @@ class NotificationService {
         initialDelay: initialDelay,
         inputData: {
           'id': i,
-          'title': schedule['title'],
           'body':
               'Your daily notification at ${notificationTime.hour}:${notificationTime.minute}',
         },
@@ -88,33 +84,28 @@ class NotificationService {
     }
   }
 
-  Future<List<Map<String, dynamic>>> loadSchedule() async {
+  Future<List<TimeOfDay>> loadSchedule() async {
     final prefs = await SharedPreferences.getInstance();
     final scheduleJson = prefs.getString('notification_schedule');
     if (scheduleJson != null) {
       final List<dynamic> decoded = json.decode(scheduleJson);
       return decoded
-          .map((item) => {
-                'time': TimeOfDay(
-                  hour: item['hour'] as int,
-                  minute: item['minute'] as int,
-                ),
-                'title': item['title'] as String,
-              })
+          .map((item) => TimeOfDay(
+                hour: item['hour'] as int,
+                minute: item['minute'] as int,
+              ))
           .toList();
     }
     return [];
   }
 
-  Future<void> saveSchedule(
-      List<Map<String, dynamic>> notificationSchedule) async {
+  Future<void> saveSchedule(List<TimeOfDay> notificationSchedule) async {
     final prefs = await SharedPreferences.getInstance();
     final scheduleJson = json.encode(
       notificationSchedule
-          .map((item) => {
-                'hour': item['time'].hour,
-                'minute': item['time'].minute,
-                'title': item['title'],
+          .map((time) => {
+                'hour': time.hour,
+                'minute': time.minute,
               })
           .toList(),
     );
