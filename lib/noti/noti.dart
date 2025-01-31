@@ -31,7 +31,6 @@ class _NotificationScreenState extends State<NotificationScreen> {
           .map((item) => {
                 'hour': item['time'].hour,
                 'minute': item['time'].minute,
-                'title': item['title'],
               })
           .toList(),
     );
@@ -39,26 +38,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
     notificationService.scheduleNotifications(notificationSchedule);
   }
 
-  Future<void> _addOrEditNotification(
-      [Map<String, dynamic>? existing, int? index]) async {
+  Future<void> _addOrEditNotification([Map<String, dynamic>? existing, int? index]) async {
     TimeOfDay selectedTime = existing?['time'] ?? TimeOfDay.now();
-    String title = existing?['title'] ?? '';
 
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title:
-            Text(existing == null ? 'Add Notification' : 'Edit Notification'),
+        title: Text(existing == null ? 'Add Notification' : 'Edit Notification'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextFormField(
-              initialValue: title,
-              decoration:
-                  const InputDecoration(labelText: 'Notification Title'),
-              onChanged: (value) => title = value,
-            ),
-            const SizedBox(height: 16),
             ListTile(
               title: Text('Time: ${selectedTime.format(context)}'),
               trailing: const Icon(Icons.access_time),
@@ -82,21 +71,18 @@ class _NotificationScreenState extends State<NotificationScreen> {
           ),
           TextButton(
             onPressed: () {
-              if (title.isNotEmpty) {
-                setState(() {
-                  final newSchedule = {
-                    'time': selectedTime,
-                    'title': title,
-                  };
-                  if (existing == null) {
-                    notificationSchedule.add(newSchedule);
-                  } else {
-                    notificationSchedule[index!] = newSchedule;
-                  }
-                });
-                saveSchedule();
-                Navigator.pop(context);
-              }
+              setState(() {
+                final newSchedule = {
+                  'time': selectedTime,
+                };
+                if (existing == null) {
+                  notificationSchedule.add(newSchedule);
+                } else {
+                  notificationSchedule[index!] = newSchedule;
+                }
+              });
+              saveSchedule();
+              Navigator.pop(context);
             },
             child: const Text('Save'),
           ),
@@ -121,7 +107,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 child: Column(
                   children: [
                     const Text(
-                      'Notification Schedule with fufku',
+                      'Notification Schedule',
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -129,8 +115,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     ),
                     const SizedBox(height: 8),
                     ElevatedButton.icon(
-                      onPressed: () => notificationService
-                          .scheduleNotifications(notificationSchedule),
+                      onPressed: () => notificationService.scheduleNotifications(notificationSchedule),
                       icon: const Icon(Icons.notification_add),
                       label: const Text('Schedule All Notifications'),
                     ),
@@ -152,7 +137,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     itemBuilder: (context, index) {
                       final schedule = notificationSchedule[index];
                       return Dismissible(
-                        key: Key(schedule['title']),
+                        key: Key(schedule['time'].toString()),
                         direction: DismissDirection.endToStart,
                         background: Container(
                           color: Colors.red,
@@ -161,29 +146,22 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           child: const Icon(Icons.delete, color: Colors.white),
                         ),
                         onDismissed: (direction) {
-                          // Store the deleted notification temporarily
-                          final deletedNotification =
-                              notificationSchedule[index];
+                          final deletedNotification = notificationSchedule[index];
                           final deletedIndex = index;
 
-                          // Remove the notification from the list
                           setState(() {
                             notificationSchedule.removeAt(index);
                           });
                           saveSchedule();
 
-                          // Show a SnackBar with an "Undo" action
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text(
-                                  'Notification "${deletedNotification['title']}" deleted'),
+                              content: Text('Notification at ${schedule['time'].format(context)} deleted'),
                               action: SnackBarAction(
                                 label: 'Undo',
                                 onPressed: () {
-                                  // Restore the deleted notification
                                   setState(() {
-                                    notificationSchedule.insert(
-                                        deletedIndex, deletedNotification);
+                                    notificationSchedule.insert(deletedIndex, deletedNotification);
                                   });
                                   saveSchedule();
                                 },
@@ -192,17 +170,14 @@ class _NotificationScreenState extends State<NotificationScreen> {
                           );
                         },
                         child: Card(
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                           child: ListTile(
                             leading: CircleAvatar(
                               child: Text('${index + 1}'),
                             ),
-                            title: Text(schedule['title']),
-                            subtitle: Text(
-                                'Time: ${schedule['time'].format(context)}'),
-                            onTap: () =>
-                                _addOrEditNotification(schedule, index),
+                            title: Text('Daily Notification'),
+                            subtitle: Text('Time: ${schedule['time'].format(context)}'),
+                            onTap: () => _addOrEditNotification(schedule, index),
                           ),
                         ),
                       );

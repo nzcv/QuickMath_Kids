@@ -1,4 +1,3 @@
-// notification_service.dart
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -77,9 +76,7 @@ class NotificationService {
         initialDelay: initialDelay,
         inputData: {
           'id': i,
-          'title': schedule['title'],
-          'body':
-              'Your daily notification at ${notificationTime.hour}:${notificationTime.minute}',
+          'body': 'Daily notification at ${notificationTime.hour}:${notificationTime.minute}',
         },
         constraints: Constraints(
           networkType: NetworkType.not_required,
@@ -99,7 +96,6 @@ class NotificationService {
                   hour: item['hour'] as int,
                   minute: item['minute'] as int,
                 ),
-                'title': item['title'] as String,
               })
           .toList();
     }
@@ -114,7 +110,6 @@ class NotificationService {
           .map((item) => {
                 'hour': item['time'].hour,
                 'minute': item['time'].minute,
-                'title': item['title'],
               })
           .toList(),
     );
