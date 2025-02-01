@@ -111,4 +111,32 @@ class NotificationService {
     );
     await prefs.setString('notification_schedule', scheduleJson);
   }
+
+  Future<void> showStyledNotification(int id, String title, String body) async {
+    AndroidNotificationDetails androidPlatformChannelSpecifics =
+        AndroidNotificationDetails(
+      'your_channel_id', // Channel ID
+      'Your Channel Name', // Channel Name
+      channelDescription: 'Your Channel Description', // Channel Description
+      importance: Importance.max,
+      priority: Priority.high,
+      showWhen: true,
+      color: Colors.blue, // Notification color
+      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'), // Large icon
+      styleInformation: BigTextStyleInformation(body), // Big text style
+      enableVibration: true, // Enable vibration
+      playSound: true, // Play sound
+      sound: RawResourceAndroidNotificationSound('notification_sound'), // Custom sound
+    );
+
+    NotificationDetails platformChannelSpecifics =
+        NotificationDetails(android: androidPlatformChannelSpecifics);
+
+    await flutterLocalNotificationsPlugin.show(
+      id,
+      title,
+      body,
+      platformChannelSpecifics,
+    );
+  }
 }
