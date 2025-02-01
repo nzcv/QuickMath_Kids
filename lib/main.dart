@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -11,6 +10,7 @@ import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -31,38 +31,55 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-        FlutterLocalNotificationsPlugin();
-
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-
     if (task == 'dailyNotification') {
-      const AndroidNotificationDetails androidPlatformChannelSpecifics =
-          AndroidNotificationDetails(
-        'daily_notifications_channel',
-        'Daily Notifications',
-        channelDescription: 'Channel for daily scheduled notifications',
-        importance: Importance.max,
-        priority: Priority.high,
+      // Initialize notifications first
+      await AwesomeNotifications().initialize(
+        'resource://mipmap/ic_launcher',
+        [
+          NotificationChannel(
+            channelKey: 'kumon_practice_reminder',
+            channelName: 'Practice Reminder',
+            channelDescription: 'Reminds students to practice daily',
+            defaultColor: const Color(0xFF0054A6),
+            ledColor: Colors.white,
+            importance: NotificationImportance.High,
+            playSound: true,
+            enableLights: true,
+            enableVibration: true,
+          ),
+        ],
       );
 
-      const NotificationDetails platformChannelSpecifics =
-          NotificationDetails(android: androidPlatformChannelSpecifics);
-
-      await flutterLocalNotificationsPlugin.show(
-        inputData?['id'] ?? 0,
-        inputData?['title'] ?? 'Scheduled Notification',
-        inputData?['body'] ?? 'Time for your daily notification!',
-        platformChannelSpecifics,
+      // Create the notification after channel is initialized
+      await AwesomeNotifications().createNotification(
+        content: NotificationContent(
+          id: inputData?['id'] ?? 0,
+          channelKey: 'kumon_practice_reminder',
+          title: '<b>${inputData?['title'] ?? 'Practice Time!'}</b>',
+          body: inputData?['body'] ?? 'Time to practice your math skills!',
+          color: const Color(0xFF0054A6),
+          notificationLayout: NotificationLayout.Default,
+          category: NotificationCategory.Reminder,
+          wakeUpScreen: true,
+          displayOnForeground: true,
+          displayOnBackground: true,
+          icon: 'resource://mipmap/ic_launcher',
+        ),
+        actionButtons: [
+          NotificationActionButton(
+            key: 'PRACTICE_NOW',
+            label: 'Practice Now',
+            color: const Color(0xFF0054A6),
+            actionType: ActionType.Default,
+          ),
+          NotificationActionButton(
+            key: 'REMIND_LATER',
+            label: 'Remind Later',
+            actionType: ActionType.Default,
+          ),
+        ],
       );
     }
-
     return Future.value(true);
   });
 }
@@ -84,8 +101,6 @@ class _MyAppState extends State<MyApp> {
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5'; // Default range
   bool _isDarkMode = false; // Flag to manage dark mode
-
-  late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
   late FirebaseMessaging messaging;
 
   @override
@@ -95,9 +110,30 @@ class _MyAppState extends State<MyApp> {
   }
 
   /// Setup Notifications, Firebase Messaging, and WorkManager
+  // Remove this line since we're not using flutter_local_notifications anymore
+// late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
   Future<void> setupNotifications() async {
     await requestPermissions();
-    await initializeNotifications();
+
+    // Initialize notifications with channel
+    await AwesomeNotifications().initialize(
+      'resource://mipmap/ic_launcher',
+      [
+        NotificationChannel(
+          channelKey: 'kumon_practice_reminder',
+          channelName: 'Practice Reminder',
+          channelDescription: 'Reminds students to practice daily',
+          defaultColor: const Color(0xFF0054A6),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          playSound: true,
+          enableLights: true,
+          enableVibration: true,
+        ),
+      ],
+    );
+
     await FirebaseMessaging.instance.getToken().then((fcmToken) {
       print('FCM Token: $fcmToken');
     });
@@ -106,18 +142,33 @@ class _MyAppState extends State<MyApp> {
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       RemoteNotification? notification = message.notification;
       if (notification != null) {
-        flutterLocalNotificationsPlugin.show(
-          notification.hashCode,
-          notification.title,
-          notification.body,
-          const NotificationDetails(
-            android: AndroidNotificationDetails(
-              'channel_id',
-              'Channel Name',
-              importance: Importance.max,
-              priority: Priority.high,
-            ),
+        AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: notification.hashCode,
+            channelKey: 'kumon_practice_reminder',
+            title: '<b>${notification.title}</b>',
+            body: notification.body,
+            color: const Color(0xFF0054A6),
+            notificationLayout: NotificationLayout.Default,
+            category: NotificationCategory.Reminder,
+            wakeUpScreen: true,
+            displayOnForeground: true,
+            displayOnBackground: true,
+            icon: 'resource://mipmap/ic_launcher',
           ),
+          actionButtons: [
+            NotificationActionButton(
+              key: 'PRACTICE_NOW',
+              label: 'Practice Now',
+              color: const Color(0xFF0054A6),
+              actionType: ActionType.Default,
+            ),
+            NotificationActionButton(
+              key: 'REMIND_LATER',
+              label: 'Remind Later',
+              actionType: ActionType.Default,
+            ),
+          ],
         );
       }
     });
@@ -136,16 +187,43 @@ class _MyAppState extends State<MyApp> {
 
   /// Initialize local notifications
   Future<void> initializeNotifications() async {
-    flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+    await AwesomeNotifications().initialize(
+      'resource://mipmap/ic_launcher',
+      [
+        NotificationChannel(
+          channelKey: 'kumon_practice_reminder',
+          channelName: 'Practice Reminder',
+          channelDescription: 'Reminds students to practice daily',
+          defaultColor: const Color(0xFF0054A6),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          playSound: true,
+          enableLights: true,
+          enableVibration: true,
+          soundSource: 'resource://raw/notification_sound',
+        ),
+      ],
+    );
 
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
-    messaging = FirebaseMessaging.instance;
+    // Handle foreground messages
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      RemoteNotification? notification = message.notification;
+      if (notification != null) {
+        AwesomeNotifications().createNotification(
+          content: NotificationContent(
+            id: notification.hashCode,
+            channelKey: 'kumon_practice_reminder',
+            title: '<b>${notification.title}</b>',
+            body: notification.body,
+            color: const Color(0xFF0054A6),
+            notificationLayout: NotificationLayout.Default,
+            displayOnForeground: true,
+            displayOnBackground: true,
+            icon: 'resource://mipmap/ic_launcher',
+          ),
+        );
+      }
+    });
   }
 
   void switchToPracticeScreen(Operation operation, String range) {
@@ -206,11 +284,9 @@ class _MyAppState extends State<MyApp> {
         body: Consumer(
           builder: (context, ref, child) {
             return activeScreen == 'start_screen'
-                ? StartScreen(
-                    switchToPracticeScreen, 
-                    switchToStartScreen,
+                ? StartScreen(switchToPracticeScreen, switchToStartScreen,
                     toggleDarkMode // Pass the dark mode toggle function
-                  )
+                    )
                 : activeScreen == 'practice_screen'
                     ? PracticeScreen(
                         (questions, correctAnswers, time) =>
