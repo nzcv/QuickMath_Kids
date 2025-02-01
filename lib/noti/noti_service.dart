@@ -1,14 +1,12 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:workmanager/workmanager.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 
 class NotificationService {
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      FlutterLocalNotificationsPlugin();
   final FirebaseMessaging messaging = FirebaseMessaging.instance;
   String? fcmToken;
 
@@ -33,13 +31,22 @@ class NotificationService {
   }
 
   Future<void> initializeNotifications() async {
-    const AndroidInitializationSettings initializationSettingsAndroid =
-        AndroidInitializationSettings('@mipmap/ic_launcher');
-
-    const InitializationSettings initializationSettings =
-        InitializationSettings(android: initializationSettingsAndroid);
-
-    await flutterLocalNotificationsPlugin.initialize(initializationSettings);
+    await AwesomeNotifications().initialize(
+      null, // Use default icon for notifications
+      [
+        NotificationChannel(
+          channelKey: 'kumon_practice_reminder',
+          channelName: 'Kumon Practice Reminder',
+          channelDescription: 'Reminds students to practice Kumon daily',
+          importance: NotificationImportance.High,
+          defaultColor: const Color(0xFF0054A6), // Kumon blue color
+          ledColor: Colors.white,
+          soundSource: 'resource://raw/notification_sound', // Custom sound
+          enableVibration: true,
+          playSound: true,
+        ),
+      ],
+    );
   }
 
   Future<void> scheduleNotifications(List<TimeOfDay> notificationSchedule) async {
@@ -113,30 +120,30 @@ class NotificationService {
   }
 
   Future<void> showStyledNotification(int id, String title, String body) async {
-    AndroidNotificationDetails androidPlatformChannelSpecifics =
-        AndroidNotificationDetails(
-      'your_channel_id', // Channel ID
-      'Your Channel Name', // Channel Name
-      channelDescription: 'Your Channel Description', // Channel Description
-      importance: Importance.max,
-      priority: Priority.high,
-      showWhen: true,
-      color: Colors.blue, // Notification color
-      largeIcon: DrawableResourceAndroidBitmap('@mipmap/ic_launcher'), // Large icon
-      styleInformation: BigTextStyleInformation(body), // Big text style
-      enableVibration: true, // Enable vibration
-      playSound: true, // Play sound
-      sound: RawResourceAndroidNotificationSound('notification_sound'), // Custom sound
-    );
-
-    NotificationDetails platformChannelSpecifics =
-        NotificationDetails(android: androidPlatformChannelSpecifics);
-
-    await flutterLocalNotificationsPlugin.show(
-      id,
-      title,
-      body,
-      platformChannelSpecifics,
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: id,
+        channelKey: 'kumon_practice_reminder',
+        title: title,
+        body: body,
+        color: const Color(0xFF0054A6), // Kumon blue color
+        notificationLayout: NotificationLayout.BigPicture, // Use BigPicture layout
+        displayOnForeground: true,
+        displayOnBackground: true,
+        payload: {'notificationId': id.toString()},
+      ),
+      actionButtons: [
+        NotificationActionButton(
+          key: 'PRACTICE_NOW',
+          label: 'Practice Now',
+          color: const Color(0xFF0054A6), // Kumon blue color
+        ),
+        NotificationActionButton(
+          key: 'REMIND_LATER',
+          label: 'Remind Later',
+          color: Colors.grey,
+        ),
+      ],
     );
   }
 }

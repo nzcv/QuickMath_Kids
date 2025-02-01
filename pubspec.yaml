@@ -26,6 +26,7 @@ dependencies:
   firebase_messaging: ^15.2.1
   workmanager: ^0.5.2
   shared_preferences: ^2.5.1
+  awesome_notifications: ^0.10.0
 
 dev_dependencies:
   flutter_test:
