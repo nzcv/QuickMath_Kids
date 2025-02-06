@@ -71,7 +71,7 @@ class _FAQScreenState extends State<FAQScreen> {
     ),
     FAQItem(
       question: "Does the app have a dark mode?",
-      answer: "No, this functionality will be added in future updates.",
+      answer: "Yes, you can choose the dark mode option in the drawer by clicking on the drawer button in the home screen, and the top left corner "
     ),
     FAQItem(
       question: "Can I customize the difficulty level?",
@@ -157,17 +157,14 @@ class _FAQScreenState extends State<FAQScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          "QuickMath_Kids FAQ",
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
-          ),
-        ),
+        title: const Text("QuickMath_Kids FAQ"),
         centerTitle: true,
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: theme.colorScheme.primary,
         elevation: 4,
       ),
       body: Column(
@@ -178,9 +175,10 @@ class _FAQScreenState extends State<FAQScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: "Search FAQs...",
-                prefixIcon: const Icon(Icons.search, color: Colors.blueAccent),
+                prefixIcon:
+                    Icon(Icons.search, color: theme.colorScheme.primary),
                 suffixIcon: IconButton(
-                  icon: const Icon(Icons.clear, color: Colors.blueAccent),
+                  icon: Icon(Icons.clear, color: theme.colorScheme.primary),
                   onPressed: () {
                     _searchController.clear();
                     _filterFAQs();
@@ -188,11 +186,12 @@ class _FAQScreenState extends State<FAQScreen> {
                 ),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Colors.blueAccent),
+                  borderSide: BorderSide(color: theme.colorScheme.primary),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
-                  borderSide: const BorderSide(color: Colors.blueAccent, width: 2),
+                  borderSide:
+                      BorderSide(color: theme.colorScheme.primary, width: 2),
                 ),
               ),
             ),
@@ -207,7 +206,7 @@ class _FAQScreenState extends State<FAQScreen> {
                         "No results found.",
                         style: TextStyle(
                           fontSize: 18,
-                          color: Colors.grey[600],
+                          color: theme.colorScheme.onSurface.withOpacity(0.6),
                         ),
                       ),
                     )
@@ -216,7 +215,11 @@ class _FAQScreenState extends State<FAQScreen> {
                       itemCount: filteredFAQs.length,
                       itemBuilder: (context, index) {
                         return Card(
-                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          color: isDarkMode
+                              ? theme.colorScheme.surfaceVariant
+                              : Colors.white,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
                           elevation: 2,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
@@ -224,10 +227,10 @@ class _FAQScreenState extends State<FAQScreen> {
                           child: ExpansionTile(
                             title: Text(
                               filteredFAQs[index].question,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: Colors.blueAccent,
+                                color: theme.colorScheme.primary,
                               ),
                             ),
                             children: [
@@ -235,9 +238,9 @@ class _FAQScreenState extends State<FAQScreen> {
                                 padding: const EdgeInsets.all(16.0),
                                 child: Text(
                                   filteredFAQs[index].answer,
-                                  style: const TextStyle(
+                                  style: TextStyle(
                                     fontSize: 14,
-                                    color: Colors.white,
+                                    color: theme.colorScheme.onSurface,
                                   ),
                                 ),
                               ),
@@ -252,7 +255,7 @@ class _FAQScreenState extends State<FAQScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _scrollToTop,
-        backgroundColor: Colors.blueAccent,
+        backgroundColor: theme.colorScheme.primary,
         child: const Icon(Icons.arrow_upward, color: Colors.white),
       ),
     );
