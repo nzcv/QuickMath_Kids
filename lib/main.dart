@@ -11,6 +11,7 @@ import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,15 +136,27 @@ class _MyAppState extends State<MyApp> {
   bool _isDarkMode = false; // Flag to manage dark mode
   late FirebaseMessaging messaging;
 
-  @override
+ @override
   void initState() {
     super.initState();
     setupNotifications();
+    _loadDarkModePreference();
   }
 
-  /// Setup Notifications, Firebase Messaging, and WorkManager
-  // Remove this line since we're not using flutter_local_notifications anymore
-// late FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+  Future<void> _loadDarkModePreference() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isDarkMode = prefs.getBool('isDarkMode') ?? false;
+    });
+  }
+
+  void toggleDarkMode(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', value);
+    setState(() {
+      _isDarkMode = value;
+    });
+  }
 
   Future<void> setupNotifications() async {
     await requestPermissions();
@@ -286,13 +299,6 @@ class _MyAppState extends State<MyApp> {
     TTSService().speak(text, ref); // Pass WidgetRef to TTSService
   }
 
-  // Toggle Dark Mode
-  void toggleDarkMode(bool value) {
-    setState(() {
-      _isDarkMode = value;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = ThemeData(
@@ -317,7 +323,7 @@ class _MyAppState extends State<MyApp> {
           builder: (context, ref, child) {
             return activeScreen == 'start_screen'
                 ? StartScreen(switchToPracticeScreen, switchToStartScreen,
-                    toggleDarkMode // Pass the dark mode toggle function
+                    toggleDarkMode, isDarkMode: _isDarkMode,  // Pass the dark mode toggle function
                     )
                 : activeScreen == 'practice_screen'
                     ? PracticeScreen(

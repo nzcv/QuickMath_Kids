@@ -10,12 +10,14 @@ import 'package:QuickMath_Kids/noti/noti.dart';
 class StartScreen extends StatefulWidget {
   final Function(Operation, String) switchToPracticeScreen;
   final Function() switchToStartScreen;
-  final Function(bool) toggleDarkMode; // Add the callback for dark mode toggle
+  final Function(bool) toggleDarkMode;
+  final bool isDarkMode; // Add this parameter
 
   const StartScreen(
     this.switchToPracticeScreen,
     this.switchToStartScreen,
     this.toggleDarkMode, {
+    required this.isDarkMode, // Add this parameter
     super.key,
   });
 
@@ -27,6 +29,22 @@ class _StartScreenState extends State<StartScreen> {
   Operation _selectedOperation = Operation.addition_2A; // Default operation
   String _selectedRange = 'Upto +5'; // Default range
   bool _isDarkMode = false; // Flag to track dark mode
+
+  @override
+  void initState() {
+    super.initState();
+    _isDarkMode = widget.isDarkMode; // Initialize with passed value
+  }
+
+  @override
+  void didUpdateWidget(StartScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isDarkMode != widget.isDarkMode) {
+      setState(() {
+        _isDarkMode = widget.isDarkMode;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -157,7 +175,8 @@ class _StartScreenState extends State<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.notifications),
-            title: const Text('Notifications', style: TextStyle(color: Colors.grey)),
+            title: const Text('Notifications',
+                style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -168,7 +187,8 @@ class _StartScreenState extends State<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            title:
+                const Text('How to use?', style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context); // Close the drawer
               Navigator.push(
@@ -183,8 +203,7 @@ class _StartScreenState extends State<StartScreen> {
             onChanged: (bool value) {
               setState(() {
                 _isDarkMode = value;
-                widget.toggleDarkMode(
-                    _isDarkMode); // Call the parent function to update theme
+               widget.toggleDarkMode(value);
               });
             },
           ),
