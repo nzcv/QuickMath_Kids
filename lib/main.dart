@@ -16,6 +16,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   await Workmanager().initialize(callbackDispatcher, isInDebugMode: true);
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -25,9 +26,40 @@ void main() async {
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   await Firebase.initializeApp();
   print("Handling a background message: ${message.messageId}");
+
+  // Handle the notification
+  if (message.notification != null) {
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: message.hashCode,
+        channelKey: 'kumon_practice_reminder',
+        title: '<b>${message.notification?.title}</b>',
+        body: message.notification?.body,
+        color: const Color(0xFF0054A6),
+        notificationLayout: NotificationLayout.Default,
+        category: NotificationCategory.Reminder,
+        wakeUpScreen: true,
+        displayOnForeground: true,
+        displayOnBackground: true,
+        icon: 'resource://mipmap/ic_launcher',
+      ),
+      actionButtons: [
+        NotificationActionButton(
+          key: 'PRACTICE_NOW',
+          label: 'Practice Now',
+          color: const Color(0xFF0054A6),
+          actionType: ActionType.Default,
+        ),
+        NotificationActionButton(
+          key: 'REMIND_LATER',
+          label: 'Remind Later',
+          actionType: ActionType.Default,
+        ),
+      ],
+    );
+  }
 }
 
-/// WorkManager task dispatcher
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {

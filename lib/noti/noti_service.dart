@@ -102,60 +102,61 @@ class NotificationService {
   }
 
   Future<void> showStyledNotification(int id, String title, String body) async {
-  await AwesomeNotifications().createNotification(
-    content: NotificationContent(
-      id: id,
-      channelKey: 'kumon_practice_reminder',
-      title: '<b>${title}</b>', // Bold title
-      body: body,
-      color: const Color(0xFF0054A6), // Kumon blue for notification accent
-      notificationLayout: NotificationLayout.Default,
-      category: NotificationCategory.Reminder,
-      wakeUpScreen: true,
-      displayOnForeground: true,
-      displayOnBackground: true,
-      autoDismissible: true, // Allow users to dismiss the notification
-      icon: 'resource://drawable/kumon_icon',
-      largeIcon: 'resource://drawable/kumon_large_icon',
-      payload: {'notificationId': id.toString()},
-    ),
-    actionButtons: [
-      NotificationActionButton(
-        key: 'PRACTICE_NOW',
-        label: 'Practice Now',
-        actionType: ActionType.Default,
-        color: const Color(0xFF0054A6), // This will tint the button on supported platforms
-      ),
-      NotificationActionButton(
-        key: 'REMIND_LATER',
-        label: 'Remind Later',
-        actionType: ActionType.Default,
-      ),
-    ],
-  );
-}
-
-Future<void> initializeNotifications() async {
-  await AwesomeNotifications().initialize(
-    'resource://drawable/kumon_icon',
-    [
-      NotificationChannel(
+    await AwesomeNotifications().createNotification(
+      content: NotificationContent(
+        id: id,
         channelKey: 'kumon_practice_reminder',
-        channelName: 'Kumon Practice Reminder',
-        channelDescription: 'Reminds students to practice Kumon daily',
-        defaultColor: const Color(0xFF0054A6),
-        ledColor: Colors.white,
-        importance: NotificationImportance.High,
-        playSound: true,
-        enableLights: true,
-        enableVibration: true,
-        groupKey: 'kumon_reminders',
-        groupSort: GroupSort.Desc,
-        groupAlertBehavior: GroupAlertBehavior.Children,
-        defaultRingtoneType: DefaultRingtoneType.Notification,
-        soundSource: 'resource://raw/notification_sound',
+        title: '<b>${title}</b>', // Bold title
+        body: body,
+        color: const Color(0xFF0054A6), // Kumon blue for notification accent
+        notificationLayout: NotificationLayout.Default,
+        category: NotificationCategory.Reminder,
+        wakeUpScreen: true,
+        displayOnForeground: true,
+        displayOnBackground: true,
+        autoDismissible: true, // Allow users to dismiss the notification
+        icon: 'resource://drawable/kumon_icon',
+        largeIcon: 'resource://drawable/kumon_large_icon',
+        payload: {'notificationId': id.toString()},
       ),
-    ],
-  );
-}
+      actionButtons: [
+        NotificationActionButton(
+          key: 'PRACTICE_NOW',
+          label: 'Practice Now',
+          actionType: ActionType.Default,
+          color: const Color(
+              0xFF0054A6), // This will tint the button on supported platforms
+        ),
+        NotificationActionButton(
+          key: 'REMIND_LATER',
+          label: 'Remind Later',
+          actionType: ActionType.Default,
+        ),
+      ],
+    );
+  }
+
+  Future<void> initializeNotifications() async {
+    await AwesomeNotifications().initialize(
+      'resource://drawable/kumon_icon',
+      [
+        NotificationChannel(
+          channelKey: 'kumon_practice_reminder',
+          channelName: 'Kumon Practice Reminder',
+          channelDescription: 'Reminds students to practice Kumon daily',
+          defaultColor: const Color(0xFF0054A6),
+          ledColor: Colors.white,
+          importance: NotificationImportance.High,
+          playSound: true,
+          enableLights: true,
+          enableVibration: true,
+          groupKey: 'kumon_reminders',
+          groupSort: GroupSort.Desc,
+          groupAlertBehavior: GroupAlertBehavior.Children,
+          defaultRingtoneType: DefaultRingtoneType.Notification,
+          soundSource: 'resource://raw/notification_sound',
+        ),
+      ],
+    );
+  }
 }
