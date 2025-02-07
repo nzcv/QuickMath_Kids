@@ -35,6 +35,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   List<int> answerOptions = [];
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
+  List<Map<String, dynamic>> _wrongQuestions = [];
 
   int correctAnswer = 0;
 
@@ -57,6 +58,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     super.initState();
     regenerateNumbers();
     _updateHintMessage();
+    _loadWrongQuestions();
     confettiManager = ConfettiManager();
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
@@ -96,6 +98,29 @@ class _PracticeScreenState extends State<PracticeScreen>
     _quizTimer.stopTimer();
     confettiManager.dispose();
     super.dispose();
+  }
+
+  Future<void> _loadWrongQuestions() async {
+    _wrongQuestions = await WrongQuestionsService.getWrongQuestions();
+    if (_wrongQuestions.isNotEmpty) {
+      _loadNextWrongQuestion();
+    } else {
+      regenerateNumbers(); // If no wrong questions, continue normally
+    }
+  }
+
+  void _loadNextWrongQuestion() {
+    if (_wrongQuestions.isNotEmpty) {
+      var question = _wrongQuestions.removeAt(0);
+
+      setState(() {
+        numbers = _parseQuestion(question['question']);
+        correctAnswer = question['correctAnswer'];
+        answerOptions = generateAnswerOptions(correctAnswer);
+      });
+    } else {
+      regenerateNumbers();
+    }
   }
 
   void _updateHintMessage() {
@@ -145,50 +170,41 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     setState(() {
       if (!isCorrect) {
-        // Store wrong answer with category
-        String questionText = widget.selectedOperation == Operation.lcm &&
-                numbers.length > 3
-            ? 'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]}'
-            : '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
-
         WrongQuestionsService.saveWrongQuestion(
-          question: questionText,
+          question: _formatQuestionText(),
           userAnswer: selectedAnswer,
           correctAnswer: correctAnswer,
           category:
               '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
         );
-      }
-
-      if (widget.selectedOperation == Operation.lcm && numbers.length > 3) {
-        answeredQuestions.add(
-            'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
-        // Only play confetti if the answer is correct
-        if (isCorrect) {
-          confettiManager.correctConfettiController.play();
-        }
       } else {
-        answeredQuestions.add(
-            '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
-        // Only play confetti if the answer is correct
-        if (isCorrect) {
-          confettiManager.correctConfettiController.play();
-        } else {
-          confettiManager.wrongConfettiController.play();
+        // Remove question from wrong answers if it was from the stored list
+        if (_wrongQuestions.isNotEmpty) {
+          WrongQuestionsService.removeWrongQuestion(0);
         }
       }
+
+      answeredQuestions.add(
+          '${_formatQuestionText()} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
       answeredCorrectly.add(isCorrect);
+
+      if (_wrongQuestions.isNotEmpty) {
+        _loadNextWrongQuestion(); // Load next wrong question
+      } else {
+        regenerateNumbers();
+      }
     });
+  }
 
-    // Regenerate numbers for the next question
-    regenerateNumbers();
+  List<int> _parseQuestion(String questionText) {
+    RegExp regExp = RegExp(r'(\d+)');
+    List<int> numbers =
+        regExp.allMatches(questionText).map((m) => int.parse(m[0]!)).toList();
+    return numbers;
+  }
 
-    // Automatically trigger TTS for the new question
-    Future.delayed(const Duration(), () {
-      _triggerTTSSpeech();
-    });
-
-    _updateHintMessage();
+  String _formatQuestionText() {
+    return '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
   }
 
   String _getOperatorSymbol(Operation operation) {
