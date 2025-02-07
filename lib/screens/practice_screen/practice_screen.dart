@@ -12,6 +12,7 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/hint_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
+import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int) switchToResultScreen;
@@ -143,6 +144,21 @@ class _PracticeScreenState extends State<PracticeScreen>
     bool isCorrect = selectedAnswer == correctAnswer;
 
     setState(() {
+
+      if (!isCorrect) {
+      // Store wrong answer
+      String questionText = widget.selectedOperation == Operation.lcm && numbers.length > 3
+          ? 'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]}'
+          : '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
+          
+      WrongQuestionsService.saveWrongQuestion(
+        question: questionText,
+        userAnswer: selectedAnswer,
+        correctAnswer: correctAnswer,
+        timestamp: DateTime.now(),
+      );
+    }
+
       if (widget.selectedOperation == Operation.lcm && numbers.length > 3) {
         answeredQuestions.add(
             'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');

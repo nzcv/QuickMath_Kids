@@ -6,6 +6,7 @@ import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters
 import 'package:QuickMath_Kids/screens/faq_screen.dart'; // Import the FAQ screen
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/noti/noti.dart';
+import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String) switchToPracticeScreen;
@@ -163,17 +164,6 @@ class _StartScreenState extends State<StartScreen> {
             },
           ),
           ListTile(
-            leading: const Icon(Icons.help_outline),
-            title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
-            onTap: () {
-              Navigator.pop(context); // Close the drawer
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FAQScreen()),
-              );
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.notifications),
             title: const Text('Notifications',
                 style: TextStyle(color: Colors.grey)),
@@ -182,6 +172,17 @@ class _StartScreenState extends State<StartScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => NotificationScreen()),
+              );
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FAQScreen()),
               );
             },
           ),
@@ -197,13 +198,25 @@ class _StartScreenState extends State<StartScreen> {
               );
             },
           ),
+          ListTile(
+            leading: const Icon(Icons.history),
+            title: const Text('Wrong Answers History'),
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const WrongAnswersScreen(),
+                ),
+              );
+            },
+          ),
           SwitchListTile(
             title: const Text("Dark Mode"),
             value: _isDarkMode,
             onChanged: (bool value) {
               setState(() {
                 _isDarkMode = value;
-               widget.toggleDarkMode(value);
+                widget.toggleDarkMode(value);
               });
             },
           ),
