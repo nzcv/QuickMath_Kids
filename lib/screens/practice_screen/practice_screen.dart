@@ -144,20 +144,21 @@ class _PracticeScreenState extends State<PracticeScreen>
     bool isCorrect = selectedAnswer == correctAnswer;
 
     setState(() {
-
       if (!isCorrect) {
-      // Store wrong answer
-      String questionText = widget.selectedOperation == Operation.lcm && numbers.length > 3
-          ? 'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]}'
-          : '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
-          
-      WrongQuestionsService.saveWrongQuestion(
-        question: questionText,
-        userAnswer: selectedAnswer,
-        correctAnswer: correctAnswer,
-        timestamp: DateTime.now(),
-      );
-    }
+        // Store wrong answer with category
+        String questionText = widget.selectedOperation == Operation.lcm &&
+                numbers.length > 3
+            ? 'LCM of ${numbers[0]}, ${numbers[1]}, and ${numbers[2]}'
+            : '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
+
+        WrongQuestionsService.saveWrongQuestion(
+          question: questionText,
+          userAnswer: selectedAnswer,
+          correctAnswer: correctAnswer,
+          category:
+              '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+        );
+      }
 
       if (widget.selectedOperation == Operation.lcm && numbers.length > 3) {
         answeredQuestions.add(
@@ -236,14 +237,17 @@ class _PracticeScreenState extends State<PracticeScreen>
     final theme = Theme.of(context); // Get the current theme
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background, // Use background color based on theme
+      backgroundColor:
+          theme.colorScheme.background, // Use background color based on theme
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: theme.appBarTheme.backgroundColor, // Use appBar background color based on theme
+        backgroundColor: theme.appBarTheme
+            .backgroundColor, // Use appBar background color based on theme
         title: Text(
           'Practice',
           style: TextStyle(
-            color: theme.appBarTheme.titleTextStyle?.color, // Use title color based on theme
+            color: theme.appBarTheme.titleTextStyle
+                ?.color, // Use title color based on theme
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -267,7 +271,8 @@ class _PracticeScreenState extends State<PracticeScreen>
             child: ElevatedButton.icon(
               onPressed: endQuiz,
               icon: const Icon(Icons.assessment, color: Colors.white),
-              label: const Text('Results', style: TextStyle(color: Colors.white)),
+              label:
+                  const Text('Results', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
                 shape: RoundedRectangleBorder(
@@ -293,7 +298,9 @@ class _PracticeScreenState extends State<PracticeScreen>
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       // Timer Card
-                      buildTimerCard(_quizTimer.formatTime(_quizTimer.secondsPassed),context),
+                      buildTimerCard(
+                          _quizTimer.formatTime(_quizTimer.secondsPassed),
+                          context),
                       const SizedBox(height: 20),
                       // Hint Card
                       buildHintCard(currentHintMessage, _isHintExpanded, () {
@@ -321,7 +328,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                       // Answer Options
                       Container(
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surface, // Use surface color based on theme
+                          color: theme.colorScheme
+                              .surface, // Use surface color based on theme
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
@@ -339,13 +347,16 @@ class _PracticeScreenState extends State<PracticeScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                buildAnswerButton(answerOptions[0], () => checkAnswer(answerOptions[0])),
+                                buildAnswerButton(answerOptions[0],
+                                    () => checkAnswer(answerOptions[0])),
                                 const SizedBox(width: 16),
-                                buildAnswerButton(answerOptions[1], () => checkAnswer(answerOptions[1])),
+                                buildAnswerButton(answerOptions[1],
+                                    () => checkAnswer(answerOptions[1])),
                               ],
                             ),
                             const SizedBox(height: 16),
-                            buildAnswerButton(answerOptions[2], () => checkAnswer(answerOptions[2])),
+                            buildAnswerButton(answerOptions[2],
+                                () => checkAnswer(answerOptions[2])),
                           ],
                         ),
                       ),

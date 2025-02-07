@@ -1,4 +1,3 @@
-// wrong_questions_service.dart
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -10,7 +9,7 @@ class WrongQuestionsService {
     required String question,
     required int userAnswer,
     required int correctAnswer,
-    required DateTime timestamp,
+    required String category,  // Added category parameter
   }) async {
     final prefs = await SharedPreferences.getInstance();
     
@@ -22,7 +21,7 @@ class WrongQuestionsService {
       'question': question,
       'userAnswer': userAnswer,
       'correctAnswer': correctAnswer,
-      'timestamp': timestamp.toIso8601String(),
+      'category': category,  // Store the category
     };
     
     // Add new question to list
@@ -40,5 +39,16 @@ class WrongQuestionsService {
     return storedQuestions
         .map((string) => jsonDecode(string) as Map<String, dynamic>)
         .toList();
+  }
+
+  // Method to remove a question
+  static Future<void> removeWrongQuestion(int index) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> storedQuestions = prefs.getStringList(_key) ?? [];
+
+    if (index >= 0 && index < storedQuestions.length) {
+      storedQuestions.removeAt(index);
+      await prefs.setStringList(_key, storedQuestions);
+    }
   }
 }
