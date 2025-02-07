@@ -44,6 +44,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   bool hasListenedToQuestion = false;
   bool _isHintExpanded = false;
+  bool isFromWrongQuestions = false; // Track if question is from wrong answers
   final HintManager hintManager = HintManager();
   final QuizTimer _quizTimer = QuizTimer();
 
@@ -101,11 +102,20 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   Future<void> _loadWrongQuestions() async {
-    _wrongQuestions = await WrongQuestionsService.getWrongQuestions();
+    List<Map<String, dynamic>> allWrongQuestions =
+        await WrongQuestionsService.getWrongQuestions();
+
+    // Filter wrong questions by selected operation
+    _wrongQuestions = allWrongQuestions.where((question) {
+      String category = question['category'] ?? '';
+      return category
+          .startsWith(widget.selectedOperation.toString().split('.').last);
+    }).toList();
+
     if (_wrongQuestions.isNotEmpty) {
       _loadNextWrongQuestion();
     } else {
-      regenerateNumbers(); // If no wrong questions, continue normally
+      regenerateNumbers();
     }
   }
 
@@ -117,6 +127,7 @@ class _PracticeScreenState extends State<PracticeScreen>
         numbers = _parseQuestion(question['question']);
         correctAnswer = question['correctAnswer'];
         answerOptions = generateAnswerOptions(correctAnswer);
+        isFromWrongQuestions = true; // Mark as from wrong questions
       });
     } else {
       regenerateNumbers();
@@ -151,17 +162,9 @@ class _PracticeScreenState extends State<PracticeScreen>
     setState(() {
       numbers = QuestionGenerator().generateTwoRandomNumbers(
           widget.selectedOperation, widget.selectedRange);
-
-      if (numbers.length == 3) {
-        correctAnswer = numbers[2];
-      } else if (numbers.length == 4) {
-        correctAnswer = numbers[3];
-      }
-
-      // Call the function from answer_options.dart
+      correctAnswer = numbers.length > 2 ? numbers[2] : numbers[1];
       answerOptions = generateAnswerOptions(correctAnswer);
-
-      _updateHintMessage();
+      isFromWrongQuestions = false; // Freshly generated question
     });
   }
 
@@ -170,6 +173,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     setState(() {
       if (!isCorrect) {
+        // Save wrong question if answered incorrectly
         WrongQuestionsService.saveWrongQuestion(
           question: _formatQuestionText(),
           userAnswer: selectedAnswer,
@@ -178,29 +182,31 @@ class _PracticeScreenState extends State<PracticeScreen>
               '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
         );
       } else {
-        // Remove question from wrong answers if it was from the stored list
-        if (_wrongQuestions.isNotEmpty) {
+        // Play confetti if the answer is correct
+        confettiManager.correctConfettiController.play();
+
+        // Remove question from stored wrong answers if it was from there
+        if (isFromWrongQuestions) {
           WrongQuestionsService.removeWrongQuestion(0);
         }
       }
 
-      answeredQuestions.add(
-          '${_formatQuestionText()} = $selectedAnswer (${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
-      answeredCorrectly.add(isCorrect);
-
       if (_wrongQuestions.isNotEmpty) {
-        _loadNextWrongQuestion(); // Load next wrong question
+        _loadNextWrongQuestion();
       } else {
         regenerateNumbers();
       }
     });
+
+    _triggerTTSSpeech();
   }
 
   List<int> _parseQuestion(String questionText) {
-    RegExp regExp = RegExp(r'(\d+)');
-    List<int> numbers =
-        regExp.allMatches(questionText).map((m) => int.parse(m[0]!)).toList();
-    return numbers;
+    RegExp regExp = RegExp(r'\d+');
+    return regExp
+        .allMatches(questionText)
+        .map((m) => int.parse(m[0]!))
+        .toList();
   }
 
   String _formatQuestionText() {
