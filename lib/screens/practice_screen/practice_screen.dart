@@ -169,37 +169,42 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void checkAnswer(int selectedAnswer) {
-    bool isCorrect = selectedAnswer == correctAnswer;
+  bool isCorrect = selectedAnswer == correctAnswer;
 
-    setState(() {
-      if (!isCorrect) {
-        // Save wrong question if answered incorrectly
-        WrongQuestionsService.saveWrongQuestion(
-          question: _formatQuestionText(),
-          userAnswer: selectedAnswer,
-          correctAnswer: correctAnswer,
-          category:
-              '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
-        );
-      } else {
-        // Play confetti if the answer is correct
-        confettiManager.correctConfettiController.play();
+  setState(() {
+    // Store question in format: "X + Y = UserAnswer (Correct/Wrong, Correct Answer = Z)"
+    String questionText =
+        '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer '
+        '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})';
 
-        // Remove question from stored wrong answers if it was from there
-        if (isFromWrongQuestions) {
-          WrongQuestionsService.removeWrongQuestion(0);
-        }
+    answeredQuestions.add(questionText);
+    answeredCorrectly.add(isCorrect);
+
+    if (!isCorrect) {
+      WrongQuestionsService.saveWrongQuestion(
+        question: _formatQuestionText(),
+        userAnswer: selectedAnswer,
+        correctAnswer: correctAnswer,
+        category:
+            '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+      );
+    } else {
+      confettiManager.correctConfettiController.play();
+      if (isFromWrongQuestions) {
+        WrongQuestionsService.removeWrongQuestion(0);
       }
+    }
 
-      if (_wrongQuestions.isNotEmpty) {
-        _loadNextWrongQuestion();
-      } else {
-        regenerateNumbers();
-      }
-    });
+    if (_wrongQuestions.isNotEmpty) {
+      _loadNextWrongQuestion();
+    } else {
+      regenerateNumbers();
+    }
+  });
 
-    _triggerTTSSpeech();
-  }
+  _triggerTTSSpeech();
+}
+
 
   List<int> _parseQuestion(String questionText) {
     RegExp regExp = RegExp(r'\d+');

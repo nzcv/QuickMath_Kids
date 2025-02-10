@@ -166,7 +166,8 @@ class _ResultScreenState extends State<ResultScreen>
                                   : theme.colorScheme.error,
                             ),
                             title: Text(
-                              widget.answeredQuestions[index],
+                              widget.answeredQuestions[
+                                  index], // Display full question string
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 color: theme.colorScheme.onSurface,
                               ),
