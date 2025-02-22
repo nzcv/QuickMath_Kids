@@ -1,9 +1,9 @@
 # This is a generated file; do not edit or check into version control.
 awesome_notifications=/Users/Hacer/.pub-cache/hosted/pub.dev/awesome_notifications-0.10.0/
-firebase_core=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_core-3.10.1/
-firebase_core_web=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_core_web-2.19.0/
-firebase_messaging=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.1/
-firebase_messaging_web=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_messaging_web-3.10.1/
+firebase_core=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_core-3.11.0/
+firebase_core_web=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_core_web-2.20.0/
+firebase_messaging=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_messaging-15.2.2/
+firebase_messaging_web=/Users/Hacer/.pub-cache/hosted/pub.dev/firebase_messaging_web-3.10.2/
 flutter_tts=/Users/Hacer/.pub-cache/hosted/pub.dev/flutter_tts-4.2.2/
 path_provider=/Users/Hacer/.pub-cache/hosted/pub.dev/path_provider-2.1.5/
 path_provider_android=/Users/Hacer/.pub-cache/hosted/pub.dev/path_provider_android-2.2.15/

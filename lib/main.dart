@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/practice_screen.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
@@ -96,7 +95,6 @@ class _MyAppState extends State<MyApp> {
         onSurface: _isDarkMode ? Colors.white : Colors.black,
         error: Colors.red,
       ),
-      textTheme: GoogleFonts.latoTextTheme(),
     );
 
     return MaterialApp(

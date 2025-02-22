@@ -5,7 +5,6 @@ import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.da
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 import 'package:QuickMath_Kids/screens/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
-import 'package:QuickMath_Kids/noti/noti.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 
 class StartScreen extends StatefulWidget {
@@ -160,18 +159,6 @@ class _StartScreenState extends State<StartScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Notifications',
-                style: TextStyle(color: Colors.grey)),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => NotificationScreen()),
               );
             },
           ),
