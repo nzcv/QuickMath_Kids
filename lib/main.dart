@@ -10,8 +10,7 @@ import 'package:QuickMath_Kids/noti/noti_initialisation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await NotificationInit.initialize();
-
+  //await NotificationInit.initialize();
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -31,10 +30,11 @@ class _MyAppState extends State<MyApp> {
   List<bool> answeredCorrectly = [];
   int totalTimeInSeconds = 0;
   Operation _selectedOperation = Operation.addition_2A;
-  String _selectedRange = 'Upto +5'; // Default range
-  bool _isDarkMode = false; // Flag to manage dark mode
+  String _selectedRange = 'Upto +5';
+  int _selectedTimeLimit = 300; // Default: 5 minutes (in seconds)
+  bool _isDarkMode = false;
 
- @override
+  @override
   void initState() {
     super.initState();
     _loadDarkModePreference();
@@ -47,7 +47,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void toggleDarkMode(bool value) async {
+  Future<void> toggleDarkMode(bool value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('isDarkMode', value);
     setState(() {
@@ -55,10 +55,11 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void switchToPracticeScreen(Operation operation, String range) {
+  void switchToPracticeScreen(Operation operation, String range, int timeLimit) {
     setState(() {
       _selectedOperation = operation;
       _selectedRange = range;
+      _selectedTimeLimit = timeLimit; // Store the selected time limit
       activeScreen = 'practice_screen';
     });
   }
@@ -80,7 +81,7 @@ class _MyAppState extends State<MyApp> {
   }
 
   void triggerTTS(String text, WidgetRef ref) {
-    TTSService().speak(text, ref); // Pass WidgetRef to TTSService
+    TTSService().speak(text, ref);
   }
 
   @override
@@ -105,21 +106,28 @@ class _MyAppState extends State<MyApp> {
         body: Consumer(
           builder: (context, ref, child) {
             return activeScreen == 'start_screen'
-                ? StartScreen(switchToPracticeScreen, switchToStartScreen,
-                    toggleDarkMode, isDarkMode: _isDarkMode,  // Pass the dark mode toggle function
-                    )
+                ? StartScreen(
+                    switchToPracticeScreen,
+                    switchToStartScreen,
+                    toggleDarkMode,
+                    isDarkMode: _isDarkMode,
+                  )
                 : activeScreen == 'practice_screen'
                     ? PracticeScreen(
                         (questions, correctAnswers, time) =>
-                            switchToResultScreen(
-                                questions, correctAnswers, time),
-                        switchToStartScreen, // Pass directly as VoidCallback
+                            switchToResultScreen(questions, correctAnswers, time),
+                        switchToStartScreen,
                         (text) => triggerTTS(text, ref),
                         _selectedOperation,
                         _selectedRange,
+                        _selectedTimeLimit, // Pass the selected time limit
                       )
-                    : ResultScreen(answeredQuestions, answeredCorrectly,
-                        totalTimeInSeconds, switchToStartScreen);
+                    : ResultScreen(
+                        answeredQuestions,
+                        answeredCorrectly,
+                        totalTimeInSeconds,
+                        switchToStartScreen,
+                      );
           },
         ),
       ),

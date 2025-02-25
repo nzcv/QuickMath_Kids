@@ -20,10 +20,17 @@ class PracticeScreen extends StatefulWidget {
   final Function(String) triggerTTS;
   final Operation selectedOperation;
   final String selectedRange;
+  final int sessionTimeLimit; // New parameter for time limit in seconds
 
-  const PracticeScreen(this.switchToResultScreen, this.switchToStartScreen,
-      this.triggerTTS, this.selectedOperation, this.selectedRange,
-      {super.key});
+  const PracticeScreen(
+    this.switchToResultScreen,
+    this.switchToStartScreen,
+    this.triggerTTS,
+    this.selectedOperation,
+    this.selectedRange,
+    this.sessionTimeLimit, // Added parameter
+    {super.key}
+  );
 
   @override
   _PracticeScreenState createState() => _PracticeScreenState();
@@ -44,7 +51,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   bool hasListenedToQuestion = false;
   bool _isHintExpanded = false;
-  bool isFromWrongQuestions = false; // Track if question is from wrong answers
+  bool isFromWrongQuestions = false;
   final HintManager hintManager = HintManager();
   final QuizTimer _quizTimer = QuizTimer();
 
@@ -64,7 +71,9 @@ class _PracticeScreenState extends State<PracticeScreen>
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
-        // Timer callback
+        if (secondsPassed >= widget.sessionTimeLimit) {
+          endQuiz(); // End the session when time limit is reached
+        }
       });
     });
 
@@ -77,17 +86,11 @@ class _PracticeScreenState extends State<PracticeScreen>
       begin: const Offset(0, 1),
       end: Offset.zero,
     ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
     _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: Curves.easeInOut,
-      ),
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
 
     _controller.forward();
@@ -105,7 +108,6 @@ class _PracticeScreenState extends State<PracticeScreen>
     List<Map<String, dynamic>> allWrongQuestions =
         await WrongQuestionsService.getWrongQuestions();
 
-    // Filter wrong questions by selected operation
     _wrongQuestions = allWrongQuestions.where((question) {
       String category = question['category'] ?? '';
       return category
@@ -127,7 +129,7 @@ class _PracticeScreenState extends State<PracticeScreen>
         numbers = _parseQuestion(question['question']);
         correctAnswer = question['correctAnswer'];
         answerOptions = generateAnswerOptions(correctAnswer);
-        isFromWrongQuestions = true; // Mark as from wrong questions
+        isFromWrongQuestions = true;
       });
     } else {
       regenerateNumbers();
@@ -164,47 +166,45 @@ class _PracticeScreenState extends State<PracticeScreen>
           widget.selectedOperation, widget.selectedRange);
       correctAnswer = numbers.length > 2 ? numbers[2] : numbers[1];
       answerOptions = generateAnswerOptions(correctAnswer);
-      isFromWrongQuestions = false; // Freshly generated question
+      isFromWrongQuestions = false;
     });
   }
 
   void checkAnswer(int selectedAnswer) {
-  bool isCorrect = selectedAnswer == correctAnswer;
+    bool isCorrect = selectedAnswer == correctAnswer;
 
-  setState(() {
-    // Store question in format: "X + Y = UserAnswer (Correct/Wrong, Correct Answer = Z)"
-    String questionText =
-        '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer '
-        '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})';
+    setState(() {
+      String questionText =
+          '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer '
+          '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})';
 
-    answeredQuestions.add(questionText);
-    answeredCorrectly.add(isCorrect);
+      answeredQuestions.add(questionText);
+      answeredCorrectly.add(isCorrect);
 
-    if (!isCorrect) {
-      WrongQuestionsService.saveWrongQuestion(
-        question: _formatQuestionText(),
-        userAnswer: selectedAnswer,
-        correctAnswer: correctAnswer,
-        category:
-            '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
-      );
-    } else {
-      confettiManager.correctConfettiController.play();
-      if (isFromWrongQuestions) {
-        WrongQuestionsService.removeWrongQuestion(0);
+      if (!isCorrect) {
+        WrongQuestionsService.saveWrongQuestion(
+          question: _formatQuestionText(),
+          userAnswer: selectedAnswer,
+          correctAnswer: correctAnswer,
+          category:
+              '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+        );
+      } else {
+        confettiManager.correctConfettiController.play();
+        if (isFromWrongQuestions) {
+          WrongQuestionsService.removeWrongQuestion(0);
+        }
       }
-    }
 
-    if (_wrongQuestions.isNotEmpty) {
-      _loadNextWrongQuestion();
-    } else {
-      regenerateNumbers();
-    }
-  });
+      if (_wrongQuestions.isNotEmpty) {
+        _loadNextWrongQuestion();
+      } else {
+        regenerateNumbers();
+      }
+    });
 
-  _triggerTTSSpeech();
-}
-
+    _triggerTTSSpeech();
+  }
 
   List<int> _parseQuestion(String questionText) {
     RegExp regExp = RegExp(r'\d+');
@@ -261,20 +261,19 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context); // Get the current theme
+    final theme = Theme.of(context);
+    int remainingTime = widget.sessionTimeLimit - _quizTimer.secondsPassed;
+    if (remainingTime < 0) remainingTime = 0; // Ensure no negative time
 
     return Scaffold(
-      backgroundColor:
-          theme.colorScheme.background, // Use background color based on theme
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: theme.appBarTheme
-            .backgroundColor, // Use appBar background color based on theme
+        backgroundColor: theme.appBarTheme.backgroundColor,
         title: Text(
           'Practice',
           style: TextStyle(
-            color: theme.appBarTheme.titleTextStyle
-                ?.color, // Use title color based on theme
+            color: theme.appBarTheme.titleTextStyle?.color,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -324,10 +323,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Timer Card
-                      buildTimerCard(
-                          _quizTimer.formatTime(_quizTimer.secondsPassed),
-                          context),
+                      // Timer Card with remaining time
+                      buildTimerCard(formatTime(remainingTime), context),
                       const SizedBox(height: 20),
                       // Hint Card
                       buildHintCard(currentHintMessage, _isHintExpanded, () {
@@ -355,8 +352,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                       // Answer Options
                       Container(
                         decoration: BoxDecoration(
-                          color: theme.colorScheme
-                              .surface, // Use surface color based on theme
+                          color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(

@@ -8,16 +8,16 @@ import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 
 class StartScreen extends StatefulWidget {
-  final Function(Operation, String) switchToPracticeScreen;
+  final Function(Operation, String, int) switchToPracticeScreen; // Updated signature
   final Function() switchToStartScreen;
   final Function(bool) toggleDarkMode;
-  final bool isDarkMode; // Add this parameter
+  final bool isDarkMode;
 
   const StartScreen(
     this.switchToPracticeScreen,
     this.switchToStartScreen,
     this.toggleDarkMode, {
-    required this.isDarkMode, // Add this parameter
+    required this.isDarkMode,
     super.key,
   });
 
@@ -26,14 +26,15 @@ class StartScreen extends StatefulWidget {
 }
 
 class _StartScreenState extends State<StartScreen> {
-  Operation _selectedOperation = Operation.addition_2A; // Default operation
-  String _selectedRange = 'Upto +5'; // Default range
-  bool _isDarkMode = false; // Flag to track dark mode
+  Operation _selectedOperation = Operation.addition_2A;
+  String _selectedRange = 'Upto +5';
+  int _selectedTimeLimit = 300; // Default: 5 minutes (in seconds)
+  bool _isDarkMode = false;
 
   @override
   void initState() {
     super.initState();
-    _isDarkMode = widget.isDarkMode; // Initialize with passed value
+    _isDarkMode = widget.isDarkMode;
   }
 
   @override
@@ -46,6 +47,14 @@ class _StartScreenState extends State<StartScreen> {
     }
   }
 
+  // List of time limit options (in seconds)
+  final List<DropdownMenuItem<int>> _timeLimitItems = [
+    DropdownMenuItem(value: 60, child: Text('1 Minute')),
+    DropdownMenuItem(value: 180, child: Text('3 Minutes')),
+    DropdownMenuItem(value: 300, child: Text('5 Minutes')),
+    DropdownMenuItem(value: 600, child: Text('10 Minutes')),
+  ];
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -56,7 +65,7 @@ class _StartScreenState extends State<StartScreen> {
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: theme.colorScheme.primary,
       ),
-      drawer: _buildDrawer(context), // Add the drawer here
+      drawer: _buildDrawer(context),
       backgroundColor: theme.colorScheme.surface,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
@@ -70,8 +79,8 @@ class _StartScreenState extends State<StartScreen> {
               "Choose an Operation and Start Practicing",
               style: TextStyle(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.onSurface // For dark mode
-                    : theme.colorScheme.onBackground, // For light mode
+                    ? theme.colorScheme.onSurface
+                    : theme.colorScheme.onBackground,
                 fontSize: 20,
               ),
               textAlign: TextAlign.center,
@@ -105,13 +114,31 @@ class _StartScreenState extends State<StartScreen> {
                 }
               },
             ),
+            const SizedBox(height: 20),
+            DropdownButtonFormField<int>(
+              value: _selectedTimeLimit,
+              decoration: InputDecoration(
+                labelText: 'Session Time Limit',
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              items: _timeLimitItems,
+              onChanged: (int? newValue) {
+                if (newValue != null) {
+                  setState(() {
+                    _selectedTimeLimit = newValue;
+                  });
+                }
+              },
+            ),
             const SizedBox(height: 40),
             ElevatedButton.icon(
               iconAlignment: IconAlignment.end,
               icon: const Icon(Icons.arrow_forward, color: Colors.black),
               onPressed: () {
                 widget.switchToPracticeScreen(
-                    _selectedOperation, _selectedRange);
+                    _selectedOperation, _selectedRange, _selectedTimeLimit);
               },
               style: ElevatedButton.styleFrom(
                 padding:
@@ -133,29 +160,21 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
-  // Build the drawer
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           const DrawerHeader(
-            decoration: BoxDecoration(
-              color: Colors.blue,
-            ),
-            child: Text(
-              'QuickMath Kids',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-              ),
-            ),
+            decoration: BoxDecoration(color: Colors.blue),
+            child: Text('QuickMath Kids',
+                style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
             leading: const Icon(Icons.settings),
             title: const Text('Settings', style: TextStyle(color: Colors.grey)),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => const SettingsScreen()),
@@ -166,7 +185,7 @@ class _StartScreenState extends State<StartScreen> {
             leading: const Icon(Icons.help_outline),
             title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => FAQScreen()),
@@ -178,7 +197,7 @@ class _StartScreenState extends State<StartScreen> {
             title:
                 const Text('How to use?', style: TextStyle(color: Colors.grey)),
             onTap: () {
-              Navigator.pop(context); // Close the drawer
+              Navigator.pop(context);
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => HowToUseScreen()),
