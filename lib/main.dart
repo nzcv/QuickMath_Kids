@@ -6,7 +6,6 @@ import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:QuickMath_Kids/noti/noti_initialisation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

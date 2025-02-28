@@ -20,7 +20,7 @@ class PracticeScreen extends StatefulWidget {
   final Function(String) triggerTTS;
   final Operation selectedOperation;
   final String selectedRange;
-  final int sessionTimeLimit; // New parameter for time limit in seconds
+  final int sessionTimeLimit;
 
   const PracticeScreen(
     this.switchToResultScreen,
@@ -28,21 +28,19 @@ class PracticeScreen extends StatefulWidget {
     this.triggerTTS,
     this.selectedOperation,
     this.selectedRange,
-    this.sessionTimeLimit, // Added parameter
-    {super.key}
-  );
+    this.sessionTimeLimit, {super.key});
 
   @override
   _PracticeScreenState createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen>
-    with SingleTickerProviderStateMixin {
+class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProviderStateMixin {
   List<int> numbers = [0, 0, 0];
   List<int> answerOptions = [];
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
   List<Map<String, dynamic>> _wrongQuestions = [];
+  bool _usedWrongQuestionThisSession = false; // Track if a wrong question was used
 
   int correctAnswer = 0;
 
@@ -51,7 +49,6 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   bool hasListenedToQuestion = false;
   bool _isHintExpanded = false;
-  bool isFromWrongQuestions = false;
   final HintManager hintManager = HintManager();
   final QuizTimer _quizTimer = QuizTimer();
 
@@ -64,35 +61,24 @@ class _PracticeScreenState extends State<PracticeScreen>
   @override
   void initState() {
     super.initState();
-    regenerateNumbers();
-    _updateHintMessage();
     _loadWrongQuestions();
+    _setInitialQuestion(); // Set initial question
+    _updateHintMessage();
     confettiManager = ConfettiManager();
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
         if (secondsPassed >= widget.sessionTimeLimit) {
-          endQuiz(); // End the session when time limit is reached
+          endQuiz();
         }
       });
     });
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0, end: 1).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _fadeAnimation = Tween<double>(begin: 0, end: 1)
+        .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
   }
 
@@ -105,35 +91,31 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   Future<void> _loadWrongQuestions() async {
-    List<Map<String, dynamic>> allWrongQuestions =
-        await WrongQuestionsService.getWrongQuestions();
-
-    _wrongQuestions = allWrongQuestions.where((question) {
-      String category = question['category'] ?? '';
-      return category
-          .startsWith(widget.selectedOperation.toString().split('.').last);
-    }).toList();
-
-    if (_wrongQuestions.isNotEmpty) {
-      _loadNextWrongQuestion();
-    } else {
-      regenerateNumbers();
-    }
+    List<Map<String, dynamic>> allWrongQuestions = await WrongQuestionsService.getWrongQuestions();
+    setState(() {
+      _wrongQuestions = allWrongQuestions.where((question) {
+        String category = question['category'] ?? '';
+        return category.startsWith(widget.selectedOperation.toString().split('.').last);
+      }).toList();
+    });
   }
 
-  void _loadNextWrongQuestion() {
-    if (_wrongQuestions.isNotEmpty) {
-      var question = _wrongQuestions.removeAt(0);
+  void _setInitialQuestion() {
+    setState(() {
+      if (_wrongQuestions.isNotEmpty && !_usedWrongQuestionThisSession) {
+        _useWrongQuestion();
+      } else {
+        regenerateNumbers();
+      }
+    });
+  }
 
-      setState(() {
-        numbers = _parseQuestion(question['question']);
-        correctAnswer = question['correctAnswer'];
-        answerOptions = generateAnswerOptions(correctAnswer);
-        isFromWrongQuestions = true;
-      });
-    } else {
-      regenerateNumbers();
-    }
+  void _useWrongQuestion() {
+    var question = _wrongQuestions[0]; // Take the first wrong question
+    numbers = _parseQuestion(question['question']);
+    correctAnswer = question['correctAnswer'];
+    answerOptions = generateAnswerOptions(correctAnswer);
+    _usedWrongQuestionThisSession = true; // Mark as used for this session
   }
 
   void _updateHintMessage() {
@@ -142,17 +124,9 @@ class _PracticeScreenState extends State<PracticeScreen>
     });
   }
 
-  void stopTimer() {
-    _quizTimer.stopTimer();
-  }
-
-  void pauseTimer() {
-    _quizTimer.pauseTimer();
-  }
-
-  void resumeTimer() {
-    _quizTimer.resumeTimer();
-  }
+  void stopTimer() => _quizTimer.stopTimer();
+  void pauseTimer() => _quizTimer.pauseTimer();
+  void resumeTimer() => _quizTimer.resumeTimer();
 
   String formatTime(int seconds) {
     final minutes = (seconds / 60).floor();
@@ -161,13 +135,9 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void regenerateNumbers() {
-    setState(() {
-      numbers = QuestionGenerator().generateTwoRandomNumbers(
-          widget.selectedOperation, widget.selectedRange);
-      correctAnswer = numbers.length > 2 ? numbers[2] : numbers[1];
-      answerOptions = generateAnswerOptions(correctAnswer);
-      isFromWrongQuestions = false;
-    });
+    numbers = QuestionGenerator().generateTwoRandomNumbers(widget.selectedOperation, widget.selectedRange);
+    correctAnswer = numbers.length > 2 ? numbers[2] : numbers[1];
+    answerOptions = generateAnswerOptions(correctAnswer);
   }
 
   void checkAnswer(int selectedAnswer) {
@@ -177,27 +147,29 @@ class _PracticeScreenState extends State<PracticeScreen>
       String questionText =
           '${numbers[0]} ${_getOperatorSymbol(widget.selectedOperation)} ${numbers[1]} = $selectedAnswer '
           '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})';
-
       answeredQuestions.add(questionText);
       answeredCorrectly.add(isCorrect);
+      String currentQuestion = _formatQuestionText();
 
       if (!isCorrect) {
         WrongQuestionsService.saveWrongQuestion(
-          question: _formatQuestionText(),
+          question: currentQuestion,
           userAnswer: selectedAnswer,
           correctAnswer: correctAnswer,
-          category:
-              '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+          category: '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
         );
-      } else {
-        confettiManager.correctConfettiController.play();
-        if (isFromWrongQuestions) {
-          WrongQuestionsService.removeWrongQuestion(0);
-        }
+      } else if (_usedWrongQuestionThisSession) {
+        // Update sessionsRemaining for the wrong question
+        WrongQuestionsService.updateWrongQuestion(currentQuestion);
+        _wrongQuestions.removeAt(0); // Remove from current session’s list
       }
 
-      if (_wrongQuestions.isNotEmpty) {
-        _loadNextWrongQuestion();
+      // Play confetti if correct
+      if (isCorrect) confettiManager.correctConfettiController.play();
+
+      // Set the next question
+      if (_wrongQuestions.isNotEmpty && !_usedWrongQuestionThisSession) {
+        _useWrongQuestion();
       } else {
         regenerateNumbers();
       }
@@ -208,10 +180,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   List<int> _parseQuestion(String questionText) {
     RegExp regExp = RegExp(r'\d+');
-    return regExp
-        .allMatches(questionText)
-        .map((m) => int.parse(m[0]!))
-        .toList();
+    return regExp.allMatches(questionText).map((m) => int.parse(m[0]!)).toList();
   }
 
   String _formatQuestionText() {
@@ -231,19 +200,14 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   void endQuiz() {
     stopTimer();
-    widget.switchToResultScreen(
-        answeredQuestions, answeredCorrectly, _quizTimer.secondsPassed);
+    widget.switchToResultScreen(answeredQuestions, answeredCorrectly, _quizTimer.secondsPassed);
   }
 
   void _showQuitDialog() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return QuitDialog(
-          onQuit: () {
-            widget.switchToStartScreen();
-          },
-        );
+        return QuitDialog(onQuit: widget.switchToStartScreen);
       },
     );
   }
@@ -263,20 +227,14 @@ class _PracticeScreenState extends State<PracticeScreen>
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     int remainingTime = widget.sessionTimeLimit - _quizTimer.secondsPassed;
-    if (remainingTime < 0) remainingTime = 0; // Ensure no negative time
+    if (remainingTime < 0) remainingTime = 0;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         elevation: 0,
         backgroundColor: theme.appBarTheme.backgroundColor,
-        title: Text(
-          'Practice',
-          style: TextStyle(
-            color: theme.appBarTheme.titleTextStyle?.color,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text('Practice', style: TextStyle(color: theme.appBarTheme.titleTextStyle?.color, fontWeight: FontWeight.bold)),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -284,12 +242,7 @@ class _PracticeScreenState extends State<PracticeScreen>
               onPressed: _showQuitDialog,
               icon: const Icon(Icons.exit_to_app_rounded, color: Colors.white),
               label: const Text('Quit', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[700],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red[700], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
             ),
           ),
           Padding(
@@ -297,14 +250,8 @@ class _PracticeScreenState extends State<PracticeScreen>
             child: ElevatedButton.icon(
               onPressed: endQuiz,
               icon: const Icon(Icons.assessment, color: Colors.white),
-              label:
-                  const Text('Results', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[700],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-              ),
+              label: const Text('Results', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
             ),
           ),
         ],
@@ -323,17 +270,14 @@ class _PracticeScreenState extends State<PracticeScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      // Timer Card with remaining time
                       buildTimerCard(formatTime(remainingTime), context),
                       const SizedBox(height: 20),
-                      // Hint Card
                       buildHintCard(currentHintMessage, _isHintExpanded, () {
                         setState(() {
                           _isHintExpanded = !_isHintExpanded;
                         });
                       }, context),
                       const SizedBox(height: 20),
-                      // Voice Button
                       ElevatedButton(
                         onPressed: _triggerTTSSpeech,
                         style: ElevatedButton.styleFrom(
@@ -342,26 +286,14 @@ class _PracticeScreenState extends State<PracticeScreen>
                           padding: const EdgeInsets.all(24),
                           elevation: 8,
                         ),
-                        child: const Icon(
-                          Icons.record_voice_over,
-                          size: 100,
-                          color: Colors.white,
-                        ),
+                        child: const Icon(Icons.record_voice_over, size: 100, color: Colors.white),
                       ),
                       const SizedBox(height: 32),
-                      // Answer Options
                       Container(
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.2),
-                              spreadRadius: 2,
-                              blurRadius: 8,
-                              offset: const Offset(0, 3),
-                            ),
-                          ],
+                          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 3))],
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -370,16 +302,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                buildAnswerButton(answerOptions[0],
-                                    () => checkAnswer(answerOptions[0])),
+                                buildAnswerButton(answerOptions[0], () => checkAnswer(answerOptions[0])),
                                 const SizedBox(width: 16),
-                                buildAnswerButton(answerOptions[1],
-                                    () => checkAnswer(answerOptions[1])),
+                                buildAnswerButton(answerOptions[1], () => checkAnswer(answerOptions[1])),
                               ],
                             ),
                             const SizedBox(height: 16),
-                            buildAnswerButton(answerOptions[2],
-                                () => checkAnswer(answerOptions[2])),
+                            buildAnswerButton(answerOptions[2], () => checkAnswer(answerOptions[2])),
                           ],
                         ),
                       ),
@@ -388,11 +317,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                 ),
               ),
             ),
-            Positioned(
-              child: buildPauseButton(_showPauseDialog, context),
-              bottom: 24,
-              right: 24,
-            ),
+            Positioned(child: buildPauseButton(_showPauseDialog, context), bottom: 24, right: 24),
           ],
         ),
       ),
