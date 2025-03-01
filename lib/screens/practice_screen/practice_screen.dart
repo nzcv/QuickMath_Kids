@@ -23,24 +23,27 @@ class PracticeScreen extends StatefulWidget {
   final int sessionTimeLimit;
 
   const PracticeScreen(
-    this.switchToResultScreen,
-    this.switchToStartScreen,
-    this.triggerTTS,
-    this.selectedOperation,
-    this.selectedRange,
-    this.sessionTimeLimit, {super.key});
+      this.switchToResultScreen,
+      this.switchToStartScreen,
+      this.triggerTTS,
+      this.selectedOperation,
+      this.selectedRange,
+      this.sessionTimeLimit,
+      {super.key});
 
   @override
   _PracticeScreenState createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProviderStateMixin {
+class _PracticeScreenState extends State<PracticeScreen>
+    with SingleTickerProviderStateMixin {
   List<int> numbers = [0, 0, 0];
   List<int> answerOptions = [];
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
   List<Map<String, dynamic>> _wrongQuestions = [];
-  bool _usedWrongQuestionThisSession = false; // Track if a wrong question was used
+  bool _usedWrongQuestionThisSession =
+      false; // Track if a wrong question was used
 
   int correctAnswer = 0;
 
@@ -74,7 +77,8 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
       });
     });
 
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 600));
     _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _fadeAnimation = Tween<double>(begin: 0, end: 1)
@@ -91,11 +95,13 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
   }
 
   Future<void> _loadWrongQuestions() async {
-    List<Map<String, dynamic>> allWrongQuestions = await WrongQuestionsService.getWrongQuestions();
+    List<Map<String, dynamic>> allWrongQuestions =
+        await WrongQuestionsService.getWrongQuestions();
     setState(() {
       _wrongQuestions = allWrongQuestions.where((question) {
         String category = question['category'] ?? '';
-        return category.startsWith(widget.selectedOperation.toString().split('.').last);
+        return category
+            .startsWith(widget.selectedOperation.toString().split('.').last);
       }).toList();
     });
   }
@@ -135,7 +141,8 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
   }
 
   void regenerateNumbers() {
-    numbers = QuestionGenerator().generateTwoRandomNumbers(widget.selectedOperation, widget.selectedRange);
+    numbers = QuestionGenerator().generateTwoRandomNumbers(
+        widget.selectedOperation, widget.selectedRange);
     correctAnswer = numbers.length > 2 ? numbers[2] : numbers[1];
     answerOptions = generateAnswerOptions(correctAnswer);
   }
@@ -156,22 +163,25 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
           question: currentQuestion,
           userAnswer: selectedAnswer,
           correctAnswer: correctAnswer,
-          category: '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+          category:
+              '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
         );
-      } else if (_usedWrongQuestionThisSession) {
-        // Update sessionsRemaining for the wrong question
-        WrongQuestionsService.updateWrongQuestion(currentQuestion);
-        _wrongQuestions.removeAt(0); // Remove from current session’s list
+      } else if (_usedWrongQuestionThisSession && _wrongQuestions.isNotEmpty) {
+        // Update stats for the wrong question and remove it if answered correctly
+        WrongQuestionsService.updateWrongQuestion(currentQuestion,
+            correct: true);
+        _wrongQuestions.removeAt(0); // Remove the answered wrong question
       }
 
-      // Play confetti if correct
       if (isCorrect) confettiManager.correctConfettiController.play();
 
-      // Set the next question
-      if (_wrongQuestions.isNotEmpty && !_usedWrongQuestionThisSession) {
-        _useWrongQuestion();
+      // Decide the next question
+      if (_wrongQuestions.isNotEmpty) {
+        _useWrongQuestion(); // Load the next wrong question from the list
+        _usedWrongQuestionThisSession = true;
       } else {
-        regenerateNumbers();
+        regenerateNumbers(); // All wrong questions are exhausted, generate a new one
+        _usedWrongQuestionThisSession = false;
       }
     });
 
@@ -180,7 +190,10 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
 
   List<int> _parseQuestion(String questionText) {
     RegExp regExp = RegExp(r'\d+');
-    return regExp.allMatches(questionText).map((m) => int.parse(m[0]!)).toList();
+    return regExp
+        .allMatches(questionText)
+        .map((m) => int.parse(m[0]!))
+        .toList();
   }
 
   String _formatQuestionText() {
@@ -200,7 +213,8 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
 
   void endQuiz() {
     stopTimer();
-    widget.switchToResultScreen(answeredQuestions, answeredCorrectly, _quizTimer.secondsPassed);
+    widget.switchToResultScreen(
+        answeredQuestions, answeredCorrectly, _quizTimer.secondsPassed);
   }
 
   void _showQuitDialog() {
@@ -234,7 +248,10 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
       appBar: AppBar(
         elevation: 0,
         backgroundColor: theme.appBarTheme.backgroundColor,
-        title: Text('Practice', style: TextStyle(color: theme.appBarTheme.titleTextStyle?.color, fontWeight: FontWeight.bold)),
+        title: Text('Practice',
+            style: TextStyle(
+                color: theme.appBarTheme.titleTextStyle?.color,
+                fontWeight: FontWeight.bold)),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -242,7 +259,10 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
               onPressed: _showQuitDialog,
               icon: const Icon(Icons.exit_to_app_rounded, color: Colors.white),
               label: const Text('Quit', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.red[700], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red[700],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20))),
             ),
           ),
           Padding(
@@ -250,8 +270,12 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
             child: ElevatedButton.icon(
               onPressed: endQuiz,
               icon: const Icon(Icons.assessment, color: Colors.white),
-              label: const Text('Results', style: TextStyle(color: Colors.white)),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green[700], shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20))),
+              label:
+                  const Text('Results', style: TextStyle(color: Colors.white)),
+              style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green[700],
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20))),
             ),
           ),
         ],
@@ -286,14 +310,21 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                           padding: const EdgeInsets.all(24),
                           elevation: 8,
                         ),
-                        child: const Icon(Icons.record_voice_over, size: 100, color: Colors.white),
+                        child: const Icon(Icons.record_voice_over,
+                            size: 100, color: Colors.white),
                       ),
                       const SizedBox(height: 32),
                       Container(
                         decoration: BoxDecoration(
                           color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(20),
-                          boxShadow: [BoxShadow(color: Colors.grey.withOpacity(0.2), spreadRadius: 2, blurRadius: 8, offset: const Offset(0, 3))],
+                          boxShadow: [
+                            BoxShadow(
+                                color: Colors.grey.withOpacity(0.2),
+                                spreadRadius: 2,
+                                blurRadius: 8,
+                                offset: const Offset(0, 3))
+                          ],
                         ),
                         padding: const EdgeInsets.all(16),
                         child: Column(
@@ -302,13 +333,16 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                buildAnswerButton(answerOptions[0], () => checkAnswer(answerOptions[0])),
+                                buildAnswerButton(answerOptions[0],
+                                    () => checkAnswer(answerOptions[0])),
                                 const SizedBox(width: 16),
-                                buildAnswerButton(answerOptions[1], () => checkAnswer(answerOptions[1])),
+                                buildAnswerButton(answerOptions[1],
+                                    () => checkAnswer(answerOptions[1])),
                               ],
                             ),
                             const SizedBox(height: 16),
-                            buildAnswerButton(answerOptions[2], () => checkAnswer(answerOptions[2])),
+                            buildAnswerButton(answerOptions[2],
+                                () => checkAnswer(answerOptions[2])),
                           ],
                         ),
                       ),
@@ -317,7 +351,10 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                 ),
               ),
             ),
-            Positioned(child: buildPauseButton(_showPauseDialog, context), bottom: 24, right: 24),
+            Positioned(
+                child: buildPauseButton(_showPauseDialog, context),
+                bottom: 24,
+                right: 24),
           ],
         ),
       ),

@@ -18,8 +18,9 @@ class WrongQuestionsService {
       'userAnswer': userAnswer,
       'correctAnswer': correctAnswer,
       'category': category,
-      'sessionsRemaining': 3, // New field: question reappears in next 3 sessions
-      'timestamp': DateTime.now().toIso8601String(), // For uniqueness
+      'sessionsRemaining': 3,
+      'correctCount': 0, // New field to track correct answers
+      'timestamp': DateTime.now().toIso8601String(),
     };
 
     existingQuestions.add(jsonEncode(questionData));
@@ -32,21 +33,23 @@ class WrongQuestionsService {
     return storedQuestions.map((string) => jsonDecode(string) as Map<String, dynamic>).toList();
   }
 
-  // Update sessionsRemaining and remove if it reaches 0
-  static Future<void> updateWrongQuestion(String question) async {
+  static Future<void> updateWrongQuestion(String question, {bool correct = false}) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> storedQuestions = prefs.getStringList(_key) ?? [];
 
     for (int i = 0; i < storedQuestions.length; i++) {
       Map<String, dynamic> questionData = jsonDecode(storedQuestions[i]);
       if (questionData['question'] == question) {
-        int sessionsRemaining = questionData['sessionsRemaining'] ?? 3;
-        sessionsRemaining--;
-        if (sessionsRemaining <= 0) {
-          storedQuestions.removeAt(i); // Remove after 3 sessions
-        } else {
+        if (correct) {
+          int correctCount = (questionData['correctCount'] ?? 0) + 1;
+          questionData['correctCount'] = correctCount;
+          int sessionsRemaining = (questionData['sessionsRemaining'] ?? 3) - 1;
           questionData['sessionsRemaining'] = sessionsRemaining;
-          storedQuestions[i] = jsonEncode(questionData);
+          if (sessionsRemaining <= 0) {
+            storedQuestions.removeAt(i); // Remove after 3 sessions
+          } else {
+            storedQuestions[i] = jsonEncode(questionData);
+          }
         }
         break;
       }

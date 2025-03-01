@@ -26,7 +26,7 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
     final questions = await WrongQuestionsService.getWrongQuestions();
 
     setState(() {
-      _wrongQuestions = questions; // Fallback to empty list if null
+      _wrongQuestions = questions;
       _isLoading = false;
     });
   }
@@ -40,7 +40,6 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
     try {
       await WrongQuestionsService.removeWrongQuestion(index);
     } catch (e) {
-      // If removal fails, restore the item and notify the user
       setState(() {
         _wrongQuestions.insert(index, questionToRemove);
       });
@@ -65,21 +64,11 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
-                        Icons.check_circle_outline,
-                        size: 64,
-                        color: theme.colorScheme.primary,
-                      ),
+                      Icon(Icons.check_circle_outline, size: 64, color: theme.colorScheme.primary),
                       const SizedBox(height: 16),
-                      Text(
-                        'No wrong answers yet!',
-                        style: theme.textTheme.headlineSmall,
-                      ),
+                      Text('No wrong answers yet!', style: theme.textTheme.headlineSmall),
                       const SizedBox(height: 8),
-                      Text(
-                        'Keep practicing to improve your skills',
-                        style: theme.textTheme.bodyLarge,
-                      ),
+                      Text('Keep practicing to improve your skills', style: theme.textTheme.bodyLarge),
                     ],
                   ),
                 )
@@ -88,13 +77,10 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                   padding: const EdgeInsets.all(16),
                   itemBuilder: (context, index) {
                     final question = _wrongQuestions[index];
-                    // Use a unique identifier if available, otherwise combine fields
-                    final uniqueKey = question['id'] != null
-                        ? question['id'].toString()
-                        : '${question['question']}_${index}_${question['timestamp'] ?? ''}';
+                    final uniqueKey = question['timestamp'] ?? '${question['question']}_$index';
 
                     return Dismissible(
-                      key: ValueKey(uniqueKey), // Use a truly unique key
+                      key: ValueKey(uniqueKey),
                       direction: DismissDirection.endToStart,
                       background: Container(
                         color: Colors.red,
@@ -102,9 +88,7 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                         alignment: Alignment.centerRight,
                         child: const Icon(Icons.delete, color: Colors.white),
                       ),
-                      onDismissed: (direction) {
-                        _removeWrongQuestion(index);
-                      },
+                      onDismissed: (direction) => _removeWrongQuestion(index),
                       child: Card(
                         margin: const EdgeInsets.only(bottom: 16),
                         child: Padding(
@@ -114,48 +98,49 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                             children: [
                               Row(
                                 children: [
-                                  Icon(Icons.category,
-                                      size: 16,
-                                      color: theme.colorScheme.primary),
+                                  Icon(Icons.category, size: 16, color: theme.colorScheme.primary),
                                   const SizedBox(width: 8),
                                   Text(
                                     question['category'] ?? 'Unknown category',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                      color: theme.colorScheme.primary,
-                                    ),
+                                    style: theme.textTheme.bodySmall?.copyWith(color: theme.colorScheme.primary),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 'Question: ${question['question'] ?? 'N/A'}',
-                                style: const TextStyle(
-                                    color: Colors.deepOrange, fontSize: 16),
+                                style: const TextStyle(color: Colors.deepOrange, fontSize: 16),
                               ),
                               const SizedBox(height: 8),
                               Row(
                                 children: [
-                                  Icon(Icons.close,
-                                      color: theme.colorScheme.error, size: 16),
+                                  Icon(Icons.close, color: theme.colorScheme.error, size: 16),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Your answer: ${question['userAnswer'] ?? 'N/A'}',
-                                    style: TextStyle(
-                                        color: theme.colorScheme.error),
+                                    style: TextStyle(color: theme.colorScheme.error),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 4),
                               Row(
                                 children: [
-                                  Icon(Icons.check,
-                                      color: theme.colorScheme.primary,
-                                      size: 16),
+                                  Icon(Icons.check, color: theme.colorScheme.primary, size: 16),
                                   const SizedBox(width: 8),
                                   Text(
                                     'Correct answer: ${question['correctAnswer'] ?? 'N/A'}',
-                                    style: TextStyle(
-                                        color: theme.colorScheme.primary),
+                                    style: TextStyle(color: theme.colorScheme.primary),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Icon(Icons.star, color: Colors.yellow[700], size: 16),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Times answered correctly: ${question['correctCount'] ?? 0}',
+                                    style: TextStyle(color: Colors.yellow[700]),
                                   ),
                                 ],
                               ),

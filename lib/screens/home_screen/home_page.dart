@@ -115,22 +115,25 @@ class _StartScreenState extends State<StartScreen> {
               },
             ),
             const SizedBox(height: 20),
-            DropdownButtonFormField<int>(
-              value: _selectedTimeLimit,
-              decoration: InputDecoration(
-                labelText: 'Session Time Limit',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              child: DropdownButtonFormField<int>(
+                value: _selectedTimeLimit,
+                decoration: InputDecoration(
+                  labelText: 'Session Time Limit',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                 ),
+                items: _timeLimitItems,
+                onChanged: (int? newValue) {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedTimeLimit = newValue;
+                    });
+                  }
+                },
               ),
-              items: _timeLimitItems,
-              onChanged: (int? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    _selectedTimeLimit = newValue;
-                  });
-                }
-              },
             ),
             const SizedBox(height: 40),
             ElevatedButton.icon(
