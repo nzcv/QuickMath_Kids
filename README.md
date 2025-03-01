@@ -19,11 +19,12 @@ A math quiz app with a twist
 ### This app is meant for kids who are under the age of 11.
 ### This app focuses on increasing the calculation time for math operations, and improving their auditory senses.
 
-## This app is a work in progress, and I have lot in mind to improve on it. 
-![PHOTO-2025-02-10-15-41-03 2](https://github.com/user-attachments/assets/a6ba2e1b-424c-416e-9328-fbb37804e05e)
-![PHOTO-2025-02-10-15-41-03](https://github.com/user-attachments/assets/25220a65-7378-49c7-b928-f11f439c7456)
-![PHOTO-2025-02-10-15-41-04 2](https://github.com/user-attachments/assets/78cc9148-3e6d-4019-b5d9-24a208e27e2d)
-![PHOTO-2025-02-10-15-41-04 3](https://github.com/user-attachments/assets/75f18575-f9cc-49d0-ac91-9939157989be)
-![PHOTO-2025-02-10-15-41-04](https://github.com/user-attachments/assets/2602125e-b961-45f0-8daa-bdc309f45b09)
-![PHOTO-2025-02-10-15-41-05](https://github.com/user-attachments/assets/701ce159-e9e4-4228-86d3-bc39d4b2ec26)
+## This app is a work in progress, and I have lot in mind to improve on it.
+![2](https://github.com/user-attachments/assets/f6bda163-2804-45ab-9417-5a3ab8783cb2)
+![3](https://github.com/user-attachments/assets/6551a542-fbda-4d10-a6ac-bf96202f9e6b)
+![4](https://github.com/user-attachments/assets/17d7c7b3-caff-49e8-a8b2-b3d344f6b8c5)
+![5](https://github.com/user-attachments/assets/02baeab0-a273-40b2-b07d-a7e9bb3dff67)
+![6](https://github.com/user-attachments/assets/17d94e44-22c9-4fcf-b360-722babcab823)
+![1](https://github.com/user-attachments/assets/bc2a13c8-3cd1-43d9-97d7-33402eb7d53f)
+
 
