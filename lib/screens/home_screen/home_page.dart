@@ -3,7 +3,7 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
-import 'package:QuickMath_Kids/screens/faq_screen.dart';
+import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 

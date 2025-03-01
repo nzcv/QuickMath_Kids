@@ -20,7 +20,7 @@ class HowToUseScreen extends StatelessWidget {
           children: <Widget>[
             const SizedBox(height: 20),
             Text(
-              "Welcome to QuickMath Kids!",
+              "Get Started with QuickMath Kids!",
               style: TextStyle(
                 color: theme.colorScheme.onBackground,
                 fontSize: 24,
@@ -29,7 +29,7 @@ class HowToUseScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             Text(
-              "QuickMath Kids is designed to help children practice basic math operations in a fun and interactive way. Here's how to use the app:",
+              "QuickMath Kids makes math practice fun and interactive with audio-based questions. Follow these steps to start learning:",
               style: TextStyle(
                 color: theme.colorScheme.onBackground,
                 fontSize: 16,
@@ -38,37 +38,52 @@ class HowToUseScreen extends StatelessWidget {
             const SizedBox(height: 20),
             _buildStep(
               context,
-              "1. Choose an Operation",
-              "On the home screen, select the math operation you want to practice (e.g., Addition, Subtraction, Multiplication, Division).",
+              "1. Select Your Math Operation",
+              "From the home screen, pick an operation to practice: Addition, Subtraction, Multiplication, or Division.",
             ),
             _buildStep(
               context,
-              "2. Select a Range",
-              "Choose the difficulty range for the questions (e.g., 'Upto +5', 'Upto +10').",
+              "2. Choose a Difficulty Range",
+              "Select a range that matches your skill level, like 'Up to +5' or 'Up to +10'.",
             ),
             _buildStep(
               context,
-              "3. Start Practicing",
-              "Tap the 'Start Oral Practice' button to begin. The app will generate questions based on your selected operation and range.",
+              "3. Set a Time Limit (Optional)",
+              "Tap the time limit field to open the scroll wheel. Choose a duration (1-60 minutes) or select 'No time limit' to practice endlessly.",
             ),
             _buildStep(
               context,
-              "4. Answer the Questions",
-              "Listen to the question and select the correct answer from the options provided. You can also tap the voice button to hear the question again.",
+              "4. Begin Your Practice",
+              "Hit 'Start Oral Practice' to launch the quiz. Questions will be spoken aloud based on your choices.",
             ),
             _buildStep(
               context,
-              "5. View Results",
-              "After completing the quiz, you can view your results, including the time taken, number of correct answers, and a detailed breakdown of your performance.",
+              "5. Answer Questions",
+              "Listen to each question (tap the voice button to replay), then pick the correct answer from three options.",
             ),
             _buildStep(
               context,
-              "6. Share Your Results",
-              "You can share your quiz results as a PDF report with your parents or teachers.",
+              "6. Manage Your Session",
+              "Pause to take a break or quit to return to the start screen. With a time limit, the session ends automatically when time’s up.",
+            ),
+            _buildStep(
+              context,
+              "7. Review Wrong Answers",
+              "Missed a question? Check 'Wrong Answers History' in the drawer to see what you got wrong and practice again.",
+            ),
+            _buildStep(
+              context,
+              "8. See Your Results",
+              "Finish by tapping 'Results' to view your time, total questions, and correct answers. Wrong answers are saved for later review.",
+            ),
+            _buildStep(
+              context,
+              "9. Share Your Progress",
+              "From the results screen, tap 'Share Report' to create and send a PDF of your quiz performance.",
             ),
             const SizedBox(height: 20),
             Text(
-              "We hope you enjoy using QuickMath Kids to improve your math skills!",
+              "Enjoy sharpening your math skills with QuickMath Kids—practice anytime, anywhere, offline!",
               style: TextStyle(
                 color: theme.colorScheme.onBackground,
                 fontSize: 16,
@@ -85,7 +100,7 @@ class HowToUseScreen extends StatelessWidget {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
+      padding: const EdgeInsets.only(bottom: 20.0), // Note: Should be 'bottom'
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
