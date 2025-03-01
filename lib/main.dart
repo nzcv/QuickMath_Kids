@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
   int totalTimeInSeconds = 0;
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5';
-  int _selectedTimeLimit = 300; // Default: 5 minutes (in seconds)
+  int? _selectedTimeLimit; // Changed to nullable, no default limit
   bool _isDarkMode = false;
 
   @override
@@ -54,11 +54,11 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void switchToPracticeScreen(Operation operation, String range, int timeLimit) {
+  void switchToPracticeScreen(Operation operation, String range, int? timeLimit) {
     setState(() {
       _selectedOperation = operation;
       _selectedRange = range;
-      _selectedTimeLimit = timeLimit; // Store the selected time limit
+      _selectedTimeLimit = timeLimit; // Now accepts null
       activeScreen = 'practice_screen';
     });
   }
@@ -119,7 +119,7 @@ class _MyAppState extends State<MyApp> {
                         (text) => triggerTTS(text, ref),
                         _selectedOperation,
                         _selectedRange,
-                        _selectedTimeLimit, // Pass the selected time limit
+                        _selectedTimeLimit, // Now nullable
                       )
                     : ResultScreen(
                         answeredQuestions,

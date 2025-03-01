@@ -19,7 +19,7 @@ class WrongQuestionsService {
       'correctAnswer': correctAnswer,
       'category': category,
       'sessionsRemaining': 3,
-      'correctCount': 0, // New field to track correct answers
+      'correctCount': 0,
       'timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -46,7 +46,7 @@ class WrongQuestionsService {
           int sessionsRemaining = (questionData['sessionsRemaining'] ?? 3) - 1;
           questionData['sessionsRemaining'] = sessionsRemaining;
           if (sessionsRemaining <= 0) {
-            storedQuestions.removeAt(i); // Remove after 3 sessions
+            storedQuestions.removeAt(i);
           } else {
             storedQuestions[i] = jsonEncode(questionData);
           }
@@ -64,5 +64,10 @@ class WrongQuestionsService {
       storedQuestions.removeAt(index);
       await prefs.setStringList(_key, storedQuestions);
     }
+  }
+
+  static Future<void> clearWrongQuestions() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_key); // Completely removes all stored wrong questions
   }
 }

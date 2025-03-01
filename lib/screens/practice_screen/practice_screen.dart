@@ -20,7 +20,7 @@ class PracticeScreen extends StatefulWidget {
   final Function(String) triggerTTS;
   final Operation selectedOperation;
   final String selectedRange;
-  final int sessionTimeLimit;
+  final int? sessionTimeLimit; // Nullable for no limit option
 
   const PracticeScreen(
       this.switchToResultScreen,
@@ -42,19 +42,16 @@ class _PracticeScreenState extends State<PracticeScreen>
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
   List<Map<String, dynamic>> _wrongQuestions = [];
-  bool _usedWrongQuestionThisSession =
-      false; // Track if a wrong question was used
+  bool _usedWrongQuestionThisSession = false;
 
   int correctAnswer = 0;
-
   String resultText = '';
   String currentHintMessage = '';
-
   bool hasListenedToQuestion = false;
   bool _isHintExpanded = false;
+  
   final HintManager hintManager = HintManager();
   final QuizTimer _quizTimer = QuizTimer();
-
   late ConfettiManager confettiManager;
   late AnimationController _controller;
   late Animation<Offset> _slideAnimation;
@@ -65,13 +62,14 @@ class _PracticeScreenState extends State<PracticeScreen>
   void initState() {
     super.initState();
     _loadWrongQuestions();
-    _setInitialQuestion(); // Set initial question
+    _setInitialQuestion();
     _updateHintMessage();
     confettiManager = ConfettiManager();
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
-        if (secondsPassed >= widget.sessionTimeLimit) {
+        if (widget.sessionTimeLimit != null && 
+            secondsPassed >= widget.sessionTimeLimit!) {
           endQuiz();
         }
       });
@@ -117,11 +115,11 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void _useWrongQuestion() {
-    var question = _wrongQuestions[0]; // Take the first wrong question
+    var question = _wrongQuestions[0];
     numbers = _parseQuestion(question['question']);
     correctAnswer = question['correctAnswer'];
     answerOptions = generateAnswerOptions(correctAnswer);
-    _usedWrongQuestionThisSession = true; // Mark as used for this session
+    _usedWrongQuestionThisSession = true;
   }
 
   void _updateHintMessage() {
@@ -135,9 +133,19 @@ class _PracticeScreenState extends State<PracticeScreen>
   void resumeTimer() => _quizTimer.resumeTimer();
 
   String formatTime(int seconds) {
-    final minutes = (seconds / 60).floor();
-    final secs = seconds % 60;
-    return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    if (widget.sessionTimeLimit == null) {
+      // Count up mode
+      final minutes = (seconds / 60).floor();
+      final secs = seconds % 60;
+      return '$minutes:${secs.toString().padLeft(2, '0')}';
+    } else {
+      // Count down mode
+      int remaining = widget.sessionTimeLimit! - seconds;
+      if (remaining < 0) remaining = 0;
+      final minutes = (remaining / 60).floor();
+      final secs = remaining % 60;
+      return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    }
   }
 
   void regenerateNumbers() {
@@ -167,20 +175,18 @@ class _PracticeScreenState extends State<PracticeScreen>
               '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
         );
       } else if (_usedWrongQuestionThisSession && _wrongQuestions.isNotEmpty) {
-        // Update stats for the wrong question and remove it if answered correctly
         WrongQuestionsService.updateWrongQuestion(currentQuestion,
             correct: true);
-        _wrongQuestions.removeAt(0); // Remove the answered wrong question
+        _wrongQuestions.removeAt(0);
       }
 
       if (isCorrect) confettiManager.correctConfettiController.play();
 
-      // Decide the next question
       if (_wrongQuestions.isNotEmpty) {
-        _useWrongQuestion(); // Load the next wrong question from the list
+        _useWrongQuestion();
         _usedWrongQuestionThisSession = true;
       } else {
-        regenerateNumbers(); // All wrong questions are exhausted, generate a new one
+        regenerateNumbers();
         _usedWrongQuestionThisSession = false;
       }
     });
@@ -240,8 +246,10 @@ class _PracticeScreenState extends State<PracticeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    int remainingTime = widget.sessionTimeLimit - _quizTimer.secondsPassed;
-    if (remainingTime < 0) remainingTime = 0;
+    int displayTime = widget.sessionTimeLimit != null
+        ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
+        : _quizTimer.secondsPassed;
+    if (widget.sessionTimeLimit != null && displayTime < 0) displayTime = 0;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -294,7 +302,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      buildTimerCard(formatTime(remainingTime), context),
+                      buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
                       const SizedBox(height: 20),
                       buildHintCard(currentHintMessage, _isHintExpanded, () {
                         setState(() {

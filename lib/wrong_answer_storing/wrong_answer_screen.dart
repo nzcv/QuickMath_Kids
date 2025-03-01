@@ -49,6 +49,42 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
     }
   }
 
+  Future<void> _clearAllWrongQuestions() async {
+    bool? confirm = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Clear All Wrong Answers'),
+        content: const Text('Are you sure you want to clear all wrong answers? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      try {
+        await WrongQuestionsService.clearWrongQuestions();
+        setState(() {
+          _wrongQuestions.clear();
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('All wrong answers cleared')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to clear questions: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -56,6 +92,14 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Wrong Answers History'),
+        actions: [
+          if (!_isLoading && _wrongQuestions.isNotEmpty)
+            IconButton(
+              icon: const Icon(Icons.delete_sweep),
+              tooltip: 'Clear all wrong answers',
+              onPressed: _clearAllWrongQuestions,
+            ),
+        ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -90,7 +134,7 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                       ),
                       onDismissed: (direction) => _removeWrongQuestion(index),
                       child: Card(
-                        margin: const EdgeInsets.only(bottom: 16),
+                        margin: const EdgeInsets.only(bottom: 16), // Note: 'bottom' should replace 'custom'
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(
