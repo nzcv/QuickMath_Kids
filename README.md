@@ -20,9 +20,10 @@ A math quiz app with a twist
 ### This app focuses on increasing the calculation time for math operations, and improving their auditory senses.
 
 ## This app is a work in progress, and I have lot in mind to improve on it. 
-![6-removebg-preview (1)](https://github.com/user-attachments/assets/f147be4b-2292-4301-8076-5e10827df4a0)
-![5-removebg-preview (1)](https://github.com/user-attachments/assets/a43a9023-7a5c-405a-94f9-590c970a1c08)
-![4-removebg-preview (1)](https://github.com/user-attachments/assets/457c3a7d-cbe3-418e-b178-2ca287ea856d)
-![3-removebg-preview (1)](https://github.com/user-attachments/assets/5eae8458-b1da-4221-9ded-8d06d8515713)
-![2-removebg-preview (1)](https://github.com/user-attachments/assets/fc66ad0e-cf2e-431f-ad59-d9929034df04)
-![1-removebg-preview (1)](https://github.com/user-attachments/assets/e996ab26-bf3d-4b96-b0cf-383a9ae8ff34)
+![PHOTO-2025-02-10-15-41-03 2](https://github.com/user-attachments/assets/a6ba2e1b-424c-416e-9328-fbb37804e05e)
+![PHOTO-2025-02-10-15-41-03](https://github.com/user-attachments/assets/25220a65-7378-49c7-b928-f11f439c7456)
+![PHOTO-2025-02-10-15-41-04 2](https://github.com/user-attachments/assets/78cc9148-3e6d-4019-b5d9-24a208e27e2d)
+![PHOTO-2025-02-10-15-41-04 3](https://github.com/user-attachments/assets/75f18575-f9cc-49d0-ac91-9939157989be)
+![PHOTO-2025-02-10-15-41-04](https://github.com/user-attachments/assets/2602125e-b961-45f0-8daa-bdc309f45b09)
+![PHOTO-2025-02-10-15-41-05](https://github.com/user-attachments/assets/701ce159-e9e4-4228-86d3-bc39d4b2ec26)
+
