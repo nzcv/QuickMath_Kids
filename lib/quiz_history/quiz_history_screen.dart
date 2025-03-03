@@ -88,6 +88,51 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
     }
   }
 
+  Future<void> _renameQuiz(String oldTitle) async {
+    final controller = TextEditingController(text: oldTitle);
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Quiz'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'New Title',
+            hintText: 'Enter a new title',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (newTitle != null && newTitle.isNotEmpty && newTitle != oldTitle) {
+      try {
+        await QuizHistoryService.renameQuiz(oldTitle, newTitle);
+        setState(() {
+          final quiz = _quizzes.firstWhere((q) => q['title'] == oldTitle);
+          quiz['title'] = newTitle; // Update locally
+          _quizzes.sort((a, b) => b['timestamp'].compareTo(a['timestamp'])); // Re-sort if needed
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quiz renamed successfully')),
+        );
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to rename quiz: $e')),
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -141,9 +186,10 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                             quiz['title'],
                             style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          subtitle: Text(
-                            'Completed: ${quiz['timestamp'].substring(0, 16)}',
-                            style: theme.textTheme.bodySmall,
+                          trailing: IconButton(
+                            icon: const Icon(Icons.edit),
+                            onPressed: () => _renameQuiz(quiz['title']),
+                            tooltip: 'Rename quiz',
                           ),
                           onTap: () {
                             Navigator.push(
@@ -155,15 +201,15 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                                   answeredCorrectly: List<bool>.from(quiz['correctness']),
                                   totalTime: quiz['totalTime'],
                                   switchToStartScreen: () {
-                                    widget.switchToStartScreen(); // Call the original callback
+                                    widget.switchToStartScreen();
                                     Navigator.popUntil(
                                       context,
-                                      (route) => route.isFirst, // Pop back to root
+                                      (route) => route.isFirst,
                                     );
                                   },
                                   operation: Operation.values.firstWhere(
                                     (op) => op.toString().split('.').last == quiz['operation'],
-                                    orElse: () => Operation.addition_2A, // Default fallback
+                                    orElse: () => Operation.addition_2A,
                                   ),
                                   range: quiz['range'],
                                   timeLimit: quiz['timeLimit'],
