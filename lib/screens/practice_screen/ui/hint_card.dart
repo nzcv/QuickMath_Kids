@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
 Widget buildHintCard(String currentHintMessage, bool isExpanded, VoidCallback onTap, BuildContext context) {
-  final theme = Theme.of(context); // Get the current theme
+  final theme = Theme.of(context); 
 
   return Card(
     color: theme.brightness == Brightness.dark
-        ? Colors.grey[200] // Dark mode: lighter card color
-        : Colors.grey[800], // Light mode: standard grey
+        ? Colors.grey[200] 
+        : Colors.grey[800], 
     elevation: 4,
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(16),
@@ -23,8 +23,8 @@ Widget buildHintCard(String currentHintMessage, bool isExpanded, VoidCallback on
                 Icon(
                   Icons.lightbulb,
                   color: theme.brightness == Brightness.dark
-                      ? Colors.amber[400] // Dark mode: lighter amber
-                      : Colors.amber[700], // Light mode: darker amber
+                      ? Colors.amber[400] 
+                      : Colors.amber[700], 
                 ),
                 const SizedBox(width: 8),
                 Text(
@@ -32,8 +32,8 @@ Widget buildHintCard(String currentHintMessage, bool isExpanded, VoidCallback on
                   style: TextStyle(
                     fontSize: 18,
                     color: theme.brightness == Brightness.dark
-                        ? Colors.black // Dark mode: lighter text
-                        : Colors.grey[300], // Light mode: standard grey
+                        ? Colors.black 
+                        : Colors.grey[300],
                     fontWeight: FontWeight.w500,
                   ),
                 ),
@@ -50,8 +50,8 @@ Widget buildHintCard(String currentHintMessage, bool isExpanded, VoidCallback on
                   style: TextStyle(
                     fontSize: 16,
                     color: theme.brightness == Brightness.dark
-                        ? Colors.black // Dark mode: lighter hint message
-                        : Colors.grey[400], // Light mode: standard grey
+                        ? Colors.black 
+                        : Colors.grey[400], 
                   ),
                   textAlign: TextAlign.center,
                 ),

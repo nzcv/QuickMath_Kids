@@ -1,4 +1,4 @@
-// lib/screens/quiz_history_screen.dart
+
 import 'package:flutter/material.dart';
 import 'quiz_history_service.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
@@ -180,7 +180,7 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                       ),
                       onDismissed: (direction) => _removeQuiz(quiz['title']),
                       child: Card(
-                        margin: const EdgeInsets.only(bottom: 16), // Should be 'bottom'
+                        margin: const EdgeInsets.only(bottom: 16),
                         child: ListTile(
                           title: Text(
                             quiz['title'],

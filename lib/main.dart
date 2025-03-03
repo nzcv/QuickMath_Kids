@@ -9,7 +9,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  //await NotificationInit.initialize();
 
   runApp(const ProviderScope(child: MyApp()));
 }
@@ -30,7 +29,7 @@ class _MyAppState extends State<MyApp> {
   int totalTimeInSeconds = 0;
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5';
-  int? _selectedTimeLimit; // Nullable, no default limit
+  int? _selectedTimeLimit;
   bool _isDarkMode = false;
 
   @override
@@ -73,17 +72,17 @@ class _MyAppState extends State<MyApp> {
     List<String> questions,
     List<bool> correctAnswers,
     int time,
-    Operation operation, // Added
-    String range,        // Added
-    int? timeLimit,      // Added
+    Operation operation, 
+    String range,        
+    int? timeLimit,     
   ) {
     setState(() {
       answeredQuestions = questions;
       answeredCorrectly = correctAnswers;
       totalTimeInSeconds = time;
-      _selectedOperation = operation; // Store for ResultScreen
-      _selectedRange = range;         // Store for ResultScreen
-      _selectedTimeLimit = timeLimit; // Store for ResultScreen
+      _selectedOperation = operation; 
+      _selectedRange = range;         
+      _selectedTimeLimit = timeLimit; 
       activeScreen = 'result_screen';
     });
   }
@@ -142,9 +141,9 @@ class _MyAppState extends State<MyApp> {
                         answeredCorrectly,
                         totalTimeInSeconds,
                         switchToStartScreen,
-                        operation: _selectedOperation, // Pass to ResultScreen
-                        range: _selectedRange,         // Pass to ResultScreen
-                        timeLimit: _selectedTimeLimit, // Pass to ResultScreen
+                        operation: _selectedOperation, 
+                        range: _selectedRange,        
+                        timeLimit: _selectedTimeLimit,
                       );
           },
         ),

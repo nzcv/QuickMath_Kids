@@ -1,4 +1,3 @@
-// lib/screens/practice_screen/practice_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';

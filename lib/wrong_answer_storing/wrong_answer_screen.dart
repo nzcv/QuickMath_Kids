@@ -134,7 +134,7 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                       ),
                       onDismissed: (direction) => _removeWrongQuestion(index),
                       child: Card(
-                        margin: const EdgeInsets.only(bottom: 16), // Note: 'bottom' should replace 'custom'
+                        margin: const EdgeInsets.only(bottom: 16),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
                           child: Column(

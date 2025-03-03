@@ -26,8 +26,8 @@ class OperationDropdown extends StatelessWidget {
               operation.name.toUpperCase(),
               style: TextStyle(
                 color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.onSurface // For dark mode text color
-                    : theme.colorScheme.onBackground, // For light mode text color
+                    ? theme.colorScheme.onSurface 
+                    : theme.colorScheme.onBackground, 
               ),
             ),
           );
@@ -36,8 +36,8 @@ class OperationDropdown extends StatelessWidget {
         decoration: InputDecoration(
           filled: true,
           fillColor: theme.brightness == Brightness.dark
-              ? theme.colorScheme.surface // Dark mode background
-              : Colors.white, // Light mode background
+              ? theme.colorScheme.surface 
+              : Colors.white,
           contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
@@ -79,14 +79,14 @@ class RangeDropdown extends StatelessWidget {
           onChanged: onChanged,
           style: TextStyle(
             color: theme.brightness == Brightness.dark
-                ? theme.colorScheme.onSurface // For dark mode text color
-                : theme.colorScheme.onBackground, // For light mode text color
+                ? theme.colorScheme.onSurface 
+                : theme.colorScheme.onBackground, 
           ),
           decoration: InputDecoration(
             filled: true,
             fillColor: theme.brightness == Brightness.dark
-                ? theme.colorScheme.surface // Dark mode background
-                : Colors.white, // Light mode background
+                ? theme.colorScheme.surface 
+                : Colors.white, 
             contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),

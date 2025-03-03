@@ -78,7 +78,6 @@ class QuizHistoryService {
         .map((string) => jsonDecode(string) as Map<String, dynamic>)
         .toList();
 
-    // Check for duplicate titles
     String uniqueNewTitle = newTitle;
     int suffix = 2;
     while (quizzes.any((quiz) => quiz['title'] == uniqueNewTitle && quiz['title'] != oldTitle)) {
@@ -86,7 +85,6 @@ class QuizHistoryService {
       suffix++;
     }
 
-    // Update the title
     for (int i = 0; i < storedQuizzes.length; i++) {
       Map<String, dynamic> quizData = jsonDecode(storedQuizzes[i]);
       if (quizData['title'] == oldTitle) {

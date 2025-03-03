@@ -6,7 +6,7 @@ import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters
 import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
-import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart'; // Add this import
+import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;

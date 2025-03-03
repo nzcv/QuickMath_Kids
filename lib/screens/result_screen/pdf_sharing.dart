@@ -12,7 +12,6 @@ class QuizPDFGenerator {
   }) async {
     final pdf = pw.Document();
     
-    // Calculate statistics
     final correctAnswers = answeredCorrectly.where((correct) => correct).length;
     final totalQuestions = answeredQuestions.length;
     final score = totalQuestions > 0 
@@ -25,7 +24,6 @@ class QuizPDFGenerator {
       pw.MultiPage(
         pageFormat: PdfPageFormat.a4,
         build: (context) => [
-          // Header
           pw.Header(
             level: 0,
             child: pw.Column(
@@ -48,7 +46,6 @@ class QuizPDFGenerator {
             ),
           ),
 
-          // Summary Section
           pw.Container(
             padding: const pw.EdgeInsets.all(10),
             margin: const pw.EdgeInsets.symmetric(vertical: 20),
@@ -86,7 +83,6 @@ class QuizPDFGenerator {
             ),
           ),
 
-          // Questions Section
           pw.Header(
             level: 1,
             text: 'Detailed Questions & Answers',
@@ -151,7 +147,6 @@ class QuizPDFGenerator {
       ),
     );
 
-    // Save the PDF
     final output = await getTemporaryDirectory();
     final file = File('${output.path}/quiz_results.pdf');
     await file.writeAsBytes(await pdf.save());

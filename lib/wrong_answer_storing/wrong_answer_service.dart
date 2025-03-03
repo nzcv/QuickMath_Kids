@@ -68,6 +68,6 @@ class WrongQuestionsService {
 
   static Future<void> clearWrongQuestions() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_key); // Completely removes all stored wrong questions
+    await prefs.remove(_key);
   }
 }
