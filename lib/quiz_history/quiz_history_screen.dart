@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'quiz_history_service.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
+import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 
 class QuizHistoryScreen extends StatefulWidget {
   final Function switchToStartScreen;
@@ -134,7 +135,7 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                       ),
                       onDismissed: (direction) => _removeQuiz(quiz['title']),
                       child: Card(
-                        margin: const EdgeInsets.only(bottom: 16),
+                        margin: const EdgeInsets.only(bottom: 16), // Should be 'bottom'
                         child: ListTile(
                           title: Text(
                             quiz['title'],
@@ -153,7 +154,19 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                                   answeredQuestions: List<String>.from(quiz['questions']),
                                   answeredCorrectly: List<bool>.from(quiz['correctness']),
                                   totalTime: quiz['totalTime'],
-                                  switchToStartScreen: widget.switchToStartScreen,
+                                  switchToStartScreen: () {
+                                    widget.switchToStartScreen(); // Call the original callback
+                                    Navigator.popUntil(
+                                      context,
+                                      (route) => route.isFirst, // Pop back to root
+                                    );
+                                  },
+                                  operation: Operation.values.firstWhere(
+                                    (op) => op.toString().split('.').last == quiz['operation'],
+                                    orElse: () => Operation.addition_2A, // Default fallback
+                                  ),
+                                  range: quiz['range'],
+                                  timeLimit: quiz['timeLimit'],
                                 ),
                               ),
                             );
