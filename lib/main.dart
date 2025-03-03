@@ -30,7 +30,7 @@ class _MyAppState extends State<MyApp> {
   int totalTimeInSeconds = 0;
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5';
-  int? _selectedTimeLimit; // Changed to nullable, no default limit
+  int? _selectedTimeLimit; // Nullable, no default limit
   bool _isDarkMode = false;
 
   @override
@@ -58,7 +58,7 @@ class _MyAppState extends State<MyApp> {
     setState(() {
       _selectedOperation = operation;
       _selectedRange = range;
-      _selectedTimeLimit = timeLimit; // Now accepts null
+      _selectedTimeLimit = timeLimit;
       activeScreen = 'practice_screen';
     });
   }
@@ -70,11 +70,20 @@ class _MyAppState extends State<MyApp> {
   }
 
   void switchToResultScreen(
-      List<String> questions, List<bool> correctAnswers, int time) {
+    List<String> questions,
+    List<bool> correctAnswers,
+    int time,
+    Operation operation, // Added
+    String range,        // Added
+    int? timeLimit,      // Added
+  ) {
     setState(() {
       answeredQuestions = questions;
       answeredCorrectly = correctAnswers;
       totalTimeInSeconds = time;
+      _selectedOperation = operation; // Store for ResultScreen
+      _selectedRange = range;         // Store for ResultScreen
+      _selectedTimeLimit = timeLimit; // Store for ResultScreen
       activeScreen = 'result_screen';
     });
   }
@@ -113,19 +122,29 @@ class _MyAppState extends State<MyApp> {
                   )
                 : activeScreen == 'practice_screen'
                     ? PracticeScreen(
-                        (questions, correctAnswers, time) =>
-                            switchToResultScreen(questions, correctAnswers, time),
+                        (questions, correctAnswers, time, operation, range, timeLimit) =>
+                            switchToResultScreen(
+                              questions,
+                              correctAnswers,
+                              time,
+                              operation,
+                              range,
+                              timeLimit,
+                            ),
                         switchToStartScreen,
                         (text) => triggerTTS(text, ref),
                         _selectedOperation,
                         _selectedRange,
-                        _selectedTimeLimit, // Now nullable
+                        _selectedTimeLimit,
                       )
                     : ResultScreen(
                         answeredQuestions,
                         answeredCorrectly,
                         totalTimeInSeconds,
                         switchToStartScreen,
+                        operation: _selectedOperation, // Pass to ResultScreen
+                        range: _selectedRange,         // Pass to ResultScreen
+                        timeLimit: _selectedTimeLimit, // Pass to ResultScreen
                       );
           },
         ),
