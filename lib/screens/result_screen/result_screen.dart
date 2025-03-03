@@ -1,17 +1,45 @@
+// lib/screens/result_screen/result_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_row.dart';
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
+import 'package:QuickMath_Kids/quiz_history/quiz_history_service.dart';
+import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ResultScreen extends StatefulWidget {
+  final String? title; // Nullable for live mode
   final List<String> answeredQuestions;
   final List<bool> answeredCorrectly;
   final int totalTime;
+  final Operation? operation; // Nullable for history mode
+  final String? range; // Nullable for history mode
+  final int? timeLimit; // Nullable for history mode
   final Function switchToStartScreen;
+  final bool isFromHistory;
 
-  const ResultScreen(this.answeredQuestions, this.answeredCorrectly,
-      this.totalTime, this.switchToStartScreen,
-      {super.key});
+  const ResultScreen(
+    this.answeredQuestions,
+    this.answeredCorrectly,
+    this.totalTime,
+    this.switchToStartScreen, {
+    super.key,
+    this.title,
+    this.operation,
+    this.range,
+    this.timeLimit,
+  }) : isFromHistory = false;
+
+  const ResultScreen.fromHistory({
+    required this.title,
+    required this.answeredQuestions,
+    required this.answeredCorrectly,
+    required this.totalTime,
+    required this.switchToStartScreen,
+    this.operation,
+    this.range,
+    this.timeLimit,
+    super.key,
+  }) : isFromHistory = true;
 
   @override
   _ResultScreenState createState() => _ResultScreenState();
@@ -21,6 +49,7 @@ class _ResultScreenState extends State<ResultScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _fadeAnimation;
+  String? _quizTitle;
 
   @override
   void initState() {
@@ -29,19 +58,85 @@ class _ResultScreenState extends State<ResultScreen>
       duration: const Duration(seconds: 1),
       vsync: this,
     );
-
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
-
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
     _controller.forward();
+
+    if (!widget.isFromHistory) {
+      _promptForTitle();
+    } else {
+      _quizTitle = widget.title;
+    }
   }
 
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  Future<void> _promptForTitle() async {
+    final baseTitle = DateTime.now().toString().split(' ')[0]; // e.g., "2025-03-03"
+    final uniqueTitle = await QuizHistoryService.generateUniqueTitle(baseTitle);
+
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        final controller = TextEditingController(text: uniqueTitle);
+        return AlertDialog(
+          title: const Text('Save Quiz'),
+          content: TextField(
+            controller: controller,
+            decoration: const InputDecoration(
+              labelText: 'Enter quiz title',
+              hintText: 'e.g., 2025-03-03',
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                setState(() {
+                  _quizTitle = controller.text.isEmpty ? uniqueTitle : controller.text;
+                });
+                _saveQuiz();
+              },
+              child: const Text('Save'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _saveQuiz() async {
+    if (_quizTitle == null || widget.operation == null || widget.range == null) return;
+
+    try {
+      await QuizHistoryService.saveQuiz(
+        title: _quizTitle!,
+        timestamp: DateTime.now().toIso8601String(),
+        operation: widget.operation!,
+        range: widget.range!,
+        timeLimit: widget.timeLimit,
+        totalTime: widget.totalTime,
+        answeredQuestions: widget.answeredQuestions,
+        answeredCorrectly: widget.answeredCorrectly,
+      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quiz saved successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save quiz: $e')),
+        );
+      }
+    }
   }
 
   Future<void> _sharePDFReport() async {
@@ -51,10 +146,9 @@ class _ResultScreenState extends State<ResultScreen>
         answeredCorrectly: widget.answeredCorrectly,
         totalTime: widget.totalTime,
       );
-
       await Share.shareXFiles(
         [XFile(file.path)],
-        subject: 'QuickMath Kids Quiz Results',
+        subject: 'QuickMath Kids Quiz Results${_quizTitle != null ? ' - $_quizTitle' : ''}',
       );
     } catch (e) {
       if (mounted) {
@@ -73,9 +167,7 @@ class _ResultScreenState extends State<ResultScreen>
     final theme = Theme.of(context);
     int minutes = widget.totalTime ~/ 60;
     int seconds = widget.totalTime % 60;
-
-    int correctAnswers =
-        widget.answeredCorrectly.where((correct) => correct).length;
+    int correctAnswers = widget.answeredCorrectly.where((correct) => correct).length;
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,
@@ -88,7 +180,9 @@ class _ResultScreenState extends State<ResultScreen>
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Text(
-                  'Quiz Results',
+                  widget.isFromHistory && _quizTitle != null
+                      ? 'Quiz Results - $_quizTitle'
+                      : 'Quiz Results',
                   style: theme.textTheme.headlineMedium?.copyWith(
                     color: theme.colorScheme.primary,
                     fontWeight: FontWeight.bold,
@@ -112,8 +206,7 @@ class _ResultScreenState extends State<ResultScreen>
                         ResultRowWidget(
                           icon: Icons.timer,
                           label: 'Time Taken:',
-                          value:
-                              '$minutes:${seconds.toString().padLeft(2, '0')}',
+                          value: '$minutes:${seconds.toString().padLeft(2, '0')}',
                           theme: theme,
                         ),
                         const SizedBox(height: 10),
@@ -166,8 +259,7 @@ class _ResultScreenState extends State<ResultScreen>
                                   : theme.colorScheme.error,
                             ),
                             title: Text(
-                              widget.answeredQuestions[
-                                  index], // Display full question string
+                              widget.answeredQuestions[index],
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 color: theme.colorScheme.onSurface,
                               ),

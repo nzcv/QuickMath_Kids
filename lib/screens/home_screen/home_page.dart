@@ -6,6 +6,7 @@ import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters
 import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
+import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart'; // Add this import
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;
@@ -37,7 +38,7 @@ class _StartScreenState extends State<StartScreen> {
   void initState() {
     super.initState();
     _isDarkMode = widget.isDarkMode;
-    _selectedTimeLimit = null; // Default to no limit
+    _selectedTimeLimit = null;
   }
 
   @override
@@ -104,7 +105,7 @@ class _StartScreenState extends State<StartScreen> {
                               ),
                             );
                           },
-                          childCount: 60, // Up to 60 minutes
+                          childCount: 60,
                         ),
                       ),
                     ),
@@ -283,8 +284,7 @@ class _StartScreenState extends State<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title:
-                const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -301,6 +301,19 @@ class _StartScreenState extends State<StartScreen> {
                 context,
                 MaterialPageRoute(
                   builder: (context) => const WrongAnswersScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile( // Added Quiz History
+            leading: const Icon(Icons.history_toggle_off),
+            title: const Text('Quiz History'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => QuizHistoryScreen(widget.switchToStartScreen),
                 ),
               );
             },

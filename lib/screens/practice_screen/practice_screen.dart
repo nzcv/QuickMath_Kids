@@ -1,3 +1,4 @@
+// lib/screens/practice_screen/practice_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
@@ -15,12 +16,12 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int) switchToResultScreen;
+  final Function(List<String>, List<bool>, int, Operation, String, int?) switchToResultScreen; // Updated signature
   final VoidCallback switchToStartScreen;
   final Function(String) triggerTTS;
   final Operation selectedOperation;
   final String selectedRange;
-  final int? sessionTimeLimit; // Nullable for no limit option
+  final int? sessionTimeLimit;
 
   const PracticeScreen(
       this.switchToResultScreen,
@@ -49,7 +50,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   String currentHintMessage = '';
   bool hasListenedToQuestion = false;
   bool _isHintExpanded = false;
-  
+
   final HintManager hintManager = HintManager();
   final QuizTimer _quizTimer = QuizTimer();
   late ConfettiManager confettiManager;
@@ -68,7 +69,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
-        if (widget.sessionTimeLimit != null && 
+        if (widget.sessionTimeLimit != null &&
             secondsPassed >= widget.sessionTimeLimit!) {
           endQuiz();
         }
@@ -134,12 +135,10 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   String formatTime(int seconds) {
     if (widget.sessionTimeLimit == null) {
-      // Count up mode
       final minutes = (seconds / 60).floor();
       final secs = seconds % 60;
       return '$minutes:${secs.toString().padLeft(2, '0')}';
     } else {
-      // Count down mode
       int remaining = widget.sessionTimeLimit! - seconds;
       if (remaining < 0) remaining = 0;
       final minutes = (remaining / 60).floor();
@@ -220,7 +219,13 @@ class _PracticeScreenState extends State<PracticeScreen>
   void endQuiz() {
     stopTimer();
     widget.switchToResultScreen(
-        answeredQuestions, answeredCorrectly, _quizTimer.secondsPassed);
+      answeredQuestions,
+      answeredCorrectly,
+      _quizTimer.secondsPassed,
+      widget.selectedOperation,
+      widget.selectedRange,
+      widget.sessionTimeLimit,
+    );
   }
 
   void _showQuitDialog() {
@@ -278,8 +283,7 @@ class _PracticeScreenState extends State<PracticeScreen>
             child: ElevatedButton.icon(
               onPressed: endQuiz,
               icon: const Icon(Icons.assessment, color: Colors.white),
-              label:
-                  const Text('Results', style: TextStyle(color: Colors.white)),
+              label: const Text('Results', style: TextStyle(color: Colors.white)),
               style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green[700],
                   shape: RoundedRectangleBorder(
