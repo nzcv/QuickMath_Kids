@@ -1,3 +1,4 @@
+// lib/screens/practice_screen/practice_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
@@ -15,7 +16,7 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int, Operation, String, int?) switchToResultScreen; // Updated signature
+  final Function(List<String>, List<bool>, int, Operation, String, int?) switchToResultScreen;
   final VoidCallback switchToStartScreen;
   final Function(String) triggerTTS;
   final Operation selectedOperation;
@@ -43,6 +44,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   List<bool> answeredCorrectly = [];
   List<Map<String, dynamic>> _wrongQuestions = [];
   bool _usedWrongQuestionThisSession = false;
+  bool _isInitialized = false; // New flag to track initialization
 
   int correctAnswer = 0;
   String resultText = '';
@@ -61,9 +63,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   @override
   void initState() {
     super.initState();
-    _loadWrongQuestions();
-    _setInitialQuestion();
-    _updateHintMessage();
+    _initializeScreen();
     confettiManager = ConfettiManager();
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
@@ -82,6 +82,15 @@ class _PracticeScreenState extends State<PracticeScreen>
     _fadeAnimation = Tween<double>(begin: 0, end: 1)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
+  }
+
+  Future<void> _initializeScreen() async {
+    await _loadWrongQuestions();
+    setState(() {
+      _setInitialQuestion();
+      _updateHintMessage();
+      _isInitialized = true; // Mark as initialized
+    });
   }
 
   @override
@@ -105,27 +114,27 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void _setInitialQuestion() {
-    setState(() {
-      if (_wrongQuestions.isNotEmpty && !_usedWrongQuestionThisSession) {
-        _useWrongQuestion();
-      } else {
-        regenerateNumbers();
-      }
-    });
+    if (_wrongQuestions.isNotEmpty) {
+      _useWrongQuestion();
+    } else {
+      regenerateNumbers();
+    }
   }
 
   void _useWrongQuestion() {
-    var question = _wrongQuestions[0];
-    numbers = _parseQuestion(question['question']);
-    correctAnswer = question['correctAnswer'];
-    answerOptions = generateAnswerOptions(correctAnswer);
-    _usedWrongQuestionThisSession = true;
+    if (_wrongQuestions.isNotEmpty) { // Safeguard against empty list
+      var question = _wrongQuestions[0];
+      numbers = _parseQuestion(question['question']);
+      correctAnswer = question['correctAnswer'];
+      answerOptions = generateAnswerOptions(correctAnswer);
+      _usedWrongQuestionThisSession = true;
+    } else {
+      regenerateNumbers(); // Fallback if list becomes empty
+    }
   }
 
   void _updateHintMessage() {
-    setState(() {
-      currentHintMessage = hintManager.getRandomHintMessage();
-    });
+    currentHintMessage = hintManager.getRandomHintMessage();
   }
 
   void stopTimer() => _quizTimer.stopTimer();
@@ -172,6 +181,7 @@ class _PracticeScreenState extends State<PracticeScreen>
           category:
               '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
         );
+        _loadWrongQuestions();
       } else if (_usedWrongQuestionThisSession && _wrongQuestions.isNotEmpty) {
         WrongQuestionsService.updateWrongQuestion(currentQuestion,
             correct: true);
@@ -182,11 +192,10 @@ class _PracticeScreenState extends State<PracticeScreen>
 
       if (_wrongQuestions.isNotEmpty) {
         _useWrongQuestion();
-        _usedWrongQuestionThisSession = true;
       } else {
         regenerateNumbers();
-        _usedWrongQuestionThisSession = false;
       }
+      _usedWrongQuestionThisSession = _wrongQuestions.isNotEmpty;
     });
 
     _triggerTTSSpeech();
@@ -254,6 +263,13 @@ class _PracticeScreenState extends State<PracticeScreen>
         ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
         : _quizTimer.secondsPassed;
     if (widget.sessionTimeLimit != null && displayTime < 0) displayTime = 0;
+
+    if (!_isInitialized) {
+      return Scaffold(
+        backgroundColor: theme.colorScheme.background,
+        body: const Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       backgroundColor: theme.colorScheme.background,

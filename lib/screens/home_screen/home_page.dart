@@ -147,6 +147,17 @@ class _StartScreenState extends State<StartScreen> {
         title: const Text('QuickMath Kids',
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: theme.colorScheme.primary,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+            },
+          ),
+        ],
       ),
       drawer: _buildDrawer(context),
       backgroundColor: theme.colorScheme.surface,
@@ -250,6 +261,7 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
+  // lib/screens/home_screen/start_screen.dart (partial update)
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -261,19 +273,8 @@ class _StartScreenState extends State<StartScreen> {
                 style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings', style: TextStyle(color: Colors.grey)),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-          ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
+            title: const Text('FAQ'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -284,7 +285,7 @@ class _StartScreenState extends State<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            title: const Text('How to use?'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -305,7 +306,7 @@ class _StartScreenState extends State<StartScreen> {
               );
             },
           ),
-          ListTile( // Added Quiz History
+          ListTile(
             leading: const Icon(Icons.history_toggle_off),
             title: const Text('Quiz History'),
             onTap: () {
@@ -313,7 +314,8 @@ class _StartScreenState extends State<StartScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => QuizHistoryScreen(widget.switchToStartScreen),
+                  builder: (context) =>
+                      QuizHistoryScreen(widget.switchToStartScreen),
                 ),
               );
             },
