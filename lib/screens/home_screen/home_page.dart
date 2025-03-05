@@ -1,3 +1,4 @@
+// lib/screens/home_screen/start_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
@@ -30,7 +31,7 @@ class _StartScreenState extends State<StartScreen> {
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5';
   int? _selectedTimeLimit;
-  int _selectedMinutes = 5;
+  int _selectedMinutes = 5; // Default selected minute
   bool _noLimit = true;
   bool _isDarkMode = false;
 
@@ -38,7 +39,7 @@ class _StartScreenState extends State<StartScreen> {
   void initState() {
     super.initState();
     _isDarkMode = widget.isDarkMode;
-    _selectedTimeLimit = null;
+    _selectedTimeLimit = null; // Default to no limit
   }
 
   @override
@@ -93,19 +94,52 @@ class _StartScreenState extends State<StartScreen> {
                         physics: const FixedExtentScrollPhysics(),
                         onSelectedItemChanged: (index) {
                           setModalState(() {
-                            _selectedMinutes = index + 1;
+                            _selectedMinutes =
+                                index + 1; // Update selected minutes
                           });
                         },
                         childDelegate: ListWheelChildBuilderDelegate(
                           builder: (context, index) {
+                            final minute = index + 1;
+                            final isSelected = minute == _selectedMinutes;
                             return Center(
-                              child: Text(
-                                '${index + 1} minute${index + 1 == 1 ? '' : 's'}',
-                                style: const TextStyle(fontSize: 20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.2)
+                                      : Colors.transparent,
+                                  border: isSelected
+                                      ? Border.all(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 2)
+                                      : null,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '$minute minute${minute == 1 ? '' : 's'}',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                  ),
+                                ),
                               ),
                             );
                           },
-                          childCount: 60,
+                          childCount: 60, // Up to 60 minutes
                         ),
                       ),
                     ),
@@ -261,7 +295,6 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
-  // lib/screens/home_screen/start_screen.dart (partial update)
   Widget _buildDrawer(BuildContext context) {
     return Drawer(
       child: ListView(
@@ -274,7 +307,7 @@ class _StartScreenState extends State<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('FAQ'),
+            title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -285,7 +318,8 @@ class _StartScreenState extends State<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('How to use?'),
+            title:
+                const Text('How to use?', style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
