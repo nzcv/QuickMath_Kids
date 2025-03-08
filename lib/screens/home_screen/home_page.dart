@@ -8,7 +8,8 @@ import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
-import 'package:QuickMath_Kids/billing_service.dart';
+import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'package:QuickMath_Kids/billing/purchase_screen.dart'; // New import
 
 class StartScreen extends ConsumerStatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;
@@ -35,7 +36,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   int _selectedMinutes = 5;
   bool _noLimit = true;
   bool _isDarkMode = false;
-  bool _isRestoring = false; // Add restoring state
+  bool _isRestoring = false;
 
   @override
   void initState() {
@@ -164,50 +165,21 @@ class _StartScreenState extends ConsumerState<StartScreen> {
       builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Unlock Premium Features'),
-          content: const Text(
-              'Access the Settings screen and more by purchasing the premium plan for a one-time fee of 300 INR.'),
+          content: const Text('Tap below to learn more and purchase the premium plan.'),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () async {
+              onPressed: () {
                 Navigator.pop(dialogContext);
-                final billingService = ref.read(billingServiceProvider);
-                await billingService.purchasePremium(context);
-                setState(() {}); // Refresh UI
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                );
               },
-              child: const Text('Purchase'),
-            ),
-            TextButton(
-              onPressed: () async {
-                setState(() {
-                  _isRestoring = true;
-                });
-                final billingService = ref.read(billingServiceProvider);
-                await billingService.restorePurchase();
-                setState(() {
-                  _isRestoring = false;
-                });
-                if (billingService.isPremium) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Premium status restored')),
-                  );
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('No premium purchase found')),
-                  );
-                }
-                Navigator.pop(dialogContext);
-              },
-              child: _isRestoring
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Restore Purchase'),
+              child: const Text('Learn More & Purchase'),
             ),
           ],
         );
@@ -361,7 +333,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            // Debug reset button (remove before production)
             ElevatedButton(
               onPressed: () async {
                 final billingService = ref.read(billingServiceProvider);
@@ -380,6 +351,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   Widget _buildDrawer(BuildContext context) {
+    final billingService = ref.read(billingServiceProvider);
+
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -391,9 +364,17 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Settings', style: TextStyle(color: Colors.grey)),
+            title: Row(
+              children: [
+                const Text('Settings', style: TextStyle(color: Colors.grey)),
+                if (!billingService.isPremium)
+                  const Padding(
+                    padding: EdgeInsets.only(left: 8.0),
+                    child: Icon(Icons.lock, size: 16, color: Colors.grey),
+                  ),
+              ],
+            ),
             onTap: () {
-              final billingService = ref.read(billingServiceProvider);
               if (billingService.isPremium) {
                 Navigator.pop(context);
                 Navigator.push(

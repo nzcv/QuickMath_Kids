@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add Riverpod import
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
-import 'package:QuickMath_Kids/billing_service.dart';
+import 'package:QuickMath_Kids/billing/billing_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();

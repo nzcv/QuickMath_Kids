@@ -127,7 +127,7 @@ class BillingService {
     });
 
     // Clean up the temporary subscription
-    await tempSubscription?.cancel();
+    await tempSubscription.cancel();
 
     if (isPurchased) {
       if (localPremium != 'true') {
