@@ -1,4 +1,3 @@
-// lib/screens/home_screen/start_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
@@ -8,18 +7,21 @@ import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
+import 'package:QuickMath_Kids/billing_service.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;
-  final Function() switchToStartScreen;
+  final VoidCallback switchToStartScreen;
   final Function(bool) toggleDarkMode;
   final bool isDarkMode;
+  final BillingService billingService; // Add BillingService
 
   const StartScreen(
     this.switchToPracticeScreen,
     this.switchToStartScreen,
     this.toggleDarkMode, {
     required this.isDarkMode,
+    required this.billingService,
     super.key,
   });
 
@@ -31,7 +33,7 @@ class _StartScreenState extends State<StartScreen> {
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5';
   int? _selectedTimeLimit;
-  int _selectedMinutes = 5; // Default selected minute
+  int _selectedMinutes = 5;
   bool _noLimit = true;
   bool _isDarkMode = false;
 
@@ -39,7 +41,7 @@ class _StartScreenState extends State<StartScreen> {
   void initState() {
     super.initState();
     _isDarkMode = widget.isDarkMode;
-    _selectedTimeLimit = null; // Default to no limit
+    _selectedTimeLimit = null;
   }
 
   @override
@@ -78,8 +80,7 @@ class _StartScreenState extends State<StartScreen> {
                                 _noLimit = value;
                               });
                             },
-                            activeTrackColor:
-                                Theme.of(context).colorScheme.primary,
+                            activeTrackColor: Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
@@ -94,8 +95,7 @@ class _StartScreenState extends State<StartScreen> {
                         physics: const FixedExtentScrollPhysics(),
                         onSelectedItemChanged: (index) {
                           setModalState(() {
-                            _selectedMinutes =
-                                index + 1; // Update selected minutes
+                            _selectedMinutes = index + 1;
                           });
                         },
                         childDelegate: ListWheelChildBuilderDelegate(
@@ -104,21 +104,13 @@ class _StartScreenState extends State<StartScreen> {
                             final isSelected = minute == _selectedMinutes;
                             return Center(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.2)
+                                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
                                       : Colors.transparent,
                                   border: isSelected
-                                      ? Border.all(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          width: 2)
+                                      ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
                                       : null,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -128,18 +120,14 @@ class _StartScreenState extends State<StartScreen> {
                                     fontSize: 20,
                                     color: isSelected
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                        : Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
                               ),
                             );
                           },
-                          childCount: 60, // Up to 60 minutes
+                          childCount: 60,
                         ),
                       ),
                     ),
@@ -156,12 +144,10 @@ class _StartScreenState extends State<StartScreen> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
-                    child: const Text('Confirm',
-                        style: TextStyle(color: Colors.black)),
+                    child: const Text('Confirm', style: TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
@@ -172,26 +158,58 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
+  void _showPurchasePrompt(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Unlock Premium Features'),
+          content: const Text(
+              'Access the Settings screen and more by purchasing the premium plan for a one-time fee of 300 INR.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                final success = await widget.billingService.purchasePremium(context);
+                if (success) {
+                  setState(() {}); // Refresh UI to reflect new premium status
+                }
+              },
+              child: const Text('Purchase'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await widget.billingService.restorePurchase();
+                setState(() {}); // Refresh UI after restore attempt
+                Navigator.pop(context);
+              },
+              child: const Text('Restore Purchase'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (!widget.billingService.isInitialized) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('QuickMath Kids',
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: theme.colorScheme.primary,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.settings),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
-          ),
-        ],
       ),
       drawer: _buildDrawer(context),
       backgroundColor: theme.colorScheme.surface,
@@ -306,6 +324,22 @@ class _StartScreenState extends State<StartScreen> {
                 style: TextStyle(color: Colors.white, fontSize: 24)),
           ),
           ListTile(
+            leading: const Icon(Icons.settings),
+            title: const Text('Settings', style: TextStyle(color: Colors.grey)),
+            onTap: () {
+              if (widget.billingService.isPremium) {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                );
+              } else {
+                Navigator.pop(context);
+                _showPurchasePrompt(context);
+              }
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.help_outline),
             title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
             onTap: () {
@@ -318,8 +352,7 @@ class _StartScreenState extends State<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title:
-                const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -348,8 +381,7 @@ class _StartScreenState extends State<StartScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) =>
-                      QuizHistoryScreen(widget.switchToStartScreen),
+                  builder: (context) => QuizHistoryScreen(widget.switchToStartScreen),
                 ),
               );
             },
