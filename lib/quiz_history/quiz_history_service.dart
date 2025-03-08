@@ -70,4 +70,29 @@ class QuizHistoryService {
     }
     return newTitle;
   }
+
+  static Future<void> renameQuiz(String oldTitle, String newTitle) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> storedQuizzes = prefs.getStringList(_key) ?? [];
+    final quizzes = storedQuizzes
+        .map((string) => jsonDecode(string) as Map<String, dynamic>)
+        .toList();
+
+    String uniqueNewTitle = newTitle;
+    int suffix = 2;
+    while (quizzes.any((quiz) => quiz['title'] == uniqueNewTitle && quiz['title'] != oldTitle)) {
+      uniqueNewTitle = '$newTitle $suffix';
+      suffix++;
+    }
+
+    for (int i = 0; i < storedQuizzes.length; i++) {
+      Map<String, dynamic> quizData = jsonDecode(storedQuizzes[i]);
+      if (quizData['title'] == oldTitle) {
+        quizData['title'] = uniqueNewTitle;
+        storedQuizzes[i] = jsonEncode(quizData);
+        break;
+      }
+    }
+    await prefs.setStringList(_key, storedQuizzes);
+  }
 }

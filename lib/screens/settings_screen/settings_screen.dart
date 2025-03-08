@@ -40,7 +40,6 @@ class SettingsScreen extends ConsumerWidget {
         child: ListView(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           children: [
-            // Voice Configuration Card
             Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
@@ -112,7 +111,6 @@ class SettingsScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 24),
-            // Test Voice Card
             Container(
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,

@@ -1,6 +1,3 @@
-// question_generator.dart
-
-// ignore_for_file: constant_identifier_names
 
 import 'dart:math';
 
@@ -43,7 +40,6 @@ class QuestionGenerator {
     return a; // No forced minimum value
   }
 
-  // Helper method to calculate LCM
   int calculateLCM(int a, int b) {
     return (a * b) ~/ calculateGCF(a, b);
   }

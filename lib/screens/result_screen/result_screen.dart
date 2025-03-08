@@ -1,4 +1,3 @@
-// lib/screens/result_screen/result_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_row.dart';
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
@@ -7,13 +6,13 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ResultScreen extends StatefulWidget {
-  final String? title; // Nullable for live mode
+  final String? title;
   final List<String> answeredQuestions;
   final List<bool> answeredCorrectly;
   final int totalTime;
-  final Operation? operation; // Nullable for history mode
-  final String? range; // Nullable for history mode
-  final int? timeLimit; // Nullable for history mode
+  final Operation? operation;
+  final String? range;
+  final int? timeLimit;
   final Function switchToStartScreen;
   final bool isFromHistory;
 
@@ -75,7 +74,7 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Future<void> _promptForTitle() async {
-    final baseTitle = DateTime.now().toString().split(' ')[0]; // e.g., "2025-03-03"
+    final baseTitle = DateTime.now().toString().split(' ')[0];
     final uniqueTitle = await QuizHistoryService.generateUniqueTitle(baseTitle);
 
     if (!mounted) return;

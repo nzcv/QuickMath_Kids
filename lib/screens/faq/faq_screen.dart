@@ -1,6 +1,6 @@
-// faq_screen.dart
+
 import 'package:flutter/material.dart';
-import 'faq_data.dart'; // Import the new file
+import 'faq_data.dart';
 
 class FAQScreen extends StatefulWidget {
   const FAQScreen({super.key});
@@ -17,7 +17,7 @@ class _FAQScreenState extends State<FAQScreen> {
   @override
   void initState() {
     super.initState();
-    filteredFAQs = allFAQs; // Use the imported allFAQs list
+    filteredFAQs = allFAQs;
     _searchController.addListener(_filterFAQs);
   }
 

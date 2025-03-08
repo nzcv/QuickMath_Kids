@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class PauseDialog extends StatelessWidget {
-  final VoidCallback onResume; // Callback for resuming the timer
+  final VoidCallback onResume; 
 
   const PauseDialog({super.key, required this.onResume});
 
@@ -12,15 +12,15 @@ class PauseDialog extends StatelessWidget {
       title: const Center(
         child: Text(
           'Quiz is Paused',
-          style: TextStyle(color: Color(0xFF009DDC)), // Kumon blue
+          style: TextStyle(color: Color(0xFF009DDC)), 
         ),
       ),
       actions: <Widget>[
         Center(
           child: TextButton(
             onPressed: () {
-              Navigator.pop(context); // Close the dialog
-              onResume(); // Call the resume callback
+              Navigator.pop(context); 
+              onResume(); 
             },
             child: const Text(
               'Resume Quiz',

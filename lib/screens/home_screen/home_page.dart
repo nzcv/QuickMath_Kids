@@ -6,19 +6,22 @@ import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters
 import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
-import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart'; // Add this import
+import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
+import 'package:QuickMath_Kids/billing_service.dart';
 
 class StartScreen extends StatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;
-  final Function() switchToStartScreen;
+  final VoidCallback switchToStartScreen;
   final Function(bool) toggleDarkMode;
   final bool isDarkMode;
+  final BillingService billingService; // Add BillingService
 
   const StartScreen(
     this.switchToPracticeScreen,
     this.switchToStartScreen,
     this.toggleDarkMode, {
     required this.isDarkMode,
+    required this.billingService,
     super.key,
   });
 
@@ -77,8 +80,7 @@ class _StartScreenState extends State<StartScreen> {
                                 _noLimit = value;
                               });
                             },
-                            activeTrackColor:
-                                Theme.of(context).colorScheme.primary,
+                            activeTrackColor: Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
@@ -98,10 +100,30 @@ class _StartScreenState extends State<StartScreen> {
                         },
                         childDelegate: ListWheelChildBuilderDelegate(
                           builder: (context, index) {
+                            final minute = index + 1;
+                            final isSelected = minute == _selectedMinutes;
                             return Center(
-                              child: Text(
-                                '${index + 1} minute${index + 1 == 1 ? '' : 's'}',
-                                style: const TextStyle(fontSize: 20),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                decoration: BoxDecoration(
+                                  color: isSelected
+                                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                                      : Colors.transparent,
+                                  border: isSelected
+                                      ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+                                      : null,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  '$minute minute${minute == 1 ? '' : 's'}',
+                                  style: TextStyle(
+                                    fontSize: 20,
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                  ),
+                                ),
                               ),
                             );
                           },
@@ -122,12 +144,10 @@ class _StartScreenState extends State<StartScreen> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
-                    child: const Text('Confirm',
-                        style: TextStyle(color: Colors.black)),
+                    child: const Text('Confirm', style: TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
@@ -138,9 +158,52 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
+  void _showPurchasePrompt(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Unlock Premium Features'),
+          content: const Text(
+              'Access the Settings screen and more by purchasing the premium plan for a one-time fee of 300 INR.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                Navigator.pop(context);
+                final success = await widget.billingService.purchasePremium(context);
+                if (success) {
+                  setState(() {}); // Refresh UI to reflect new premium status
+                }
+              },
+              child: const Text('Purchase'),
+            ),
+            TextButton(
+              onPressed: () async {
+                await widget.billingService.restorePurchase();
+                setState(() {}); // Refresh UI after restore attempt
+                Navigator.pop(context);
+              },
+              child: const Text('Restore Purchase'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
+    if (!widget.billingService.isInitialized) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -264,11 +327,16 @@ class _StartScreenState extends State<StartScreen> {
             leading: const Icon(Icons.settings),
             title: const Text('Settings', style: TextStyle(color: Colors.grey)),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
+              if (widget.billingService.isPremium) {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                );
+              } else {
+                Navigator.pop(context);
+                _showPurchasePrompt(context);
+              }
             },
           ),
           ListTile(
@@ -305,7 +373,7 @@ class _StartScreenState extends State<StartScreen> {
               );
             },
           ),
-          ListTile( // Added Quiz History
+          ListTile(
             leading: const Icon(Icons.history_toggle_off),
             title: const Text('Quiz History'),
             onTap: () {

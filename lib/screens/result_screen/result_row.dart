@@ -18,19 +18,19 @@ class ResultRowWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: Colors.blue[700]), // Darker blue for icons
+        Icon(icon, color: Colors.blue[700]), 
         const SizedBox(width: 10),
         Text(
           '$label ',
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.grey[800], // Dark gray for labels
+            color: Colors.grey[800], 
             fontWeight: FontWeight.w600,
           ),
         ),
         Text(
           value,
           style: theme.textTheme.bodyLarge?.copyWith(
-            color: Colors.grey[900], // Nearly black for values
+            color: Colors.grey[900],
           ),
         ),
       ],

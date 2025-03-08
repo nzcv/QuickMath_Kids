@@ -10,13 +10,13 @@ class QuitDialog extends StatelessWidget {
     return AlertDialog(
       title: const Text(
         'Do you want to quit the quiz?',
-        style: TextStyle(color: Color(0xFF009DDC)), // Kumon blue
+        style: TextStyle(color: Color(0xFF009DDC)),
       ),
       actions: <Widget>[
         TextButton(
           onPressed: () {
-            Navigator.pop(context); // Close the dialog
-            onQuit(); // Trigger the quit function to switch to start screen
+            Navigator.pop(context); 
+            onQuit(); 
           },
           child: const Text(
             'Quit',
@@ -25,7 +25,7 @@ class QuitDialog extends StatelessWidget {
         ),
         TextButton(
           onPressed: () {
-            Navigator.pop(context); // Close the dialog without quitting
+            Navigator.pop(context); 
           },
           child: const Text(
             'Cancel',
