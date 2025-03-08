@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'; // Add Riverpod import
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 import 'package:QuickMath_Kids/billing_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize BillingService
-  final billingService = BillingService();
-  await billingService.initialize();
-  runApp(MyApp(billingService: billingService));
+  // Initialize BillingService via provider (optional manual init if needed)
+  final container = ProviderContainer();
+  await container.read(billingServiceProvider).initialize();
+  runApp(UncontrolledProviderScope(container: container, child: MyApp()));
 }
 
 class MyApp extends StatefulWidget {
-  final BillingService billingService;
-
-  const MyApp({super.key, required this.billingService});
+  const MyApp({super.key});
 
   @override
   _MyAppState createState() => _MyAppState();
@@ -55,7 +54,6 @@ class _MyAppState extends State<MyApp> {
         () => print('Switch to StartScreen'),
         toggleDarkMode,
         isDarkMode: _isDarkMode,
-        billingService: widget.billingService, // Pass BillingService
       ),
     );
   }

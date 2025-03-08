@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
@@ -9,19 +10,17 @@ import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
 import 'package:QuickMath_Kids/billing_service.dart';
 
-class StartScreen extends StatefulWidget {
+class StartScreen extends ConsumerStatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;
   final VoidCallback switchToStartScreen;
   final Function(bool) toggleDarkMode;
   final bool isDarkMode;
-  final BillingService billingService; // Add BillingService
 
   const StartScreen(
     this.switchToPracticeScreen,
     this.switchToStartScreen,
     this.toggleDarkMode, {
     required this.isDarkMode,
-    required this.billingService,
     super.key,
   });
 
@@ -29,13 +28,14 @@ class StartScreen extends StatefulWidget {
   _StartScreenState createState() => _StartScreenState();
 }
 
-class _StartScreenState extends State<StartScreen> {
+class _StartScreenState extends ConsumerState<StartScreen> {
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5';
   int? _selectedTimeLimit;
   int _selectedMinutes = 5;
   bool _noLimit = true;
   bool _isDarkMode = false;
+  bool _isRestoring = false; // Add restoring state
 
   @override
   void initState() {
@@ -158,36 +158,56 @@ class _StartScreenState extends State<StartScreen> {
     );
   }
 
-  void _showPurchasePrompt(BuildContext context) {
+  void _showPurchasePrompt(BuildContext context, WidgetRef ref) {
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
           title: const Text('Unlock Premium Features'),
           content: const Text(
               'Access the Settings screen and more by purchasing the premium plan for a one-time fee of 300 INR.'),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () => Navigator.pop(dialogContext),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () async {
-                Navigator.pop(context);
-                final success = await widget.billingService.purchasePremium(context);
-                if (success) {
-                  setState(() {}); // Refresh UI to reflect new premium status
-                }
+                Navigator.pop(dialogContext);
+                final billingService = ref.read(billingServiceProvider);
+                await billingService.purchasePremium(context);
+                setState(() {}); // Refresh UI
               },
               child: const Text('Purchase'),
             ),
             TextButton(
               onPressed: () async {
-                await widget.billingService.restorePurchase();
-                setState(() {}); // Refresh UI after restore attempt
-                Navigator.pop(context);
+                setState(() {
+                  _isRestoring = true;
+                });
+                final billingService = ref.read(billingServiceProvider);
+                await billingService.restorePurchase();
+                setState(() {
+                  _isRestoring = false;
+                });
+                if (billingService.isPremium) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Premium status restored')),
+                  );
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('No premium purchase found')),
+                  );
+                }
+                Navigator.pop(dialogContext);
               },
-              child: const Text('Restore Purchase'),
+              child: _isRestoring
+                  ? const SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : const Text('Restore Purchase'),
             ),
           ],
         );
@@ -198,8 +218,9 @@ class _StartScreenState extends State<StartScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final billingService = ref.watch(billingServiceProvider);
 
-    if (!widget.billingService.isInitialized) {
+    if (!billingService.isInitialized) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
@@ -210,6 +231,38 @@ class _StartScreenState extends State<StartScreen> {
         title: const Text('QuickMath Kids',
             style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: theme.colorScheme.primary,
+        actions: [
+          IconButton(
+            icon: _isRestoring
+                ? const SizedBox(
+                    height: 20,
+                    width: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  )
+                : const Icon(Icons.refresh),
+            onPressed: _isRestoring
+                ? null
+                : () async {
+                    setState(() {
+                      _isRestoring = true;
+                    });
+                    final billingService = ref.read(billingServiceProvider);
+                    await billingService.restorePurchase();
+                    setState(() {
+                      _isRestoring = false;
+                    });
+                    if (billingService.isPremium) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Premium status restored')),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('No premium purchase found')),
+                      );
+                    }
+                  },
+          ),
+        ],
       ),
       drawer: _buildDrawer(context),
       backgroundColor: theme.colorScheme.surface,
@@ -307,6 +360,19 @@ class _StartScreenState extends State<StartScreen> {
                     ?.copyWith(color: Colors.black, fontSize: 16),
               ),
             ),
+            const SizedBox(height: 20),
+            // Debug reset button (remove before production)
+            ElevatedButton(
+              onPressed: () async {
+                final billingService = ref.read(billingServiceProvider);
+                await billingService.resetPremium();
+                setState(() {});
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Premium status reset. Cancel the purchase in Google Play Console to repurchase.')),
+                );
+              },
+              child: const Text('Reset Premium for Testing'),
+            ),
           ],
         ),
       ),
@@ -327,7 +393,8 @@ class _StartScreenState extends State<StartScreen> {
             leading: const Icon(Icons.settings),
             title: const Text('Settings', style: TextStyle(color: Colors.grey)),
             onTap: () {
-              if (widget.billingService.isPremium) {
+              final billingService = ref.read(billingServiceProvider);
+              if (billingService.isPremium) {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
@@ -335,7 +402,7 @@ class _StartScreenState extends State<StartScreen> {
                 );
               } else {
                 Navigator.pop(context);
-                _showPurchasePrompt(context);
+                _showPurchasePrompt(context, ref);
               }
             },
           ),

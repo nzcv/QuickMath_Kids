@@ -1,7 +1,16 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+// Create a Provider for BillingService
+final billingServiceProvider = Provider<BillingService>((ref) {
+  final billingService = BillingService();
+  ref.onDispose(() => billingService.dispose());
+  return billingService;
+});
 
 class BillingService {
   static const String _premiumProductId = 'premium_plan';
@@ -23,50 +32,75 @@ class BillingService {
   Future<void> initialize() async {
     if (_isInitialized) return;
 
-    // Check if billing is available
-    final bool available = await _iap.isAvailable();
-    if (!available) {
-      debugPrint('BillingService: In-app purchase not available');
+    if (!Platform.isAndroid) {
+      debugPrint('BillingService: This app only supports Android billing.');
       _isPremium = false;
       _isInitialized = true;
       return;
     }
 
-    // Set up purchase stream listener
+    final bool available;
+    try {
+      available = await _iap.isAvailable();
+    } catch (e) {
+      debugPrint('BillingService: Error checking billing availability: $e');
+      _isPremium = false;
+      _isInitialized = true;
+      return;
+    }
+
+    if (!available) {
+      debugPrint('BillingService: In-app purchase not available on this device');
+      _isPremium = false;
+      _isInitialized = true;
+      return;
+    }
+
+    // Initialize the purchase stream listener
     _subscription = _iap.purchaseStream.listen(
       _handlePurchaseUpdates,
-      onDone: () => _subscription?.cancel(),
-      onError: (error) => debugPrint('BillingService: Purchase stream error: $error'),
+      onDone: () {
+        debugPrint('BillingService: Purchase stream done');
+        _subscription?.cancel();
+      },
+      onError: (error) {
+        debugPrint('BillingService: Purchase stream error: $error');
+      },
     );
 
-    // Load initial premium status by restoring purchases
     await _loadPremiumStatus();
     _isInitialized = true;
   }
 
   Future<void> _loadPremiumStatus() async {
-    // Read local flag
     String? localPremium = await _storage.read(key: _premiumKey);
-
-    // Restore purchases and check via the stream
     bool isPurchased = false;
     final Completer<bool> completer = Completer<bool>();
 
-    // Temporarily listen for purchase updates triggered by restorePurchases
+    // Listen for purchase updates
     StreamSubscription<List<PurchaseDetails>>? tempSubscription;
     tempSubscription = _iap.purchaseStream.listen(
       (List<PurchaseDetails> purchaseDetailsList) {
+        debugPrint('BillingService: Received purchase details: $purchaseDetailsList');
         for (var purchase in purchaseDetailsList) {
-          if (purchase.productID == _premiumProductId &&
-              purchase.status == PurchaseStatus.purchased) {
-            isPurchased = true;
-            completer.complete(true);
-            tempSubscription?.cancel();
-            break;
+          if (purchase.productID == _premiumProductId) {
+            if (purchase.status == PurchaseStatus.purchased ||
+                purchase.status == PurchaseStatus.restored) {
+              isPurchased = true;
+              completer.complete(true);
+              tempSubscription?.cancel();
+              break;
+            } else if (purchase.status == PurchaseStatus.error) {
+              debugPrint('BillingService: Purchase error: ${purchase.error}');
+              completer.complete(false);
+              tempSubscription?.cancel();
+              break;
+            }
           }
         }
       },
       onDone: () {
+        debugPrint('BillingService: Purchase stream done during restore');
         if (!completer.isCompleted) completer.complete(false);
       },
       onError: (error) {
@@ -76,39 +110,70 @@ class BillingService {
     );
 
     // Trigger restore purchases
-    await _iap.restorePurchases();
+    try {
+      await _iap.restorePurchases();
+    } catch (e) {
+      debugPrint('BillingService: Error triggering restore purchases: $e');
+      if (!completer.isCompleted) completer.complete(false);
+    }
 
-    // Wait for the stream to confirm purchase status
-    await completer.future.timeout(const Duration(seconds: 5), onTimeout: () {
+    // Wait for the result with a longer timeout
+    await completer.future.timeout(const Duration(seconds: 15), onTimeout: () {
       debugPrint('BillingService: Restore purchases timed out');
+      return false;
+    }).catchError((e) {
+      debugPrint('BillingService: Restore error caught: $e');
       return false;
     });
 
+    // Clean up the temporary subscription
+    await tempSubscription?.cancel();
+
     if (isPurchased) {
-      // If purchased, ensure local flag is set
       if (localPremium != 'true') {
         await _storage.write(key: _premiumKey, value: 'true');
       }
       _isPremium = true;
+      debugPrint('BillingService: Premium status restored');
     } else {
-      // If not purchased, reset local flag if tampered
       if (localPremium == 'true') {
         await _storage.write(key: _premiumKey, value: 'false');
       }
       _isPremium = false;
+      debugPrint('BillingService: No premium purchase found');
     }
   }
 
   Future<bool> purchasePremium(BuildContext context) async {
-    final bool available = await _iap.isAvailable();
+    if (!Platform.isAndroid) {
+      _showSnackBar(context, 'Purchases are only supported on Android.');
+      return false;
+    }
+
+    final bool available;
+    try {
+      available = await _iap.isAvailable();
+    } catch (e) {
+      debugPrint('BillingService: Error checking billing availability: $e');
+      _showSnackBar(context, 'In-app purchases are not available.');
+      return false;
+    }
+
     if (!available) {
       _showSnackBar(context, 'In-app purchases are not available.');
       return false;
     }
 
+    // Check if the user already owns the product
+    if (_isPremium) {
+      _showSnackBar(context, 'You already own the premium plan.');
+      return true;
+    }
+
     final ProductDetailsResponse response =
         await _iap.queryProductDetails({_premiumProductId});
     if (response.error != null || response.productDetails.isEmpty) {
+      debugPrint('BillingService: Product query error: ${response.error}');
       _showSnackBar(context, 'Product not found. Please try again later.');
       return false;
     }
@@ -121,6 +186,17 @@ class BillingService {
       return true;
     } catch (e) {
       debugPrint('BillingService: Purchase error: $e');
+      if (e.toString().contains('itemAlreadyOwned')) {
+        // If the Play Store says the item is already owned, try to restore
+        await restorePurchase();
+        if (_isPremium) {
+          _showSnackBar(context, 'Purchase restored successfully.');
+          return true;
+        } else {
+          _showSnackBar(context, 'You already own this item, but restore failed. Please try restoring manually.');
+          return false;
+        }
+      }
       _showSnackBar(context, 'Failed to initiate purchase. Please try again.');
       return false;
     }
@@ -130,22 +206,28 @@ class BillingService {
     await _loadPremiumStatus();
   }
 
+  Future<void> resetPremium() async {
+    await _storage.delete(key: _premiumKey);
+    _isPremium = false;
+    debugPrint('BillingService: Premium status reset');
+  }
+
   void _handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) {
     for (var purchase in purchaseDetailsList) {
       if (purchase.productID == _premiumProductId) {
         switch (purchase.status) {
           case PurchaseStatus.purchased:
+          case PurchaseStatus.restored:
             _isPremium = true;
             _storage.write(key: _premiumKey, value: 'true');
             _iap.completePurchase(purchase);
-            debugPrint('BillingService: Premium purchased successfully');
+            debugPrint('BillingService: Premium purchased/restored successfully');
             break;
           case PurchaseStatus.pending:
             debugPrint('BillingService: Purchase pending');
             break;
           case PurchaseStatus.error:
-          case PurchaseStatus.restored:
-            debugPrint('BillingService: Purchase error/restored: ${purchase.error}');
+            debugPrint('BillingService: Purchase error: ${purchase.error}');
             break;
           case PurchaseStatus.canceled:
             debugPrint('BillingService: Purchase canceled');
