@@ -9,7 +9,7 @@ import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
-import 'package:QuickMath_Kids/billing/purchase_screen.dart'; // New import
+import 'package:QuickMath_Kids/billing/purchase_screen.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;
@@ -202,7 +202,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
       appBar: AppBar(
         title: const Text('QuickMath Kids',
             style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: theme.colorScheme.primary,
+        backgroundColor: billingService.isPremium ? Colors.amber : Colors.blue,
         actions: [
           IconButton(
             icon: _isRestoring
@@ -237,7 +237,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         ],
       ),
       drawer: _buildDrawer(context),
-      backgroundColor: theme.colorScheme.surface,
+      backgroundColor: theme.scaffoldBackgroundColor, // Use theme-defined color (black in dark mode)
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
