@@ -81,7 +81,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 _noLimit = value;
                               });
                             },
-                            activeTrackColor: Theme.of(context).colorScheme.primary,
+                            activeTrackColor:
+                                Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
@@ -105,13 +106,21 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             final isSelected = minute == _selectedMinutes;
                             return Center(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 16),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.2)
                                       : Colors.transparent,
                                   border: isSelected
-                                      ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+                                      ? Border.all(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 2)
                                       : null,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -121,8 +130,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                     fontSize: 20,
                                     color: isSelected
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context).colorScheme.onSurface,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
                                 ),
                               ),
@@ -145,43 +158,17 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 12),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
-                    child: const Text('Confirm', style: TextStyle(color: Colors.black)),
+                    child: const Text('Confirm',
+                        style: TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
             );
           },
-        );
-      },
-    );
-  }
-
-  void _showPurchasePrompt(BuildContext context, WidgetRef ref) {
-    showDialog(
-      context: context,
-      builder: (BuildContext dialogContext) {
-        return AlertDialog(
-          title: const Text('Unlock Premium Features'),
-          content: const Text('Tap below to learn more and purchase the premium plan.'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text('Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              },
-              child: const Text('Learn More & Purchase'),
-            ),
-          ],
         );
       },
     );
@@ -209,7 +196,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: Colors.white),
                   )
                 : const Icon(Icons.refresh),
             onPressed: _isRestoring
@@ -225,11 +213,13 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                     });
                     if (billingService.isPremium) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Premium status restored')),
+                        const SnackBar(
+                            content: Text('Premium status restored')),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('No premium purchase found')),
+                        const SnackBar(
+                            content: Text('No premium purchase found')),
                       );
                     }
                   },
@@ -237,7 +227,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         ],
       ),
       drawer: _buildDrawer(context),
-      backgroundColor: theme.scaffoldBackgroundColor, // Use theme-defined color (black in dark mode)
+      backgroundColor: theme
+          .scaffoldBackgroundColor,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -339,7 +330,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 await billingService.resetPremium();
                 setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Premium status reset. Cancel the purchase in Google Play Console to repurchase.')),
+                  const SnackBar(
+                      content: Text(
+                          'Premium status reset. Cancel the purchase in Google Play Console to repurchase.')),
                 );
               },
               child: const Text('Reset Premium for Testing'),
@@ -379,11 +372,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  MaterialPageRoute(
+                      builder: (context) => const SettingsScreen()),
                 );
               } else {
                 Navigator.pop(context);
-                _showPurchasePrompt(context, ref);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => const PurchaseScreen()),
+                );
               }
             },
           ),
@@ -400,7 +398,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            title:
+                const Text('How to use?', style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -429,7 +428,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => QuizHistoryScreen(widget.switchToStartScreen),
+                  builder: (context) =>
+                      QuizHistoryScreen(widget.switchToStartScreen),
                 ),
               );
             },
