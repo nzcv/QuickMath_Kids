@@ -81,8 +81,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 _noLimit = value;
                               });
                             },
-                            activeTrackColor:
-                                Theme.of(context).colorScheme.primary,
+                            activeTrackColor: Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
@@ -106,21 +105,13 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             final isSelected = minute == _selectedMinutes;
                             return Center(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 16),
+                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.2)
+                                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
                                       : Colors.transparent,
                                   border: isSelected
-                                      ? Border.all(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
-                                          width: 2)
+                                      ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
                                       : null,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -130,12 +121,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                     fontSize: 20,
                                     color: isSelected
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                        : Theme.of(context).colorScheme.onSurface,
+                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
                               ),
@@ -158,12 +145,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       Navigator.pop(context);
                     },
                     style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                       backgroundColor: Theme.of(context).colorScheme.primary,
                     ),
-                    child: const Text('Confirm',
-                        style: TextStyle(color: Colors.black)),
+                    child: const Text('Confirm', style: TextStyle(color: Colors.black)),
                   ),
                 ],
               ),
@@ -196,8 +181,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                   )
                 : const Icon(Icons.refresh),
             onPressed: _isRestoring
@@ -213,13 +197,11 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                     });
                     if (billingService.isPremium) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Premium status restored')),
+                        const SnackBar(content: Text('Premium status restored')),
                       );
                     } else {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('No premium purchase found')),
+                        const SnackBar(content: Text('No premium purchase found')),
                       );
                     }
                   },
@@ -227,8 +209,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         ],
       ),
       drawer: _buildDrawer(context),
-      backgroundColor: theme
-          .scaffoldBackgroundColor,
+      backgroundColor: theme.colorScheme.surface,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -330,12 +311,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 await billingService.resetPremium();
                 setState(() {});
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                      content: Text(
-                          'Premium status reset. Cancel the purchase in Google Play Console to repurchase.')),
+                  const SnackBar(content: Text('Premium access reset. You can purchase again.')),
                 );
               },
-              child: const Text('Reset Premium for Testing'),
+              child: const Text('Reset Premium'),
             ),
           ],
         ),
@@ -344,7 +323,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   Widget _buildDrawer(BuildContext context) {
-    final billingService = ref.read(billingServiceProvider);
+    final billingService = ref.watch(billingServiceProvider);
 
     return Drawer(
       child: ListView(
@@ -357,32 +336,13 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: Row(
-              children: [
-                const Text('Settings', style: TextStyle(color: Colors.grey)),
-                if (!billingService.isPremium)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 8.0),
-                    child: Icon(Icons.lock, size: 16, color: Colors.grey),
-                  ),
-              ],
-            ),
+            title: const Text('Settings', style: TextStyle(color: Colors.grey)),
             onTap: () {
-              if (billingService.isPremium) {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsScreen()),
-                );
-              } else {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PurchaseScreen()),
-                );
-              }
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
             },
           ),
           ListTile(
@@ -398,8 +358,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title:
-                const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -408,31 +367,85 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.history),
-            title: const Text('Wrong Answers History'),
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const WrongAnswersScreen(),
-                ),
-              );
-            },
+          if (!billingService.isPremium)
+            Container(
+              color: Colors.red,
+              padding: const EdgeInsets.all(8.0),
+              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: const Text(
+                'Premium Required',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: !billingService.isPremium
+                ? BoxDecoration(
+                    border: Border.all(color: Colors.red, width: 2),
+                    borderRadius: BorderRadius.circular(8.0),
+                  )
+                : null,
+            child: ListTile(
+              leading: const Icon(Icons.history),
+              title: const Text('Wrong Answers History'),
+              enabled: billingService.isPremium,
+              onTap: () {
+                if (billingService.isPremium) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const WrongAnswersScreen(),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                  );
+                }
+              },
+            ),
           ),
-          ListTile(
-            leading: const Icon(Icons.history_toggle_off),
-            title: const Text('Quiz History'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      QuizHistoryScreen(widget.switchToStartScreen),
-                ),
-              );
-            },
+          if (!billingService.isPremium)
+            Container(
+              color: Colors.red,
+              padding: const EdgeInsets.all(8.0),
+              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: const Text(
+                'Premium Required',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: !billingService.isPremium
+                ? BoxDecoration(
+                    border: Border.all(color: Colors.red, width: 2),
+                    borderRadius: BorderRadius.circular(8.0),
+                  )
+                : null,
+            child: ListTile(
+              leading: const Icon(Icons.history_toggle_off),
+              title: const Text('Quiz History'),
+              enabled: billingService.isPremium,
+              onTap: () {
+                if (billingService.isPremium) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => QuizHistoryScreen(widget.switchToStartScreen),
+                    ),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                  );
+                }
+              },
+            ),
           ),
           SwitchListTile(
             title: const Text("Dark Mode"),

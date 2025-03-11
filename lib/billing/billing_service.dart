@@ -15,11 +15,13 @@ final billingServiceProvider = Provider<BillingService>((ref) {
 class BillingService {
   static const String _premiumProductId = 'premium_plan';
   static const String _premiumKey = 'is_premium';
+  static const String _resetKey = 'is_reset'; // Track reset state
   static final BillingService _instance = BillingService._internal();
   final InAppPurchase _iap = InAppPurchase.instance;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   bool _isPremium = false;
   bool _isInitialized = false;
+  bool _isReset = false; // Track if premium was manually reset
   StreamSubscription<List<PurchaseDetails>>? _subscription;
 
   factory BillingService() => _instance;
@@ -56,7 +58,6 @@ class BillingService {
       return;
     }
 
-    // Initialize the purchase stream listener
     _subscription = _iap.purchaseStream.listen(
       _handlePurchaseUpdates,
       onDone: () {
@@ -74,10 +75,20 @@ class BillingService {
 
   Future<void> _loadPremiumStatus() async {
     String? localPremium = await _storage.read(key: _premiumKey);
+    String? localReset = await _storage.read(key: _resetKey);
+    _isReset = localReset == 'true';
+
+    if (_isReset) {
+      _isPremium = false;
+      await _storage.write(key: _premiumKey, value: 'false');
+      await _storage.write(key: _resetKey, value: 'false'); // Clear reset after applying
+      debugPrint('BillingService: Reset applied, premium revoked');
+      return;
+    }
+
     bool isPurchased = false;
     final Completer<bool> completer = Completer<bool>();
 
-    // Listen for purchase updates
     StreamSubscription<List<PurchaseDetails>>? tempSubscription;
     tempSubscription = _iap.purchaseStream.listen(
       (List<PurchaseDetails> purchaseDetailsList) {
@@ -109,7 +120,6 @@ class BillingService {
       },
     );
 
-    // Trigger restore purchases
     try {
       await _iap.restorePurchases();
     } catch (e) {
@@ -117,7 +127,6 @@ class BillingService {
       if (!completer.isCompleted) completer.complete(false);
     }
 
-    // Wait for the result with a longer timeout
     await completer.future.timeout(const Duration(seconds: 15), onTimeout: () {
       debugPrint('BillingService: Restore purchases timed out');
       return false;
@@ -126,7 +135,6 @@ class BillingService {
       return false;
     });
 
-    // Clean up the temporary subscription
     await tempSubscription.cancel();
 
     if (isPurchased) {
@@ -134,12 +142,16 @@ class BillingService {
         await _storage.write(key: _premiumKey, value: 'true');
       }
       _isPremium = true;
-      debugPrint('BillingService: Premium status restored');
+      _isReset = false;
+      await _storage.write(key: _resetKey, value: 'false');
+      debugPrint('BillingService: Premium status confirmed');
     } else {
-      if (localPremium == 'true') {
+      if (localPremium != 'false') {
         await _storage.write(key: _premiumKey, value: 'false');
       }
       _isPremium = false;
+      _isReset = false;
+      await _storage.write(key: _resetKey, value: 'false');
       debugPrint('BillingService: No premium purchase found');
     }
   }
@@ -164,12 +176,6 @@ class BillingService {
       return false;
     }
 
-    // Check if the user already owns the product
-    if (_isPremium) {
-      _showSnackBar(context, 'You already own the premium plan.');
-      return true;
-    }
-
     final ProductDetailsResponse response =
         await _iap.queryProductDetails({_premiumProductId});
     if (response.error != null || response.productDetails.isEmpty) {
@@ -187,15 +193,8 @@ class BillingService {
     } catch (e) {
       debugPrint('BillingService: Purchase error: $e');
       if (e.toString().contains('itemAlreadyOwned')) {
-        // If the Play Store says the item is already owned, try to restore
-        await restorePurchase();
-        if (_isPremium) {
-          _showSnackBar(context, 'Purchase restored successfully.');
-          return true;
-        } else {
-          _showSnackBar(context, 'You already own this item, but restore failed. Please try restoring manually.');
-          return false;
-        }
+        _showSnackBar(context, 'You already own this item. Reset to purchase again.');
+        return false;
       }
       _showSnackBar(context, 'Failed to initiate purchase. Please try again.');
       return false;
@@ -203,13 +202,18 @@ class BillingService {
   }
 
   Future<void> restorePurchase() async {
-    await _loadPremiumStatus();
+    _isReset = false; // Clear reset flag before checking
+    await _storage.write(key: _resetKey, value: 'false');
+    await _loadPremiumStatus(); // Only check current status
   }
 
+  // Reset premium access locally without affecting Play Store
   Future<void> resetPremium() async {
-    await _storage.delete(key: _premiumKey);
     _isPremium = false;
-    debugPrint('BillingService: Premium status reset');
+    _isReset = true; // Set reset flag
+    await _storage.write(key: _premiumKey, value: 'false');
+    await _storage.write(key: _resetKey, value: 'true');
+    debugPrint('BillingService: Premium access reset locally');
   }
 
   void _handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) {
@@ -219,7 +223,9 @@ class BillingService {
           case PurchaseStatus.purchased:
           case PurchaseStatus.restored:
             _isPremium = true;
+            _isReset = false;
             _storage.write(key: _premiumKey, value: 'true');
+            _storage.write(key: _resetKey, value: 'false');
             _iap.completePurchase(purchase);
             debugPrint('BillingService: Premium purchased/restored successfully');
             break;

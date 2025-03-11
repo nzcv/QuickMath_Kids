@@ -7,12 +7,13 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final container = ProviderContainer();
   await container.read(billingServiceProvider).initialize();
-  runApp(UncontrolledProviderScope(container: container, child: MyApp()));
+  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
 }
 
 class MyApp extends StatefulWidget {
@@ -96,72 +97,48 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = ThemeData(
-      colorScheme: _isDarkMode
-          ? const ColorScheme.dark(
-              primary: Colors.blue,
-              onPrimary: Colors.white,
-              surface: Colors.black, // Changed to black for dark mode
-              onSurface: Colors.white,
-            )
-          : const ColorScheme.light(
-              primary: Colors.blue,
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
-            ),
-      scaffoldBackgroundColor:
-          _isDarkMode ? Colors.black : Colors.grey[200], // Black in dark mode
-    );
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: theme,
-      home: Consumer(
-        builder: (context, ref, child) {
-          return Scaffold(
-            backgroundColor: theme.colorScheme.surface,
-            body: Consumer(
-              builder: (context, ref, child) {
-                return activeScreen == 'start_screen'
-                    ? StartScreen(
-                        switchToPracticeScreen,
+    return Consumer(
+      builder: (context, ref, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          theme: AppTheme.getTheme(ref, _isDarkMode),
+          home: Scaffold(
+            body: activeScreen == 'start_screen'
+                ? StartScreen(
+                    switchToPracticeScreen,
+                    switchToStartScreen,
+                    toggleDarkMode,
+                    isDarkMode: _isDarkMode,
+                  )
+                : activeScreen == 'practice_screen'
+                    ? PracticeScreen(
+                        (questions, correctAnswers, time, operation, range, timeLimit) =>
+                            switchToResultScreen(
+                          questions,
+                          correctAnswers,
+                          time,
+                          operation,
+                          range,
+                          timeLimit,
+                        ),
                         switchToStartScreen,
-                        toggleDarkMode,
-                        isDarkMode: _isDarkMode,
+                        (text) => triggerTTS(text, ref),
+                        _selectedOperation,
+                        _selectedRange,
+                        _selectedTimeLimit,
                       )
-                    : activeScreen == 'practice_screen'
-                        ? PracticeScreen(
-                            (questions, correctAnswers, time, operation, range,
-                                    timeLimit) =>
-                                switchToResultScreen(
-                              questions,
-                              correctAnswers,
-                              time,
-                              operation,
-                              range,
-                              timeLimit,
-                            ),
-                            switchToStartScreen,
-                            (text) => triggerTTS(text, ref),
-                            _selectedOperation,
-                            _selectedRange,
-                            _selectedTimeLimit,
-                          )
-                        : ResultScreen(
-                            answeredQuestions,
-                            answeredCorrectly,
-                            totalTimeInSeconds,
-                            switchToStartScreen,
-                            operation: _selectedOperation,
-                            range: _selectedRange,
-                            timeLimit: _selectedTimeLimit,
-                          );
-              },
-            ),
-          );
-        },
-      ),
+                    : ResultScreen(
+                        answeredQuestions,
+                        answeredCorrectly,
+                        totalTimeInSeconds,
+                        switchToStartScreen,
+                        operation: _selectedOperation,
+                        range: _selectedRange,
+                        timeLimit: _selectedTimeLimit,
+                      ),
+          ),
+        );
+      },
     );
   }
 }
