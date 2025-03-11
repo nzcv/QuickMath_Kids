@@ -154,7 +154,6 @@ class _ResultScreenState extends State<ResultScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error sharing PDF: ${e.toString()}'),
-            backgroundColor: Theme.of(context).colorScheme.error,
           ),
         );
       }
@@ -169,7 +168,6 @@ class _ResultScreenState extends State<ResultScreen>
     int correctAnswers = widget.answeredCorrectly.where((correct) => correct).length;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -182,21 +180,12 @@ class _ResultScreenState extends State<ResultScreen>
                   widget.isFromHistory && _quizTitle != null
                       ? 'Quiz Results - $_quizTitle'
                       : 'Quiz Results',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    color: theme.colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                  ),
                 ),
               ),
               const SizedBox(height: 20),
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Card(
-                  elevation: 4,
-                  color: theme.colorScheme.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -236,7 +225,6 @@ class _ResultScreenState extends State<ResultScreen>
                           child: Text(
                             'No questions attended!',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: theme.colorScheme.error,
                               fontSize: 18,
                               fontStyle: FontStyle.italic,
                             ),
@@ -245,24 +233,15 @@ class _ResultScreenState extends State<ResultScreen>
                       )
                     : ListView.separated(
                         itemCount: widget.answeredQuestions.length,
-                        separatorBuilder: (context, index) =>
-                            Divider(height: 1, color: theme.dividerColor),
+                        separatorBuilder: (context, index) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           return ListTile(
                             leading: Icon(
                               widget.answeredCorrectly[index]
                                   ? Icons.check_circle
                                   : Icons.cancel,
-                              color: widget.answeredCorrectly[index]
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.error,
                             ),
-                            title: Text(
-                              widget.answeredQuestions[index],
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: theme.colorScheme.onSurface,
-                              ),
-                            ),
+                            title: Text(widget.answeredQuestions[index]),
                           );
                         },
                       ),
@@ -272,30 +251,15 @@ class _ResultScreenState extends State<ResultScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton.icon(
-                    icon: Icon(Icons.home, color: theme.colorScheme.onPrimary),
+                    icon: const Icon(Icons.home),
                     onPressed: () => widget.switchToStartScreen(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.primary,
-                      foregroundColor: theme.colorScheme.onPrimary,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                    ),
                     label: const Text('Start Screen'),
                   ),
                   ElevatedButton.icon(
-                    icon: Icon(Icons.share, color: theme.colorScheme.onPrimary),
+                    icon: const Icon(Icons.share),
                     onPressed: _sharePDFReport,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
-                      foregroundColor: theme.colorScheme.onSecondary,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 12, horizontal: 20),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
                     ),
                     label: const Text('Share Report'),
                   ),

@@ -144,11 +144,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       });
                       Navigator.pop(context);
                     },
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                    ),
-                    child: const Text('Confirm', style: TextStyle(color: Colors.black)),
+                    child: const Text('Confirm'),
                   ),
                 ],
               ),
@@ -172,16 +168,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('QuickMath Kids',
-            style: TextStyle(fontWeight: FontWeight.bold)),
-        backgroundColor: billingService.isPremium ? Colors.amber : Colors.blue,
+        title: const Text('QuickMath Kids'),
         actions: [
           IconButton(
             icon: _isRestoring
                 ? const SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.refresh),
             onPressed: _isRestoring
@@ -209,7 +203,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         ],
       ),
       drawer: _buildDrawer(context),
-      backgroundColor: theme.colorScheme.surface,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -221,9 +214,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             Text(
               "Choose an Operation and Start Practicing",
               style: TextStyle(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.onSurface
-                    : theme.colorScheme.onBackground,
                 fontSize: 20,
               ),
               textAlign: TextAlign.center,
@@ -265,19 +255,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 child: InputDecorator(
                   decoration: InputDecoration(
                     labelText: 'Session Time Limit',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
+                    border: const OutlineInputBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                   ),
                   child: Text(
                     _selectedTimeLimit != null
                         ? '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}'
                         : 'No time limit',
-                    style: TextStyle(
-                      color: theme.brightness == Brightness.dark
-                          ? theme.colorScheme.onSurface
-                          : theme.colorScheme.onBackground,
-                    ),
                   ),
                 ),
               ),
@@ -285,23 +270,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             const SizedBox(height: 40),
             ElevatedButton.icon(
               iconAlignment: IconAlignment.end,
-              icon: const Icon(Icons.arrow_forward, color: Colors.black),
+              icon: const Icon(Icons.arrow_forward, color: Colors.white,),
               onPressed: () {
                 widget.switchToPracticeScreen(
                     _selectedOperation, _selectedRange, _selectedTimeLimit);
               },
-              style: ElevatedButton.styleFrom(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 12, horizontal: 20),
-                backgroundColor: theme.colorScheme.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
               label: Text(
                 'Start Oral Practice',
-                style: theme.textTheme.titleMedium
-                    ?.copyWith(color: Colors.black, fontSize: 16),
+                style: theme.textTheme.titleMedium,
               ),
             ),
             const SizedBox(height: 20),
@@ -329,14 +305,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          const DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue),
-            child: Text('QuickMath Kids',
-                style: TextStyle(color: Colors.white, fontSize: 24)),
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: const Text('QuickMath Kids',
+                style: TextStyle(fontSize: 24)),
           ),
           ListTile(
             leading: const Icon(Icons.settings),
-            title: const Text('Settings', style: TextStyle(color: Colors.grey)),
+            title: const Text('Settings'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -347,7 +325,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('FAQ', style: TextStyle(color: Colors.grey)),
+            title: const Text('FAQ'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -358,7 +336,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
-            title: const Text('How to use?', style: TextStyle(color: Colors.grey)),
+            title: const Text('How to use?'),
             onTap: () {
               Navigator.pop(context);
               Navigator.push(

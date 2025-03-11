@@ -82,7 +82,7 @@ class AppTheme {
         ),
       ),
       iconTheme: IconThemeData(
-        color: secondaryColor, // Blue icons when premium, gold when not
+        color: onSurfaceColor 
       ),
       dividerColor: secondaryColor.withOpacity(0.3),
       scaffoldBackgroundColor: backgroundColor,

@@ -1,4 +1,3 @@
-// lib/screens/practice_screen/practice_screen.dart
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
@@ -44,7 +43,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   List<bool> answeredCorrectly = [];
   List<Map<String, dynamic>> _wrongQuestions = [];
   bool _usedWrongQuestionThisSession = false;
-  bool _isInitialized = false; // New flag to track initialization
+  bool _isInitialized = false;
 
   int correctAnswer = 0;
   String resultText = '';
@@ -89,7 +88,7 @@ class _PracticeScreenState extends State<PracticeScreen>
     setState(() {
       _setInitialQuestion();
       _updateHintMessage();
-      _isInitialized = true; // Mark as initialized
+      _isInitialized = true;
     });
   }
 
@@ -122,14 +121,14 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void _useWrongQuestion() {
-    if (_wrongQuestions.isNotEmpty) { // Safeguard against empty list
+    if (_wrongQuestions.isNotEmpty) {
       var question = _wrongQuestions[0];
       numbers = _parseQuestion(question['question']);
       correctAnswer = question['correctAnswer'];
       answerOptions = generateAnswerOptions(correctAnswer);
       _usedWrongQuestionThisSession = true;
     } else {
-      regenerateNumbers(); // Fallback if list becomes empty
+      regenerateNumbers();
     }
   }
 
@@ -258,51 +257,48 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     int displayTime = widget.sessionTimeLimit != null
         ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
         : _quizTimer.secondsPassed;
     if (widget.sessionTimeLimit != null && displayTime < 0) displayTime = 0;
 
     if (!_isInitialized) {
-      return Scaffold(
-        backgroundColor: theme.colorScheme.background,
-        body: const Center(child: CircularProgressIndicator()),
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       );
     }
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        title: Text('Practice',
-            style: TextStyle(
-                color: theme.appBarTheme.titleTextStyle?.color,
-                fontWeight: FontWeight.bold)),
+        title: const Text('Practice'),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               onPressed: _showQuitDialog,
-              icon: const Icon(Icons.exit_to_app_rounded, color: Colors.white),
-              label: const Text('Quit', style: TextStyle(color: Colors.white)),
+              icon: const Icon(Icons.exit_to_app_rounded),
+              label: const Text('Quit'),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[700],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20))),
+                backgroundColor: Colors.red[700],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
             ),
           ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               onPressed: endQuiz,
-              icon: const Icon(Icons.assessment, color: Colors.white),
-              label: const Text('Results', style: TextStyle(color: Colors.white)),
+              icon: const Icon(Icons.assessment),
+              label: const Text('Results'),
               style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.green[700],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20))),
+                backgroundColor: Colors.green[700],
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+              ),
             ),
           ),
         ],
@@ -332,18 +328,15 @@ class _PracticeScreenState extends State<PracticeScreen>
                       ElevatedButton(
                         onPressed: _triggerTTSSpeech,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.primary,
                           shape: const CircleBorder(),
                           padding: const EdgeInsets.all(24),
                           elevation: 8,
                         ),
-                        child: const Icon(Icons.record_voice_over,
-                            size: 100, color: Colors.white),
+                        child: const Icon(Icons.record_voice_over, size: 100),
                       ),
                       const SizedBox(height: 32),
                       Container(
                         decoration: BoxDecoration(
-                          color: theme.colorScheme.surface,
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
