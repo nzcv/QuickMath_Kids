@@ -213,7 +213,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             const SizedBox(height: 15),
             Text(
               "Choose an Operation and Start Practicing",
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
               ),
               textAlign: TextAlign.center,
@@ -253,9 +253,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               child: InkWell(
                 onTap: () => _showTimeWheelPicker(context),
                 child: InputDecorator(
-                  decoration: InputDecoration(
+                  decoration: const InputDecoration(
                     labelText: 'Session Time Limit',
-                    border: const OutlineInputBorder(
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(Radius.circular(10)),
                     ),
                   ),
@@ -270,7 +270,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             const SizedBox(height: 40),
             ElevatedButton.icon(
               iconAlignment: IconAlignment.end,
-              icon: const Icon(Icons.arrow_forward, color: Colors.white,),
+              icon: const Icon(Icons.arrow_forward, color: Colors.white),
               onPressed: () {
                 widget.switchToPracticeScreen(
                     _selectedOperation, _selectedRange, _selectedTimeLimit);

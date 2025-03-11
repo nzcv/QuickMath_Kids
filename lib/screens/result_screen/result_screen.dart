@@ -168,20 +168,13 @@ class _ResultScreenState extends State<ResultScreen>
     int correctAnswers = widget.answeredCorrectly.where((correct) => correct).length;
 
     return Scaffold(
+      appBar: AppBar(title:Text('Quiz Results', textAlign: TextAlign.center,),),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              FadeTransition(
-                opacity: _fadeAnimation,
-                child: Text(
-                  widget.isFromHistory && _quizTitle != null
-                      ? 'Quiz Results - $_quizTitle'
-                      : 'Quiz Results',
-                ),
-              ),
               const SizedBox(height: 20),
               FadeTransition(
                 opacity: _fadeAnimation,
@@ -240,6 +233,9 @@ class _ResultScreenState extends State<ResultScreen>
                               widget.answeredCorrectly[index]
                                   ? Icons.check_circle
                                   : Icons.cancel,
+                              color: widget.answeredCorrectly[index]
+                                  ? Colors.green
+                                  : Colors.red, // Keep these specific colors for correctness
                             ),
                             title: Text(widget.answeredQuestions[index]),
                           );
@@ -251,12 +247,12 @@ class _ResultScreenState extends State<ResultScreen>
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.home),
+                    icon: const Icon(Icons.home, color: Colors.white),
                     onPressed: () => widget.switchToStartScreen(),
                     label: const Text('Start Screen'),
                   ),
                   ElevatedButton.icon(
-                    icon: const Icon(Icons.share),
+                    icon: const Icon(Icons.share, color: Colors.white),
                     onPressed: _sharePDFReport,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,

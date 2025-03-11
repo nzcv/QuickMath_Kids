@@ -257,6 +257,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   Widget build(BuildContext context) {
+
     int displayTime = widget.sessionTimeLimit != null
         ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
         : _quizTimer.secondsPassed;
@@ -277,7 +278,7 @@ class _PracticeScreenState extends State<PracticeScreen>
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               onPressed: _showQuitDialog,
-              icon: const Icon(Icons.exit_to_app_rounded),
+              icon: const Icon(Icons.exit_to_app_rounded, color: Colors.white),
               label: const Text('Quit'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red[700],
@@ -291,7 +292,7 @@ class _PracticeScreenState extends State<PracticeScreen>
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               onPressed: endQuiz,
-              icon: const Icon(Icons.assessment),
+              icon: const Icon(Icons.assessment, color: Colors.white),
               label: const Text('Results'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green[700],
@@ -332,7 +333,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                           padding: const EdgeInsets.all(24),
                           elevation: 8,
                         ),
-                        child: const Icon(Icons.record_voice_over, size: 100),
+                        child: const Icon(Icons.record_voice_over, size: 100, color: Colors.white),
                       ),
                       const SizedBox(height: 32),
                       Container(
@@ -340,9 +341,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                                color: Colors.grey.withOpacity(0.2),
+                                color: Colors.grey,
                                 spreadRadius: 2,
-                                blurRadius: 8,
                                 offset: const Offset(0, 3))
                           ],
                         ),

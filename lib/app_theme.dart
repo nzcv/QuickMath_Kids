@@ -81,8 +81,8 @@ class AppTheme {
           color: onSurfaceColor,
         ),
       ),
-      iconTheme: IconThemeData(
-        color: onSurfaceColor 
+      iconTheme: const IconThemeData(
+        color: Colors.white, // Set all icons to white
       ),
       dividerColor: secondaryColor.withOpacity(0.3),
       scaffoldBackgroundColor: backgroundColor,
