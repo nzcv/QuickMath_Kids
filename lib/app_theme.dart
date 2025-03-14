@@ -7,16 +7,17 @@ class AppTheme {
     final billingService = ref.watch(billingServiceProvider);
     final bool isPremium = billingService.isPremium;
 
-    // Define colors
-    final Color primaryColor = isPremium ? Colors.amber : Colors.blue;
-    final Color secondaryColor = isPremium ? Colors.blue : Colors.amber;
-    final Color surfaceColor = isDarkMode
-        ? Colors.grey[900]!
-        : (isPremium ? Colors.amber[50]! : Colors.blue[50]!);
-    final Color backgroundColor = isDarkMode
-        ? Colors.grey[850]!
-        : (isPremium ? Colors.amber[100]! : Colors.blue[100]!);
-    final Color onPrimaryColor = isPremium ? Colors.black : Colors.white;
+    // Core colors
+    final Color primaryColor = isPremium ? Colors.amber[600]! : Colors.blue[600]!;
+    final Color secondaryColor = isPremium ? Colors.amber[300]! : Colors.blue[300]!;
+    final Color backgroundColor = isDarkMode ? Colors.black : Colors.white;
+    
+    // Ensure 50% White (Light Mode) / 50% Black (Dark Mode)
+    final Color surfaceColor = isDarkMode 
+        ? Color.alphaBlend(primaryColor.withOpacity(0.3), Colors.black)  // 30% primary, 70% black
+        : Color.alphaBlend(primaryColor.withOpacity(0.3), Colors.white); // 30% primary, 70% white
+
+    final Color onPrimaryColor = isDarkMode ? Colors.white : Colors.black;
     final Color onSurfaceColor = isDarkMode ? Colors.white : Colors.black;
 
     return ThemeData(
@@ -27,7 +28,7 @@ class AppTheme {
         primary: primaryColor,
         onPrimary: onPrimaryColor,
         secondary: secondaryColor,
-        onSecondary: onPrimaryColor,
+        onSecondary: onSurfaceColor,
         surface: surfaceColor,
         onSurface: onSurfaceColor,
         background: backgroundColor,
@@ -36,7 +37,7 @@ class AppTheme {
         onError: Colors.white,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor,
+        backgroundColor: primaryColor.withOpacity(0.7), // Less strong primary
         foregroundColor: onPrimaryColor,
         titleTextStyle: TextStyle(
           color: onPrimaryColor,
@@ -46,7 +47,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
+          backgroundColor: primaryColor.withOpacity(0.8), // More subtle
           foregroundColor: onPrimaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -65,7 +66,7 @@ class AppTheme {
         headlineMedium: TextStyle(
           fontSize: 28,
           fontWeight: FontWeight.bold,
-          color: primaryColor,
+          color: onSurfaceColor,
         ),
         titleLarge: TextStyle(
           fontSize: 20,
@@ -81,11 +82,12 @@ class AppTheme {
           color: onSurfaceColor,
         ),
       ),
-      iconTheme: const IconThemeData(
-        color: Colors.white, // Set all icons to white
+      iconTheme: IconThemeData(
+        color: onSurfaceColor,
       ),
       dividerColor: secondaryColor.withOpacity(0.3),
       scaffoldBackgroundColor: backgroundColor,
     );
   }
 }
+

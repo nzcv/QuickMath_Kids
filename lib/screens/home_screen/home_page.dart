@@ -312,16 +312,43 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             child: const Text('QuickMath Kids',
                 style: TextStyle(fontSize: 24)),
           ),
-          ListTile(
-            leading: const Icon(Icons.settings),
-            title: const Text('Settings'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
+          if (!billingService.isPremium)
+            Container(
+              color: Colors.red,
+              padding: const EdgeInsets.all(8.0),
+              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              child: const Text(
+                'Premium Required',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            decoration: !billingService.isPremium
+                ? BoxDecoration(
+                    border: Border.all(color: Colors.red, width: 2),
+                    borderRadius: BorderRadius.circular(8.0),
+                  )
+                : null,
+            child: ListTile(
+              leading: const Icon(Icons.settings),
+              title: const Text('Settings'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                if (billingService.isPremium) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  );
+                } else {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                  );
+                }
+              },
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.help_outline),
@@ -367,8 +394,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             child: ListTile(
               leading: const Icon(Icons.history),
               title: const Text('Wrong Answers History'),
-              enabled: billingService.isPremium,
               onTap: () {
+                Navigator.pop(context); // Close the drawer
                 if (billingService.isPremium) {
                   Navigator.push(
                     context,
@@ -407,8 +434,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             child: ListTile(
               leading: const Icon(Icons.history_toggle_off),
               title: const Text('Quiz History'),
-              enabled: billingService.isPremium,
               onTap: () {
+                Navigator.pop(context); // Close the drawer
                 if (billingService.isPremium) {
                   Navigator.push(
                     context,
@@ -425,6 +452,18 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               },
             ),
           ),
+          if (!billingService.isPremium) // Show "Purchase Premium" only for non-premium users
+            ListTile(
+              leading: const Icon(Icons.star, color: Colors.amber),
+              title: const Text('Purchase Premium'),
+              onTap: () {
+                Navigator.pop(context); // Close the drawer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                );
+              },
+            ),
           SwitchListTile(
             title: const Text("Dark Mode"),
             value: _isDarkMode,
