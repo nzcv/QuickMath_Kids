@@ -98,7 +98,8 @@ class _ResultScreenState extends State<ResultScreen>
               onPressed: () {
                 Navigator.pop(context);
                 setState(() {
-                  _quizTitle = controller.text.isEmpty ? uniqueTitle : controller.text;
+                  _quizTitle =
+                      controller.text.isEmpty ? uniqueTitle : controller.text;
                 });
                 _saveQuiz();
               },
@@ -111,7 +112,8 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Future<void> _saveQuiz() async {
-    if (_quizTitle == null || widget.operation == null || widget.range == null) return;
+    if (_quizTitle == null || widget.operation == null || widget.range == null)
+      return;
 
     try {
       await QuizHistoryService.saveQuiz(
@@ -147,7 +149,8 @@ class _ResultScreenState extends State<ResultScreen>
       );
       await Share.shareXFiles(
         [XFile(file.path)],
-        subject: 'QuickMath Kids Quiz Results${_quizTitle != null ? ' - $_quizTitle' : ''}',
+        subject:
+            'QuickMath Kids Quiz Results${_quizTitle != null ? ' - $_quizTitle' : ''}',
       );
     } catch (e) {
       if (mounted) {
@@ -165,10 +168,19 @@ class _ResultScreenState extends State<ResultScreen>
     final theme = Theme.of(context);
     int minutes = widget.totalTime ~/ 60;
     int seconds = widget.totalTime % 60;
-    int correctAnswers = widget.answeredCorrectly.where((correct) => correct).length;
+    int correctAnswers =
+        widget.answeredCorrectly.where((correct) => correct).length;
+
+    // Determine the card background and text colors based on the theme
+    final textColor =
+        theme.brightness == Brightness.dark ? Colors.white : Colors.black;
 
     return Scaffold(
-      appBar: AppBar(title:Text('Quiz Results', textAlign: TextAlign.center,),),
+      appBar: AppBar(
+          title: Text(
+        'Quiz Results',
+        textAlign: TextAlign.center,
+      )),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -179,6 +191,7 @@ class _ResultScreenState extends State<ResultScreen>
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Card(
+                  color: Colors.white60, // Set card background color based on theme
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -187,22 +200,32 @@ class _ResultScreenState extends State<ResultScreen>
                         ResultRowWidget(
                           icon: Icons.timer,
                           label: 'Time Taken:',
-                          value: '$minutes:${seconds.toString().padLeft(2, '0')}',
-                          theme: theme,
+                          value:
+                              '$minutes:${seconds.toString().padLeft(2, '0')}',
+                          theme: theme.copyWith(
+                            textTheme:
+                                theme.textTheme.apply(bodyColor: textColor),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         ResultRowWidget(
                           icon: Icons.question_answer,
                           label: 'Questions Attempted:',
                           value: '${widget.answeredQuestions.length}',
-                          theme: theme,
+                          theme: theme.copyWith(
+                            textTheme:
+                                theme.textTheme.apply(bodyColor: textColor),
+                          ),
                         ),
                         const SizedBox(height: 10),
                         ResultRowWidget(
                           icon: Icons.check_circle,
                           label: 'Correct Answers:',
                           value: '$correctAnswers',
-                          theme: theme,
+                          theme: theme.copyWith(
+                            textTheme:
+                                theme.textTheme.apply(bodyColor: textColor),
+                          ),
                         ),
                       ],
                     ),
@@ -226,7 +249,8 @@ class _ResultScreenState extends State<ResultScreen>
                       )
                     : ListView.separated(
                         itemCount: widget.answeredQuestions.length,
-                        separatorBuilder: (context, index) => const Divider(height: 1),
+                        separatorBuilder: (context, index) =>
+                            const Divider(height: 1),
                         itemBuilder: (context, index) {
                           return ListTile(
                             leading: Icon(
@@ -235,7 +259,8 @@ class _ResultScreenState extends State<ResultScreen>
                                   : Icons.cancel,
                               color: widget.answeredCorrectly[index]
                                   ? Colors.green
-                                  : Colors.red, // Keep these specific colors for correctness
+                                  : Colors
+                                      .red, // Keep these specific colors for correctness
                             ),
                             title: Text(widget.answeredQuestions[index]),
                           );

@@ -36,7 +36,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   int _selectedMinutes = 5;
   bool _noLimit = true;
   bool _isDarkMode = false;
-  bool _isRestoring = false;
+  //bool _isRestoring = false;
 
   @override
   void initState() {
@@ -81,7 +81,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 _noLimit = value;
                               });
                             },
-                            activeTrackColor: Theme.of(context).colorScheme.primary,
+                            activeTrackColor:
+                                Theme.of(context).colorScheme.primary,
                           ),
                         ],
                       ),
@@ -105,13 +106,21 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             final isSelected = minute == _selectedMinutes;
                             return Center(
                               child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 16),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+                                      ? Theme.of(context)
+                                          .colorScheme
+                                          .primary
+                                          .withOpacity(0.2)
                                       : Colors.transparent,
                                   border: isSelected
-                                      ? Border.all(color: Theme.of(context).colorScheme.primary, width: 2)
+                                      ? Border.all(
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .primary,
+                                          width: 2)
                                       : null,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -121,8 +130,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                     fontSize: 20,
                                     color: isSelected
                                         ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context).colorScheme.onSurface,
-                                    fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .onSurface,
+                                    fontWeight: isSelected
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
                                 ),
                               ),
@@ -169,7 +182,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('QuickMath Kids'),
-        actions: [
+        /*actions: [
           IconButton(
             icon: _isRestoring
                 ? const SizedBox(
@@ -200,7 +213,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                     }
                   },
           ),
-        ],
+        ],*/
       ),
       drawer: _buildDrawer(context),
       body: SingleChildScrollView(
@@ -281,7 +294,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            ElevatedButton(
+            /*ElevatedButton(
               onPressed: () async {
                 final billingService = ref.read(billingServiceProvider);
                 await billingService.resetPremium();
@@ -291,7 +304,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 );
               },
               child: const Text('Reset Premium'),
-            ),
+            ),*/
           ],
         ),
       ),
@@ -309,17 +322,18 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
             ),
-            child: const Text('QuickMath Kids',
-                style: TextStyle(fontSize: 24)),
+            child: const Text('QuickMath Kids', style: TextStyle(fontSize: 24)),
           ),
           if (!billingService.isPremium)
             Container(
               color: Colors.red,
               padding: const EdgeInsets.all(8.0),
-              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
               child: const Text(
                 'Premium Required',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -339,12 +353,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 if (billingService.isPremium) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const SettingsScreen()),
                   );
                 } else {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const PurchaseScreen()),
                   );
                 }
               },
@@ -376,10 +392,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             Container(
               color: Colors.red,
               padding: const EdgeInsets.all(8.0),
-              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
               child: const Text(
                 'Premium Required',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -406,7 +424,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 } else {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const PurchaseScreen()),
                   );
                 }
               },
@@ -416,10 +435,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             Container(
               color: Colors.red,
               padding: const EdgeInsets.all(8.0),
-              margin: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
+              margin:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
               child: const Text(
                 'Premium Required',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style:
+                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
@@ -440,30 +461,31 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => QuizHistoryScreen(widget.switchToStartScreen),
+                      builder: (context) =>
+                          QuizHistoryScreen(widget.switchToStartScreen),
                     ),
                   );
                 } else {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                    MaterialPageRoute(
+                        builder: (context) => const PurchaseScreen()),
                   );
                 }
               },
             ),
           ),
-          if (!billingService.isPremium) // Show "Purchase Premium" only for non-premium users
-            ListTile(
-              leading: const Icon(Icons.star, color: Colors.amber),
-              title: const Text('Purchase Premium'),
-              onTap: () {
-                Navigator.pop(context); // Close the drawer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              },
-            ),
+          ListTile(
+            leading: const Icon(Icons.star, color: Colors.amber),
+            title: const Text('Purchase Premium'),
+            onTap: () {
+              Navigator.pop(context); // Close the drawer
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+              );
+            },
+          ),
           SwitchListTile(
             title: const Text("Dark Mode"),
             value: _isDarkMode,
