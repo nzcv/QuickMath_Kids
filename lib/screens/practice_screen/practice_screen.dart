@@ -8,7 +8,6 @@ import 'package:QuickMath_Kids/screens/practice_screen/helpers/operation_helper.
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/hint_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/confetti_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/answer_option_helper.dart';
-import 'package:QuickMath_Kids/screens/practice_screen/ui/hint_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
@@ -48,7 +47,6 @@ class _PracticeScreenState extends State<PracticeScreen>
   String resultText = '';
   String currentHintMessage = '';
   bool hasListenedToQuestion = false;
-  bool _isHintExpanded = false;
 
   final HintManager hintManager = HintManager();
   final QuizTimer _quizTimer = QuizTimer();
@@ -254,28 +252,45 @@ class _PracticeScreenState extends State<PracticeScreen>
     );
   }
 
+  void _showHintDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Hint'),
+          content: Text(currentHintMessage),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Widget buildPauseButton(VoidCallback onPressed, BuildContext context) {
     final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Container(
-      width: 70,
-      height: 70,
+      width: 64,
+      height: 64,
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: theme.brightness == Brightness.dark
-              ? Colors.blue[300]
-              : Colors.blue[700],
+          backgroundColor: isDarkMode ? Colors.blue[300] : Colors.blue[700],
           shape: const CircleBorder(),
-          padding: const EdgeInsets.all(12),
+          padding: const EdgeInsets.all(14),
           elevation: 8,
         ),
         child: Icon(
           Icons.pause,
-          size: 40,
-          color: theme.brightness == Brightness.dark
-              ? Colors.black
-              : Colors.white,
+          size: 32,
+          color: isDarkMode ? Colors.black : Colors.white,
         ),
       ),
     );
@@ -283,6 +298,8 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDarkMode = theme.brightness == Brightness.dark;
     int displayTime = widget.sessionTimeLimit != null
         ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
         : _quizTimer.secondsPassed;
@@ -298,6 +315,7 @@ class _PracticeScreenState extends State<PracticeScreen>
       appBar: AppBar(
         elevation: 0,
         title: const Text('Practice'),
+        backgroundColor: theme.primaryColor,
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -330,78 +348,119 @@ class _PracticeScreenState extends State<PracticeScreen>
         ],
       ),
       body: SafeArea(
-        child: Stack(
-          fit: StackFit.expand, // Ensures the Stack fills the entire screen
-          children: [
-            confettiManager.buildCorrectConfetti(),
-            FadeTransition(
-              opacity: _fadeAnimation,
-              child: SlideTransition(
-                position: _slideAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
-                      const SizedBox(height: 20),
-                      buildHintCard(currentHintMessage, _isHintExpanded, () {
-                        setState(() {
-                          _isHintExpanded = !_isHintExpanded;
-                        });
-                      }, context),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                        onPressed: _triggerTTSSpeech,
-                        style: ElevatedButton.styleFrom(
-                          shape: const CircleBorder(),
-                          padding: const EdgeInsets.all(24),
-                          elevation: 8,
+        child: Container(
+          color: isDarkMode ? Colors.black : Colors.white, // Dynamic background
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              confettiManager.buildCorrectConfetti(),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.start, // Align content to the top
+                children: [
+                  const SizedBox(height: 16), // Space from the AppBar
+                  buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
+                  Expanded(
+                    child: Center(
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: SlideTransition(
+                          position: _slideAnimation,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Stack(
+                                alignment: Alignment.center,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: _triggerTTSSpeech,
+                                    style: ElevatedButton.styleFrom(
+                                      shape: const CircleBorder(),
+                                      padding: const EdgeInsets.all(24),
+                                      elevation: 8,
+                                      backgroundColor: isDarkMode
+                                          ? Colors.orange[700]
+                                          : Colors.orange[400], // Adjusted for light mode
+                                    ),
+                                    child: const Icon(Icons.record_voice_over, size: 100, color: Colors.white),
+                                  ),
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: IconButton(
+                                      onPressed: _showHintDialog,
+                                      icon: Icon(
+                                        Icons.lightbulb_outline,
+                                        color: isDarkMode ? Colors.amber : Colors.amber[800],
+                                        size: 32,
+                                      ),
+                                      style: IconButton.styleFrom(
+                                        backgroundColor: isDarkMode
+                                            ? Colors.grey[700]
+                                            : Colors.grey[300],
+                                        shape: const CircleBorder(),
+                                        padding: const EdgeInsets.all(8),
+                                      ),
+                                      tooltip: 'Show Hint',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 40),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: isDarkMode ? Colors.grey[800] : Colors.grey[200], // Dynamic background
+                                    borderRadius: BorderRadius.circular(20),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: isDarkMode
+                                            ? Colors.grey[600]!.withOpacity(0.5)
+                                            : Colors.grey.withOpacity(0.5),
+                                        spreadRadius: 2,
+                                        blurRadius: 5,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          buildAnswerButton(answerOptions[0],
+                                              () => checkAnswer(answerOptions[0])),
+                                          const SizedBox(width: 20),
+                                          buildAnswerButton(answerOptions[1],
+                                              () => checkAnswer(answerOptions[1])),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 20),
+                                      buildAnswerButton(answerOptions[2],
+                                          () => checkAnswer(answerOptions[2])),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 80), // Increased space below the option card
+                            ],
+                          ),
                         ),
-                        child: const Icon(Icons.record_voice_over, size: 100, color: Colors.white),
                       ),
-                      const SizedBox(height: 32),
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: [
-                            BoxShadow(
-                                color: Colors.grey,
-                                spreadRadius: 2,
-                                offset: const Offset(0, 3))
-                          ],
-                        ),
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                buildAnswerButton(answerOptions[0],
-                                    () => checkAnswer(answerOptions[0])),
-                                const SizedBox(width: 16),
-                                buildAnswerButton(answerOptions[1],
-                                    () => checkAnswer(answerOptions[1])),
-                              ],
-                            ),
-                            const SizedBox(height: 16),
-                            buildAnswerButton(answerOptions[2],
-                                () => checkAnswer(answerOptions[2])),
-                          ],
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
+                ],
               ),
-            ),
-            Positioned(
-              bottom: 16, // Adjusted offset
-              right: 16,  // Adjusted offset
-              child: buildPauseButton(_showPauseDialog, context),
-            ),
-          ],
+              Positioned(
+                bottom: 24,
+                right: 16,
+                child: buildPauseButton(_showPauseDialog, context),
+              ),
+            ],
+          ),
         ),
       ),
     );
