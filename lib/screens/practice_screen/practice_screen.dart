@@ -11,7 +11,6 @@ import 'package:QuickMath_Kids/screens/practice_screen/helpers/answer_option_hel
 import 'package:QuickMath_Kids/screens/practice_screen/ui/hint_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
-import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 
 class PracticeScreen extends StatefulWidget {
@@ -255,9 +254,35 @@ class _PracticeScreenState extends State<PracticeScreen>
     );
   }
 
+  Widget buildPauseButton(VoidCallback onPressed, BuildContext context) {
+    final theme = Theme.of(context);
+
+    return Container(
+      width: 70,
+      height: 70,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: theme.brightness == Brightness.dark
+              ? Colors.blue[300]
+              : Colors.blue[700],
+          shape: const CircleBorder(),
+          padding: const EdgeInsets.all(12),
+          elevation: 8,
+        ),
+        child: Icon(
+          Icons.pause,
+          size: 40,
+          color: theme.brightness == Brightness.dark
+              ? Colors.black
+              : Colors.white,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-
     int displayTime = widget.sessionTimeLimit != null
         ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
         : _quizTimer.secondsPassed;
@@ -304,9 +329,9 @@ class _PracticeScreenState extends State<PracticeScreen>
           ),
         ],
       ),
-      body: Align(
-        alignment: Alignment.topCenter,
+      body: SafeArea(
         child: Stack(
+          fit: StackFit.expand, // Ensures the Stack fills the entire screen
           children: [
             confettiManager.buildCorrectConfetti(),
             FadeTransition(
@@ -372,9 +397,10 @@ class _PracticeScreenState extends State<PracticeScreen>
               ),
             ),
             Positioned(
-                child: buildPauseButton(_showPauseDialog, context),
-                bottom: 24,
-                right: 24),
+              bottom: 16, // Adjusted offset
+              right: 16,  // Adjusted offset
+              child: buildPauseButton(_showPauseDialog, context),
+            ),
           ],
         ),
       ),

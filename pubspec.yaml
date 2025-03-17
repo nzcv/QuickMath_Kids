@@ -2,7 +2,7 @@ name: QuickMath_Kids
 description: "A new Flutter project."
 publish_to: 'none' 
 
-version: 3.0.1+8
+version: 3.0.2+9
 
 environment:
   sdk: ^3.5.2
@@ -24,7 +24,6 @@ dependencies:
   workmanager: ^0.5.2
   shared_preferences: ^2.5.1
   awesome_notifications: ^0.10.0
-  fl_chart: ^0.70.2
   in_app_purchase: ^3.2.1
   flutter_secure_storage: ^9.2.4
 

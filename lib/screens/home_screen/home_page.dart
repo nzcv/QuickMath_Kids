@@ -338,7 +338,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            // Removed margin to align with other ListTiles
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: Colors.red, width: 2),
@@ -402,7 +402,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            // Removed margin to align with other ListTiles
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: Colors.red, width: 2),
@@ -445,7 +445,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            // Removed margin to align with other ListTiles
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: Colors.red, width: 2),
