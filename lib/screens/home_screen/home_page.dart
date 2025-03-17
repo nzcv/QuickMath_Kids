@@ -262,7 +262,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             ),
             const SizedBox(height: 20),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32.0),
+              padding: const EdgeInsets.symmetric(horizontal: 40.0),
               child: InkWell(
                 onTap: () => _showTimeWheelPicker(context),
                 child: InputDecorator(
@@ -338,7 +338,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
           Container(
-            // Removed margin to align with other ListTiles
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: Colors.red, width: 2),
@@ -402,7 +402,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
           Container(
-            // Removed margin to align with other ListTiles
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: Colors.red, width: 2),
@@ -445,7 +445,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               ),
             ),
           Container(
-            // Removed margin to align with other ListTiles
+            margin: const EdgeInsets.symmetric(horizontal: 16.0),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: Colors.red, width: 2),
