@@ -72,7 +72,6 @@ class RangeDropdown extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
       child: SizedBox(
-        width: 300,
         child: DropdownButtonFormField<String>(
           value: selectedRange,
           items: items,
@@ -83,21 +82,21 @@ class RangeDropdown extends StatelessWidget {
                 : theme.colorScheme.onBackground, 
           ),
           decoration: InputDecoration(
-            filled: true,
-            fillColor: theme.brightness == Brightness.dark
-                ? theme.colorScheme.surface 
-                : Colors.white, 
-            contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
-            ),
-            focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
-            ),
+          filled: true,
+          fillColor: theme.brightness == Brightness.dark
+              ? theme.colorScheme.surface 
+              : Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
           ),
         ),
+      ),
       ),
     );
   }

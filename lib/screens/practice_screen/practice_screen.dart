@@ -13,7 +13,8 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int, Operation, String, int?) switchToResultScreen;
+  final Function(List<String>, List<bool>, int, Operation, String, int?)
+      switchToResultScreen;
   final VoidCallback switchToStartScreen;
   final Function(String) triggerTTS;
   final Operation selectedOperation;
@@ -273,24 +274,32 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   Widget buildPauseButton(VoidCallback onPressed, BuildContext context) {
-    final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final screenWidth =
+        MediaQuery.of(context).size.width; // ~360 dp on 1080px, 3x density
 
     return Container(
-      width: 64,
-      height: 64,
+      width:
+          screenWidth * 0.12, // ~43 dp (~129 physical px on 3x), much smaller
+      height: screenWidth * 0.12, // ~43 dp, keeps it circular
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isDarkMode ? Colors.blue[300] : Colors.blue[700],
-          shape: const CircleBorder(),
-          padding: const EdgeInsets.all(14),
-          elevation: 8,
+          shape: CircleBorder(
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.primary, // Thin border color
+              width: 1.0, // Reduced thickness (default is thicker)
+            ),
+          ),
+          elevation: 4, // Reduced from 8 for a flatter, less "thick" look
+          backgroundColor: Theme.of(context).colorScheme.primary,
+          padding: EdgeInsets.all(
+              screenWidth * 0.02), // ~7 dp padding, tight but balanced
         ),
         child: Icon(
-          Icons.pause,
-          size: 32,
-          color: isDarkMode ? Colors.black : Colors.white,
+          Icons.pause_circle_filled, // Kept for clarity at smaller size
+          size: screenWidth *
+              0.08, // ~29 dp (~87 physical px), smaller but visible
+          color: Colors.white,
         ),
       ),
     );
@@ -299,11 +308,13 @@ class _PracticeScreenState extends State<PracticeScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
     int displayTime = widget.sessionTimeLimit != null
         ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
         : _quizTimer.secondsPassed;
     if (widget.sessionTimeLimit != null && displayTime < 0) displayTime = 0;
+
+    final screenWidth =
+        MediaQuery.of(context).size.width; // For responsive scaling
 
     if (!_isInitialized) {
       return const Scaffold(
@@ -313,21 +324,21 @@ class _PracticeScreenState extends State<PracticeScreen>
 
     return Scaffold(
       appBar: AppBar(
+        toolbarHeight: 80,
         elevation: 0,
         title: const Text('Practice'),
-        backgroundColor: theme.primaryColor,
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               onPressed: _showQuitDialog,
-              icon: const Icon(Icons.exit_to_app_rounded, color: Colors.white),
+              icon: const Icon(
+                Icons.exit_to_app_rounded,
+                color: Colors.white,
+              ),
               label: const Text('Quit'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red[700],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                backgroundColor: theme.colorScheme.error,
               ),
             ),
           ),
@@ -335,13 +346,13 @@ class _PracticeScreenState extends State<PracticeScreen>
             padding: const EdgeInsets.all(8.0),
             child: ElevatedButton.icon(
               onPressed: endQuiz,
-              icon: const Icon(Icons.assessment, color: Colors.white),
+              icon: const Icon(
+                Icons.assessment,
+                color: Colors.white,
+              ),
               label: const Text('Results'),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[700],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                ),
+                backgroundColor: Colors.green,
               ),
             ),
           ),
@@ -349,15 +360,15 @@ class _PracticeScreenState extends State<PracticeScreen>
       ),
       body: SafeArea(
         child: Container(
-          color: isDarkMode ? Colors.black : Colors.white, // Dynamic background
+          color: theme.scaffoldBackgroundColor,
           child: Stack(
             fit: StackFit.expand,
             children: [
               confettiManager.buildCorrectConfetti(),
               Column(
-                mainAxisAlignment: MainAxisAlignment.start, // Align content to the top
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 16), // Space from the AppBar
+                  const SizedBox(height: 16),
                   buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
                   Expanded(
                     child: Center(
@@ -376,30 +387,28 @@ class _PracticeScreenState extends State<PracticeScreen>
                                     onPressed: _triggerTTSSpeech,
                                     style: ElevatedButton.styleFrom(
                                       shape: const CircleBorder(),
-                                      padding: const EdgeInsets.all(24),
                                       elevation: 8,
-                                      backgroundColor: isDarkMode
-                                          ? Colors.orange[700]
-                                          : Colors.orange[400], // Adjusted for light mode
+                                      backgroundColor:
+                                          theme.colorScheme.primary,
+                                      padding:
+                                          EdgeInsets.all(screenWidth * 0.1),
                                     ),
-                                    child: const Icon(Icons.record_voice_over, size: 100, color: Colors.white),
+                                    child: Icon(
+                                      Icons.record_voice_over,
+                                      size: screenWidth * 0.1,
+                                      color: Colors.white,
+                                    ),
                                   ),
                                   Positioned(
                                     top: 0,
                                     right: 0,
                                     child: IconButton(
                                       onPressed: _showHintDialog,
-                                      icon: Icon(
-                                        Icons.lightbulb_outline,
-                                        color: isDarkMode ? Colors.amber : Colors.amber[800],
-                                        size: 32,
-                                      ),
+                                      icon: const Icon(Icons.lightbulb_outline),
                                       style: IconButton.styleFrom(
-                                        backgroundColor: isDarkMode
-                                            ? Colors.grey[700]
-                                            : Colors.grey[300],
+                                        backgroundColor:
+                                            theme.colorScheme.surface,
                                         shape: const CircleBorder(),
-                                        padding: const EdgeInsets.all(8),
                                       ),
                                       tooltip: 'Show Hint',
                                     ),
@@ -408,16 +417,17 @@ class _PracticeScreenState extends State<PracticeScreen>
                               ),
                               const SizedBox(height: 40),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16.0),
                                 child: Container(
                                   decoration: BoxDecoration(
-                                    color: isDarkMode ? Colors.grey[800] : Colors.grey[200], // Dynamic background
-                                    borderRadius: BorderRadius.circular(20),
+                                    color: theme.colorScheme.surface,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(20)),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: isDarkMode
-                                            ? Colors.grey[600]!.withOpacity(0.5)
-                                            : Colors.grey.withOpacity(0.5),
+                                        color: theme.colorScheme.onSurface
+                                            .withOpacity(0.2),
                                         spreadRadius: 2,
                                         blurRadius: 5,
                                         offset: const Offset(0, 3),
@@ -429,13 +439,18 @@ class _PracticeScreenState extends State<PracticeScreen>
                                     mainAxisSize: MainAxisSize.min,
                                     children: [
                                       Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
-                                          buildAnswerButton(answerOptions[0],
-                                              () => checkAnswer(answerOptions[0])),
+                                          buildAnswerButton(
+                                              answerOptions[0],
+                                              () => checkAnswer(
+                                                  answerOptions[0])),
                                           const SizedBox(width: 20),
-                                          buildAnswerButton(answerOptions[1],
-                                              () => checkAnswer(answerOptions[1])),
+                                          buildAnswerButton(
+                                              answerOptions[1],
+                                              () => checkAnswer(
+                                                  answerOptions[1])),
                                         ],
                                       ),
                                       const SizedBox(height: 20),
@@ -445,7 +460,7 @@ class _PracticeScreenState extends State<PracticeScreen>
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 80), // Increased space below the option card
+                              const SizedBox(height: 80),
                             ],
                           ),
                         ),

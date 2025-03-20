@@ -101,7 +101,7 @@ class _MyAppState extends State<MyApp> {
       builder: (context, ref, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.getTheme(ref, _isDarkMode),
+          theme: AppTheme.getTheme(ref, _isDarkMode, context),
           home: Scaffold(
             body: activeScreen == 'start_screen'
                 ? StartScreen(

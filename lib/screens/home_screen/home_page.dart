@@ -36,7 +36,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   int _selectedMinutes = 5;
   bool _noLimit = true;
   bool _isDarkMode = false;
-  //bool _isRestoring = false;
+  bool _isRestoring = false;
 
   @override
   void initState() {
@@ -56,8 +56,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   void _showTimeWheelPicker(BuildContext context) {
+    final theme = Theme.of(context);
     showModalBottomSheet(
       context: context,
+      backgroundColor: theme.scaffoldBackgroundColor,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setModalState) {
@@ -69,11 +71,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Set Time Limit',
-                          style: Theme.of(context).textTheme.titleLarge),
+                      Text('Set Time Limit', style: theme.textTheme.titleLarge),
                       Row(
                         children: [
-                          const Text('No Limit'),
+                          Text('No Limit', style: theme.textTheme.bodyLarge),
                           Switch(
                             value: _noLimit,
                             onChanged: (value) {
@@ -81,8 +82,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 _noLimit = value;
                               });
                             },
-                            activeTrackColor:
-                                Theme.of(context).colorScheme.primary,
+                            activeTrackColor: theme.colorScheme.primary,
                           ),
                         ],
                       ),
@@ -110,32 +110,24 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                     vertical: 8, horizontal: 16),
                                 decoration: BoxDecoration(
                                   color: isSelected
-                                      ? Theme.of(context)
-                                          .colorScheme
-                                          .primary
-                                          .withOpacity(0.2)
+                                      ? theme.colorScheme.primary.withOpacity(0.2)
                                       : Colors.transparent,
                                   border: isSelected
                                       ? Border.all(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .primary,
+                                          color: theme.colorScheme.primary,
                                           width: 2)
                                       : null,
-                                  borderRadius: BorderRadius.circular(8),
+                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
                                 ),
                                 child: Text(
                                   '$minute minute${minute == 1 ? '' : 's'}',
-                                  style: TextStyle(
+                                  style: theme.textTheme.bodyLarge?.copyWith(
                                     fontSize: 20,
                                     color: isSelected
-                                        ? Theme.of(context).colorScheme.primary
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .onSurface,
-                                    fontWeight: isSelected
-                                        ? FontWeight.bold
-                                        : FontWeight.normal,
+                                        ? theme.colorScheme.primary
+                                        : theme.colorScheme.onSurface,
+                                    fontWeight:
+                                        isSelected ? FontWeight.bold : FontWeight.normal,
                                   ),
                                 ),
                               ),
@@ -172,6 +164,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final billingService = ref.watch(billingServiceProvider);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
 
     if (!billingService.isInitialized) {
       return const Scaffold(
@@ -182,13 +176,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('QuickMath Kids'),
-        /*actions: [
+        actions: [
           IconButton(
             icon: _isRestoring
-                ? const SizedBox(
+                ? SizedBox(
                     height: 20,
                     width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(
+                        strokeWidth: 2, color: theme.colorScheme.onPrimary),
                   )
                 : const Icon(Icons.refresh),
             onPressed: _isRestoring
@@ -213,99 +208,103 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                     }
                   },
           ),
-        ],*/
+        ],
       ),
       drawer: _buildDrawer(context),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const SizedBox(height: 20),
-            Image.asset('assets/QuickMath_Kids_logo.png', scale: 2),
-            const SizedBox(height: 15),
-            Text(
-              "Choose an Operation and Start Practicing",
-              style: const TextStyle(
-                fontSize: 20,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 20),
-            OperationDropdown(
-              selectedOperation: _selectedOperation,
-              onChanged: (Operation? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    _selectedOperation = newValue;
-                    _selectedRange = getDefaultRange(newValue);
-                    if (!getDropdownItems(_selectedOperation)
-                        .any((item) => item.value == _selectedRange)) {
-                      _selectedRange =
-                          getDropdownItems(_selectedOperation).first.value!;
+      body: Center(
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: isTablet ? 600 : double.infinity),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const SizedBox(height: 20),
+                Image.asset(
+                  'assets/QuickMath_Kids_logo.png',
+                  width: 200,
+                  height: 200,
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  "Choose an Operation and Start Practicing",
+                  style: theme.textTheme.headlineMedium,
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 20),
+                OperationDropdown(
+                  selectedOperation: _selectedOperation,
+                  onChanged: (Operation? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedOperation = newValue;
+                        _selectedRange = getDefaultRange(newValue);
+                        if (!getDropdownItems(_selectedOperation)
+                            .any((item) => item.value == _selectedRange)) {
+                          _selectedRange =
+                              getDropdownItems(_selectedOperation).first.value!;
+                        }
+                      });
                     }
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 20),
-            RangeDropdown(
-              selectedRange: _selectedRange,
-              items: getDropdownItems(_selectedOperation),
-              onChanged: (String? newValue) {
-                if (newValue != null) {
-                  setState(() {
-                    _selectedRange = newValue;
-                  });
-                }
-              },
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40.0),
-              child: InkWell(
-                onTap: () => _showTimeWheelPicker(context),
-                child: InputDecorator(
-                  decoration: const InputDecoration(
-                    labelText: 'Session Time Limit',
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(10)),
+                  },
+                ),
+                const SizedBox(height: 20),
+                RangeDropdown(
+                  selectedRange: _selectedRange,
+                  items: getDropdownItems(_selectedOperation),
+                  onChanged: (String? newValue) {
+                    if (newValue != null) {
+                      setState(() {
+                        _selectedRange = newValue;
+                      });
+                    }
+                  },
+                ),
+                const SizedBox(height: 20),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: InkWell(
+                    onTap: () => _showTimeWheelPicker(context),
+                    child: InputDecorator(
+                      decoration: const InputDecoration(
+                        labelText: 'Session Time Limit',
+                      ),
+                      child: Text(
+                        _selectedTimeLimit != null
+                            ? '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}'
+                            : 'No time limit',
+                        style: theme.textTheme.bodyLarge,
+                      ),
                     ),
                   ),
-                  child: Text(
-                    _selectedTimeLimit != null
-                        ? '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}'
-                        : 'No time limit',
-                  ),
                 ),
-              ),
+                const SizedBox(height: 40),
+                ElevatedButton.icon(
+                  iconAlignment: IconAlignment.end,
+                  icon: const Icon(Icons.arrow_forward, color: Colors.white,),
+                  onPressed: () {
+                    widget.switchToPracticeScreen(
+                        _selectedOperation, _selectedRange, _selectedTimeLimit);
+                  },
+                  label: const Text('Start Oral Practice'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () async {
+                    final billingService = ref.read(billingServiceProvider);
+                    await billingService.resetPremium();
+                    setState(() {});
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text(
+                              'Premium access reset. You can purchase again.')),
+                    );
+                  },
+                  child: const Text('Reset Premium'),
+                ),
+              ],
             ),
-            const SizedBox(height: 40),
-            ElevatedButton.icon(
-              iconAlignment: IconAlignment.end,
-              icon: const Icon(Icons.arrow_forward, color: Colors.white),
-              onPressed: () {
-                widget.switchToPracticeScreen(
-                    _selectedOperation, _selectedRange, _selectedTimeLimit);
-              },
-              label: Text(
-                'Start Oral Practice',
-                style: theme.textTheme.titleMedium,
-              ),
-            ),
-            const SizedBox(height: 20),
-            /*ElevatedButton(
-              onPressed: () async {
-                final billingService = ref.read(billingServiceProvider);
-                await billingService.resetPremium();
-                setState(() {});
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Premium access reset. You can purchase again.')),
-                );
-              },
-              child: const Text('Reset Premium'),
-            ),*/
-          ],
+          ),
         ),
       ),
     );
@@ -313,54 +312,55 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
   Widget _buildDrawer(BuildContext context) {
     final billingService = ref.watch(billingServiceProvider);
+    final theme = Theme.of(context);
 
     return Drawer(
+      width: MediaQuery.of(context).size.width * 0.7,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary,
+              color: theme.colorScheme.primary,
             ),
-            child: const Text('QuickMath Kids', style: TextStyle(fontSize: 24)),
+            child: Text('QuickMath Kids',
+                style: theme.textTheme.headlineMedium
+                    ?.copyWith(color: theme.colorScheme.onPrimary)),
           ),
           if (!billingService.isPremium)
             Container(
-              color: Colors.red,
-              padding: const EdgeInsets.all(8.0),
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-              child: const Text(
+              color: theme.colorScheme.error,
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
                 'Premium Required',
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onError, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
-                    border: Border.all(color: Colors.red, width: 2),
-                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(color: theme.colorScheme.error, width: 2),
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
                   )
                 : null,
             child: ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 if (billingService.isPremium) {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const SettingsScreen()),
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
                   );
                 } else {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const PurchaseScreen()),
+                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                   );
                 }
               },
@@ -390,30 +390,29 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           if (!billingService.isPremium)
             Container(
-              color: Colors.red,
-              padding: const EdgeInsets.all(8.0),
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-              child: const Text(
+              color: theme.colorScheme.error,
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
                 'Premium Required',
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onError, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
-                    border: Border.all(color: Colors.red, width: 2),
-                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(color: theme.colorScheme.error, width: 2),
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
                   )
                 : null,
             child: ListTile(
               leading: const Icon(Icons.history),
               title: const Text('Wrong Answers History'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 if (billingService.isPremium) {
                   Navigator.push(
                     context,
@@ -424,8 +423,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 } else {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const PurchaseScreen()),
+                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                   );
                 }
               },
@@ -433,30 +431,29 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           ),
           if (!billingService.isPremium)
             Container(
-              color: Colors.red,
-              padding: const EdgeInsets.all(8.0),
-              margin:
-                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
-              child: const Text(
+              color: theme.colorScheme.error,
+              padding: const EdgeInsets.all(8),
+              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+              child: Text(
                 'Premium Required',
-                style:
-                    TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                    color: theme.colorScheme.onError, fontWeight: FontWeight.bold),
                 textAlign: TextAlign.center,
               ),
             ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16.0),
+            margin: const EdgeInsets.symmetric(horizontal: 16),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
-                    border: Border.all(color: Colors.red, width: 2),
-                    borderRadius: BorderRadius.circular(8.0),
+                    border: Border.all(color: theme.colorScheme.error, width: 2),
+                    borderRadius: const BorderRadius.all(Radius.circular(8)),
                   )
                 : null,
             child: ListTile(
               leading: const Icon(Icons.history_toggle_off),
               title: const Text('Quiz History'),
               onTap: () {
-                Navigator.pop(context); // Close the drawer
+                Navigator.pop(context);
                 if (billingService.isPremium) {
                   Navigator.push(
                     context,
@@ -468,24 +465,24 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 } else {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(
-                        builder: (context) => const PurchaseScreen()),
+                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                   );
                 }
               },
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.star, color: Colors.amber),
-            title: const Text('Purchase Premium'),
-            onTap: () {
-              Navigator.pop(context); // Close the drawer
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-              );
-            },
-          ),
+          if (!billingService.isPremium)
+            ListTile(
+              leading: const Icon(Icons.star),
+              title: const Text('Purchase Premium'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                );
+              },
+            ),
           SwitchListTile(
             title: const Text("Dark Mode"),
             value: _isDarkMode,
