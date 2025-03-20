@@ -14,38 +14,48 @@ class OperationDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isTablet = MediaQuery.of(context).size.width > 600;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
-      child: DropdownButtonFormField<Operation>(
-        value: selectedOperation,
-        items: Operation.values.map((operation) {
-          return DropdownMenuItem(
-            value: operation,
-            child: Text(
-              operation.name.toUpperCase(),
-              style: TextStyle(
-                color: theme.brightness == Brightness.dark
-                    ? theme.colorScheme.onSurface 
-                    : theme.colorScheme.onBackground, 
+      child: SizedBox(
+        height: isTablet ? 60 : 50, // Increased height on tablets
+        child: DropdownButtonFormField<Operation>(
+          value: selectedOperation,
+          items: Operation.values.map((operation) {
+            return DropdownMenuItem(
+              value: operation,
+              child: Text(
+                operation.name.toUpperCase(),
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.brightness == Brightness.dark
+                      ? theme.colorScheme.onSurface
+                      : theme.colorScheme.onBackground,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
+            );
+          }).toList(),
+          onChanged: onChanged,
+          isExpanded: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: theme.brightness == Brightness.dark
+                ? theme.colorScheme.surface
+                : Colors.white,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: isTablet ? 20 : 10, // Increased vertical padding on tablets
+              horizontal: isTablet ? 30 : 20,
             ),
-          );
-        }).toList(),
-        onChanged: onChanged,
-        decoration: InputDecoration(
-          filled: true,
-          fillColor: theme.brightness == Brightness.dark
-              ? theme.colorScheme.surface 
-              : Colors.white,
-          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
+            ),
           ),
         ),
       ),
@@ -68,35 +78,41 @@ class RangeDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isTablet = MediaQuery.of(context).size.width > 600;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
       child: SizedBox(
+        height: isTablet ? 60 : 50, // Increased height on tablets
         child: DropdownButtonFormField<String>(
           value: selectedRange,
           items: items,
           onChanged: onChanged,
-          style: TextStyle(
+          isExpanded: true,
+          style: theme.textTheme.bodyLarge?.copyWith(
             color: theme.brightness == Brightness.dark
-                ? theme.colorScheme.onSurface 
-                : theme.colorScheme.onBackground, 
+                ? theme.colorScheme.onSurface
+                : theme.colorScheme.onBackground,
           ),
           decoration: InputDecoration(
-          filled: true,
-          fillColor: theme.brightness == Brightness.dark
-              ? theme.colorScheme.surface 
-              : Colors.white,
-          contentPadding: const EdgeInsets.symmetric(vertical: 10, horizontal: 20),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
+            filled: true,
+            fillColor: theme.brightness == Brightness.dark
+                ? theme.colorScheme.surface
+                : Colors.white,
+            contentPadding: EdgeInsets.symmetric(
+              vertical: isTablet ? 20 : 10, // Increased vertical padding on tablets
+              horizontal: isTablet ? 30 : 20,
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
+            ),
           ),
         ),
-      ),
       ),
     );
   }

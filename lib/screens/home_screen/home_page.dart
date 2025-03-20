@@ -10,6 +10,7 @@ import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/billing/purchase_screen.dart';
+import 'package:QuickMath_Kids/app_theme.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   final Function(Operation, String, int?) switchToPracticeScreen;
@@ -160,155 +161,184 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final billingService = ref.watch(billingServiceProvider);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isTablet = screenWidth > 600;
+ @override
+Widget build(BuildContext context) {
+  final billingService = ref.watch(billingServiceProvider);
+  final screenWidth = MediaQuery.of(context).size.width;
+  final isTablet = screenWidth > 600;
 
-    if (!billingService.isInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('QuickMath Kids'),
-        actions: [
-          IconButton(
-            icon: _isRestoring
-                ? SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                        strokeWidth: 2, color: theme.colorScheme.onPrimary),
-                  )
-                : const Icon(Icons.refresh),
-            onPressed: _isRestoring
-                ? null
-                : () async {
-                    setState(() {
-                      _isRestoring = true;
-                    });
-                    final billingService = ref.read(billingServiceProvider);
-                    await billingService.restorePurchase();
-                    setState(() {
-                      _isRestoring = false;
-                    });
-                    if (billingService.isPremium) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Premium status restored')),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('No premium purchase found')),
-                      );
-                    }
-                  },
+  if (!billingService.isInitialized) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final theme = AppTheme.getTheme(ref, widget.isDarkMode, context);
+        return Theme(
+          data: theme,
+          child: const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
           ),
-        ],
-      ),
-      drawer: _buildDrawer(context),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: isTablet ? 600 : double.infinity),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                const SizedBox(height: 20),
-                Image.asset(
-                  'assets/QuickMath_Kids_logo.png',
-                  width: 200,
-                  height: 200,
-                ),
-                const SizedBox(height: 15),
-                Text(
-                  "Choose an Operation and Start Practicing",
-                  style: theme.textTheme.headlineMedium,
-                  textAlign: TextAlign.center,
-                ),
-                const SizedBox(height: 20),
-                OperationDropdown(
-                  selectedOperation: _selectedOperation,
-                  onChanged: (Operation? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _selectedOperation = newValue;
-                        _selectedRange = getDefaultRange(newValue);
-                        if (!getDropdownItems(_selectedOperation)
-                            .any((item) => item.value == _selectedRange)) {
-                          _selectedRange =
-                              getDropdownItems(_selectedOperation).first.value!;
+        );
+      },
+    );
+  }
+
+  return Consumer(
+    builder: (context, ref, child) {
+      final theme = AppTheme.getTheme(ref, widget.isDarkMode, context);
+      return Theme(
+        data: theme,
+        child: Scaffold(
+          appBar: AppBar(
+            title: const Text('QuickMath Kids'),
+            actions: [
+              IconButton(
+                icon: _isRestoring
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      )
+                    : const Icon(Icons.refresh),
+                onPressed: _isRestoring
+                    ? null
+                    : () async {
+                        setState(() {
+                          _isRestoring = true;
+                        });
+                        final billingService = ref.read(billingServiceProvider);
+                        await billingService.restorePurchase();
+                        setState(() {
+                          _isRestoring = false;
+                        });
+                        if (billingService.isPremium) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Premium status restored')),
+                          );
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('No premium purchase found')),
+                          );
                         }
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 20),
-                RangeDropdown(
-                  selectedRange: _selectedRange,
-                  items: getDropdownItems(_selectedOperation),
-                  onChanged: (String? newValue) {
-                    if (newValue != null) {
-                      setState(() {
-                        _selectedRange = newValue;
-                      });
-                    }
-                  },
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 32),
-                  child: InkWell(
-                    onTap: () => _showTimeWheelPicker(context),
-                    child: InputDecorator(
-                      decoration: const InputDecoration(
-                        labelText: 'Session Time Limit',
-                      ),
-                      child: Text(
-                        _selectedTimeLimit != null
-                            ? '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}'
-                            : 'No time limit',
-                        style: theme.textTheme.bodyLarge,
+                      },
+              ),
+            ],
+          ),
+          drawer: _buildDrawer(context),
+          body: Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(maxWidth: isTablet ? 700 : double.infinity), // Increased maxWidth for tablets
+              child: SingleChildScrollView(
+                padding: EdgeInsets.all(isTablet ? 24 : 16), // More padding on tablets
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(height: 20),
+                    Image.asset(
+                      'assets/QuickMath_Kids_logo.png',
+                      width: isTablet ? 250 : 200, // Larger logo on tablets
+                      height: isTablet ? 250 : 200,
+                    ),
+                    const SizedBox(height: 15),
+                    Text(
+                      "Choose an Operation and Start Practicing",
+                      style: theme.textTheme.headlineMedium,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 20),
+                    OperationDropdown(
+                      selectedOperation: _selectedOperation,
+                      onChanged: (Operation? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedOperation = newValue;
+                            _selectedRange = getDefaultRange(newValue);
+                            if (!getDropdownItems(_selectedOperation)
+                                .any((item) => item.value == _selectedRange)) {
+                              _selectedRange =
+                                  getDropdownItems(_selectedOperation).first.value!;
+                            }
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    RangeDropdown(
+                      selectedRange: _selectedRange,
+                      items: getDropdownItems(_selectedOperation),
+                      onChanged: (String? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            _selectedRange = newValue;
+                          });
+                        }
+                      },
+                    ),
+                    const SizedBox(height: 20),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 32),
+                      child: InkWell(
+                        onTap: () => _showTimeWheelPicker(context),
+                        child: InputDecorator(
+                          decoration: const InputDecoration(
+                            labelText: 'Session Time Limit',
+                          ),
+                          child: Text(
+                            _selectedTimeLimit != null
+                                ? '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}'
+                                : 'No time limit',
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                        ),
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 40),
+                    ElevatedButton.icon(
+                      iconAlignment: IconAlignment.end,
+                      icon: const Icon(Icons.arrow_forward),
+                      onPressed: () {
+                        widget.switchToPracticeScreen(
+                            _selectedOperation, _selectedRange, _selectedTimeLimit);
+                      },
+                      label: const Text('Start Oral Practice'),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: isTablet ? 24 : 18, // More padding on tablets
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    ElevatedButton(
+                      onPressed: () async {
+                        final billingService = ref.read(billingServiceProvider);
+                        await billingService.resetPremium();
+                        setState(() {});
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                              content: Text(
+                                  'Premium access reset. You can purchase again.')),
+                        );
+                      },
+                      child: const Text('Reset Premium'),
+                      style: ElevatedButton.styleFrom(
+                        padding: EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: isTablet ? 24 : 18, // More padding on tablets
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 40),
-                ElevatedButton.icon(
-                  iconAlignment: IconAlignment.end,
-                  icon: const Icon(Icons.arrow_forward, color: Colors.white,),
-                  onPressed: () {
-                    widget.switchToPracticeScreen(
-                        _selectedOperation, _selectedRange, _selectedTimeLimit);
-                  },
-                  label: const Text('Start Oral Practice'),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    final billingService = ref.read(billingServiceProvider);
-                    await billingService.resetPremium();
-                    setState(() {});
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                          content: Text(
-                              'Premium access reset. You can purchase again.')),
-                    );
-                  },
-                  child: const Text('Reset Premium'),
-                ),
-              ],
+              ),
             ),
           ),
         ),
-      ),
-    );
-  }
+      );
+    },
+  );
+}
 
   Widget _buildDrawer(BuildContext context) {
     final billingService = ref.watch(billingServiceProvider);

@@ -11,6 +11,8 @@ import 'package:QuickMath_Kids/screens/practice_screen/helpers/answer_option_hel
 import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:QuickMath_Kids/app_theme.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, String, int?)
@@ -307,177 +309,165 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    int displayTime = widget.sessionTimeLimit != null
-        ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
-        : _quizTimer.secondsPassed;
-    if (widget.sessionTimeLimit != null && displayTime < 0) displayTime = 0;
+    return Consumer(
+      builder: (context, ref, child) {
+        final theme = AppTheme.getTheme(ref, false, context); // Assume dark mode is managed elsewhere
+        int displayTime = widget.sessionTimeLimit != null
+            ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
+            : _quizTimer.secondsPassed;
+        if (widget.sessionTimeLimit != null && displayTime < 0) displayTime = 0;
 
-    final screenWidth =
-        MediaQuery.of(context).size.width; // For responsive scaling
+        final screenWidth = MediaQuery.of(context).size.width;
 
-    if (!_isInitialized) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    return Scaffold(
-      appBar: AppBar(
-        toolbarHeight: 80,
-        elevation: 0,
-        title: const Text('Practice'),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              onPressed: _showQuitDialog,
-              icon: const Icon(
-                Icons.exit_to_app_rounded,
-                color: Colors.white,
-              ),
-              label: const Text('Quit'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.error,
-              ),
+        if (!_isInitialized) {
+          return Theme(
+            data: theme,
+            child: const Scaffold(
+              body: Center(child: CircularProgressIndicator()),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: ElevatedButton.icon(
-              onPressed: endQuiz,
-              icon: const Icon(
-                Icons.assessment,
-                color: Colors.white,
-              ),
-              label: const Text('Results'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: SafeArea(
-        child: Container(
-          color: theme.scaffoldBackgroundColor,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              confettiManager.buildCorrectConfetti(),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
-                  Expanded(
-                    child: Center(
-                      child: FadeTransition(
-                        opacity: _fadeAnimation,
-                        child: SlideTransition(
-                          position: _slideAnimation,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Stack(
-                                alignment: Alignment.center,
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: _triggerTTSSpeech,
-                                    style: ElevatedButton.styleFrom(
-                                      shape: const CircleBorder(),
-                                      elevation: 8,
-                                      backgroundColor:
-                                          theme.colorScheme.primary,
-                                      padding:
-                                          EdgeInsets.all(screenWidth * 0.1),
-                                    ),
-                                    child: Icon(
-                                      Icons.record_voice_over,
-                                      size: screenWidth * 0.1,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: IconButton(
-                                      onPressed: _showHintDialog,
-                                      icon: const Icon(Icons.lightbulb_outline),
-                                      style: IconButton.styleFrom(
-                                        backgroundColor:
-                                            theme.colorScheme.surface,
-                                        shape: const CircleBorder(),
-                                      ),
-                                      tooltip: 'Show Hint',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 40),
-                              Padding(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 16.0),
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: theme.colorScheme.surface,
-                                    borderRadius: const BorderRadius.all(
-                                        Radius.circular(20)),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: theme.colorScheme.onSurface
-                                            .withOpacity(0.2),
-                                        spreadRadius: 2,
-                                        blurRadius: 5,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  padding: const EdgeInsets.all(16),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          buildAnswerButton(
-                                              answerOptions[0],
-                                              () => checkAnswer(
-                                                  answerOptions[0])),
-                                          const SizedBox(width: 20),
-                                          buildAnswerButton(
-                                              answerOptions[1],
-                                              () => checkAnswer(
-                                                  answerOptions[1])),
-                                        ],
-                                      ),
-                                      const SizedBox(height: 20),
-                                      buildAnswerButton(answerOptions[2],
-                                          () => checkAnswer(answerOptions[2])),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(height: 80),
-                            ],
-                          ),
-                        ),
-                      ),
+          );
+        }
+
+        return Theme(
+          data: theme,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('Practice'),
+              actions: [
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton.icon(
+                    onPressed: _showQuitDialog,
+                    icon: const Icon(Icons.exit_to_app_rounded),
+                    label: const Text('Quit'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.error,
                     ),
                   ),
-                ],
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ElevatedButton.icon(
+                    onPressed: endQuiz,
+                    icon: const Icon(Icons.assessment),
+                    label: const Text('Results'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.green,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            body: SafeArea(
+              child: Container(
+                color: theme.scaffoldBackgroundColor,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    confettiManager.buildCorrectConfetti(),
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+                        buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
+                        Expanded(
+                          child: Center(
+                            child: FadeTransition(
+                              opacity: _fadeAnimation,
+                              child: SlideTransition(
+                                position: _slideAnimation,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        ElevatedButton(
+                                          onPressed: _triggerTTSSpeech,
+                                          style: ElevatedButton.styleFrom(
+                                            shape: const CircleBorder(),
+                                            elevation: 8,
+                                            padding: EdgeInsets.all(screenWidth * 0.1),
+                                          ),
+                                          child: Icon(
+                                            Icons.record_voice_over,
+                                            size: screenWidth * 0.1,
+                                          ),
+                                        ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: IconButton(
+                                            onPressed: _showHintDialog,
+                                            icon: const Icon(Icons.lightbulb_outline),
+                                            style: IconButton.styleFrom(
+                                              backgroundColor: theme.colorScheme.surface,
+                                              shape: const CircleBorder(),
+                                            ),
+                                            tooltip: 'Show Hint',
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 40),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: theme.colorScheme.surface,
+                                          borderRadius: const BorderRadius.all(Radius.circular(20)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: theme.colorScheme.onSurface.withOpacity(0.2),
+                                              spreadRadius: 2,
+                                              blurRadius: 5,
+                                              offset: const Offset(0, 3),
+                                            ),
+                                          ],
+                                        ),
+                                        padding: const EdgeInsets.all(16),
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Row(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                buildAnswerButton(
+                                                    answerOptions[0], () => checkAnswer(answerOptions[0])),
+                                                const SizedBox(width: 20),
+                                                buildAnswerButton(
+                                                    answerOptions[1], () => checkAnswer(answerOptions[1])),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 20),
+                                            buildAnswerButton(
+                                                answerOptions[2], () => checkAnswer(answerOptions[2])),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 80),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    Positioned(
+                      bottom: 24,
+                      right: 16,
+                      child: buildPauseButton(_showPauseDialog, context),
+                    ),
+                  ],
+                ),
               ),
-              Positioned(
-                bottom: 24,
-                right: 16,
-                child: buildPauseButton(_showPauseDialog, context),
-              ),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

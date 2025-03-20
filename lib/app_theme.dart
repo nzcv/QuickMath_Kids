@@ -5,13 +5,16 @@ import 'package:QuickMath_Kids/billing/billing_service.dart';
 class AppTheme {
   static double _scaleFactor(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return screenWidth / 650; // Base width of 400 for scaling (typical phone width)
+    final baseScale = screenWidth / 360; // Base scaling factor
+    // Cap the scaling factor for tablets to avoid excessive shrinking
+    return screenWidth > 600 ? baseScale.clamp(0.8, 1.2) : baseScale;
   }
 
   static ThemeData getTheme(WidgetRef ref, bool isDarkMode, BuildContext context) {
     final billingService = ref.watch(billingServiceProvider);
     final bool isPremium = billingService.isPremium;
     final scale = _scaleFactor(context);
+    final isTablet = MediaQuery.of(context).size.width > 600;
 
     // Core colors
     final Color primaryColor = isPremium ? Colors.amber[600]! : Colors.blue[600]!;
@@ -45,10 +48,16 @@ class AppTheme {
       appBarTheme: AppBarTheme(
         backgroundColor: primaryColor.withOpacity(0.7),
         foregroundColor: onPrimaryColor,
+        elevation: 0,
+        toolbarHeight: 56 * scale,
         titleTextStyle: TextStyle(
           color: onPrimaryColor,
-          fontSize: 20 * scale,
+          fontSize: (isTablet ? 18 : 20) * scale,
           fontWeight: FontWeight.bold,
+        ),
+        iconTheme: IconThemeData(
+          color: onPrimaryColor,
+          size: 22 * scale,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
@@ -56,52 +65,58 @@ class AppTheme {
           backgroundColor: primaryColor.withOpacity(0.8),
           foregroundColor: onPrimaryColor,
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20 * scale),
+            borderRadius: BorderRadius.circular(16 * scale),
           ),
           padding: EdgeInsets.symmetric(
-              vertical: 12 * scale, horizontal: 20 * scale),
+            vertical: 10 * scale,
+            horizontal: 18 * scale,
+          ),
+          textStyle: TextStyle(
+            fontSize: (isTablet ? 16 : 16) * scale,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
       cardTheme: CardTheme(
         color: surfaceColor,
         elevation: 4,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16 * scale),
+          borderRadius: BorderRadius.circular(12 * scale),
         ),
       ),
       textTheme: TextTheme(
         headlineMedium: TextStyle(
-          fontSize: 28 * scale,
+          fontSize: (isTablet ? 18 : 18) * scale,
           fontWeight: FontWeight.bold,
           color: onSurfaceColor,
         ),
         titleLarge: TextStyle(
-          fontSize: 20 * scale,
+          fontSize: (isTablet ? 16 : 16) * scale,
           fontWeight: FontWeight.bold,
           color: onSurfaceColor,
         ),
         bodyLarge: TextStyle(
-          fontSize: 16 * scale,
+          fontSize: (isTablet ? 14 : 14) * scale, // Reduced further for tablets
           color: onSurfaceColor,
         ),
         titleMedium: TextStyle(
-          fontSize: 16 * scale,
-          color: onSurfaceColor,
+          fontSize: (isTablet ? 14 : 14) * scale,
+          color: onSurfaceColor
         ),
       ),
       iconTheme: IconThemeData(
         color: onPrimaryColor,
-        size: 28 * scale, // Scaled icon size
+        size: 22 * scale,
       ),
       dividerColor: secondaryColor.withOpacity(0.3),
       scaffoldBackgroundColor: backgroundColor,
       inputDecorationTheme: InputDecorationTheme(
         labelStyle: TextStyle(
-          fontSize: 16 * scale,
+          fontSize: (isTablet ? 14 : 14) * scale, // Reduced for consistency
           color: onSurfaceColor,
         ),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.all(Radius.circular(10 * scale)),
+          borderRadius: BorderRadius.all(Radius.circular(8 * scale)),
         ),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
@@ -111,7 +126,7 @@ class AppTheme {
       ),
       snackBarTheme: SnackBarThemeData(
         contentTextStyle: TextStyle(
-          fontSize: 16 * scale,
+          fontSize: (isTablet ? 14 : 14) * scale,
           color: onSurfaceColor,
         ),
         backgroundColor: surfaceColor,
