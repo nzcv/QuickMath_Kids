@@ -314,7 +314,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         onPressed: () async {
                           final billingService = ref.read(billingServiceProvider);
                           await billingService.resetPremium();
-                          // No need for setState here; Consumer will rebuild due to notifyListeners
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text(
@@ -350,7 +349,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary, // Will be blue or amber based on isPremium
+              color: theme.colorScheme.primary, // Blue or amber based on isPremium
             ),
             child: Text(
               'QuickMath Kids',
@@ -358,20 +357,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   ?.copyWith(color: theme.colorScheme.onPrimary),
             ),
           ),
-          if (!billingService.isPremium)
-            Container(
-              color: theme.colorScheme.error,
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Text(
-                'Premium Required',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onError, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
+            margin: billingService.isPremium
+                ? const EdgeInsets.symmetric(vertical: 4)
+                : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: theme.colorScheme.error, width: 2),
@@ -381,6 +370,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             child: ListTile(
               leading: const Icon(Icons.settings),
               title: const Text('Settings'),
+              trailing: !billingService.isPremium
+                  ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
+                  : null,
               onTap: () {
                 Navigator.pop(context);
                 if (billingService.isPremium) {
@@ -397,42 +389,38 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               },
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.help_outline),
-            title: const Text('FAQ'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FAQScreen()),
-              );
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.help_outline),
-            title: const Text('How to use?'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HowToUseScreen()),
-              );
-            },
-          ),
-          if (!billingService.isPremium)
-            Container(
-              color: theme.colorScheme.error,
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Text(
-                'Premium Required',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onError, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            child: ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('FAQ'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FAQScreen()),
+                );
+              },
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            child: ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('How to use?'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HowToUseScreen()),
+                );
+              },
+            ),
+          ),
+          Container(
+            margin: billingService.isPremium
+                ? const EdgeInsets.symmetric(vertical: 4)
+                : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: theme.colorScheme.error, width: 2),
@@ -442,6 +430,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             child: ListTile(
               leading: const Icon(Icons.history),
               title: const Text('Wrong Answers History'),
+              trailing: !billingService.isPremium
+                  ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
+                  : null,
               onTap: () {
                 Navigator.pop(context);
                 if (billingService.isPremium) {
@@ -460,20 +451,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               },
             ),
           ),
-          if (!billingService.isPremium)
-            Container(
-              color: theme.colorScheme.error,
-              padding: const EdgeInsets.all(8),
-              margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              child: Text(
-                'Premium Required',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onError, fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-            ),
           Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16),
+            margin: billingService.isPremium
+                ? const EdgeInsets.symmetric(vertical: 4)
+                : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             decoration: !billingService.isPremium
                 ? BoxDecoration(
                     border: Border.all(color: theme.colorScheme.error, width: 2),
@@ -483,6 +464,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             child: ListTile(
               leading: const Icon(Icons.history_toggle_off),
               title: const Text('Quiz History'),
+              trailing: !billingService.isPremium
+                  ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
+                  : null,
               onTap: () {
                 Navigator.pop(context);
                 if (billingService.isPremium) {
@@ -503,29 +487,32 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             ),
           ),
           if (!billingService.isPremium)
-            ListTile(
-              leading: const Icon(Icons.star),
-              title: const Text('Purchase Premium'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => PurchaseScreen(
-                    ),
-                  ),
-                );
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 4),
+              child: ListTile(
+                leading: const Icon(Icons.star),
+                title: const Text('Purchase Premium'),
+                onTap: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                  );
+                },
+              ),
+            ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            child: SwitchListTile(
+              title: const Text("Dark Mode"),
+              value: _isDarkMode,
+              onChanged: (bool value) {
+                setState(() {
+                  _isDarkMode = value;
+                  widget.toggleDarkMode(value);
+                });
               },
             ),
-          SwitchListTile(
-            title: const Text("Dark Mode"),
-            value: _isDarkMode,
-            onChanged: (bool value) {
-              setState(() {
-                _isDarkMode = value;
-                widget.toggleDarkMode(value);
-              });
-            },
           ),
         ],
       ),
