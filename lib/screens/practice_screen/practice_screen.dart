@@ -83,6 +83,18 @@ class _PracticeScreenState extends State<PracticeScreen>
     _controller.forward();
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _quizTimer.stopTimer();
+    confettiManager.dispose();
+    super.dispose();
+  }
+
+  void stopTimer() => _quizTimer.stopTimer();
+  void pauseTimer() => _quizTimer.pauseTimer();
+  void resumeTimer() => _quizTimer.resumeTimer();
+
   Future<void> _initializeScreen() async {
     await _loadWrongQuestions();
     setState(() {
@@ -90,14 +102,6 @@ class _PracticeScreenState extends State<PracticeScreen>
       _updateHintMessage();
       _isInitialized = true;
     });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    _quizTimer.stopTimer();
-    confettiManager.dispose();
-    super.dispose();
   }
 
   Future<void> _loadWrongQuestions() async {
@@ -136,10 +140,6 @@ class _PracticeScreenState extends State<PracticeScreen>
     currentHintMessage = hintManager.getRandomHintMessage();
   }
 
-  void stopTimer() => _quizTimer.stopTimer();
-  void pauseTimer() => _quizTimer.pauseTimer();
-  void resumeTimer() => _quizTimer.resumeTimer();
-
   String formatTime(int seconds) {
     if (widget.sessionTimeLimit == null) {
       final minutes = (seconds / 60).floor();
@@ -173,18 +173,31 @@ class _PracticeScreenState extends State<PracticeScreen>
       String currentQuestion = _formatQuestionText();
 
       if (!isCorrect) {
-        WrongQuestionsService.saveWrongQuestion(
-          question: currentQuestion,
-          userAnswer: selectedAnswer,
-          correctAnswer: correctAnswer,
-          category:
-              '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
-        );
-        _loadWrongQuestions();
+        // Check if the question already exists in wrong questions
+        bool questionExists =
+            _wrongQuestions.any((q) => q['question'] == currentQuestion);
+        if (questionExists) {
+          // Update the existing question by resetting correctCount to 0
+          WrongQuestionsService.updateWrongQuestion(
+            currentQuestion,
+            correct: false, // Reset correctCount to 0 when wrong
+          );
+        } else {
+          // Save as a new wrong question if it doesn’t exist
+          WrongQuestionsService.saveWrongQuestion(
+            question: currentQuestion,
+            userAnswer: selectedAnswer,
+            correctAnswer: correctAnswer,
+            category:
+                '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+          );
+        }
+        _loadWrongQuestions(); // Refresh the wrong questions list
       } else if (_usedWrongQuestionThisSession && _wrongQuestions.isNotEmpty) {
+        // If answered correctly, update the existing wrong question
         WrongQuestionsService.updateWrongQuestion(currentQuestion,
             correct: true);
-        _wrongQuestions.removeAt(0);
+        _wrongQuestions.removeAt(0); // Remove from local list after updating
       }
 
       if (isCorrect) confettiManager.correctConfettiController.play();
@@ -260,8 +273,15 @@ class _PracticeScreenState extends State<PracticeScreen>
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+<<<<<<< Updated upstream
           title: const Text('Hint'),
           content: Text(currentHintMessage),
+=======
+          title: const Text('Hint', style: TextStyle(color: Colors.white)),
+          content: Text(currentHintMessage,
+              style: const TextStyle(color: Colors.white)),
+          backgroundColor: Colors.grey[900], // Dark background for dialog
+>>>>>>> Stashed changes
           actions: [
             TextButton(
               onPressed: () {
@@ -323,7 +343,12 @@ class _PracticeScreenState extends State<PracticeScreen>
           return Theme(
             data: theme,
             child: const Scaffold(
+<<<<<<< Updated upstream
               body: Center(child: CircularProgressIndicator()),
+=======
+              body:
+                  Center(child: CircularProgressIndicator(color: Colors.white)),
+>>>>>>> Stashed changes
             ),
           );
         }
@@ -332,14 +357,27 @@ class _PracticeScreenState extends State<PracticeScreen>
           data: theme,
           child: Scaffold(
             appBar: AppBar(
+<<<<<<< Updated upstream
               title: const Text('Practice'),
+=======
+              title:
+                  const Text('Practice', style: TextStyle(color: Colors.white)),
+              backgroundColor: theme.colorScheme.primary.withOpacity(0.7),
+>>>>>>> Stashed changes
               actions: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton.icon(
                     onPressed: _showQuitDialog,
+<<<<<<< Updated upstream
                     icon: const Icon(Icons.exit_to_app_rounded),
                     label: const Text('Quit'),
+=======
+                    icon: const Icon(Icons.exit_to_app_rounded,
+                        color: Colors.white),
+                    label: const Text('Quit',
+                        style: TextStyle(color: Colors.white)),
+>>>>>>> Stashed changes
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.error,
                     ),
@@ -349,8 +387,14 @@ class _PracticeScreenState extends State<PracticeScreen>
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton.icon(
                     onPressed: endQuiz,
+<<<<<<< Updated upstream
                     icon: const Icon(Icons.assessment),
                     label: const Text('Results'),
+=======
+                    icon: const Icon(Icons.assessment, color: Colors.white),
+                    label: const Text('Results',
+                        style: TextStyle(color: Colors.white)),
+>>>>>>> Stashed changes
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
@@ -369,7 +413,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         const SizedBox(height: 16),
-                        buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
+                        buildTimerCard(
+                            formatTime(_quizTimer.secondsPassed), context),
                         Expanded(
                           child: Center(
                             child: FadeTransition(
@@ -388,7 +433,14 @@ class _PracticeScreenState extends State<PracticeScreen>
                                           style: ElevatedButton.styleFrom(
                                             shape: const CircleBorder(),
                                             elevation: 8,
+<<<<<<< Updated upstream
                                             padding: EdgeInsets.all(screenWidth * 0.1),
+=======
+                                            backgroundColor:
+                                                theme.colorScheme.primary,
+                                            padding: EdgeInsets.all(
+                                                screenWidth * 0.1),
+>>>>>>> Stashed changes
                                           ),
                                           child: Icon(
                                             Icons.record_voice_over,
@@ -400,9 +452,16 @@ class _PracticeScreenState extends State<PracticeScreen>
                                           right: 0,
                                           child: IconButton(
                                             onPressed: _showHintDialog,
+<<<<<<< Updated upstream
                                             icon: const Icon(Icons.lightbulb_outline),
+=======
+                                            icon: const Icon(
+                                                Icons.lightbulb_outline,
+                                                color: Colors.white),
+>>>>>>> Stashed changes
                                             style: IconButton.styleFrom(
-                                              backgroundColor: theme.colorScheme.surface,
+                                              backgroundColor:
+                                                  theme.colorScheme.surface,
                                               shape: const CircleBorder(),
                                             ),
                                             tooltip: 'Show Hint',
@@ -412,14 +471,26 @@ class _PracticeScreenState extends State<PracticeScreen>
                                     ),
                                     const SizedBox(height: 40),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 16.0),
                                       child: Container(
                                         decoration: BoxDecoration(
+<<<<<<< Updated upstream
                                           color: theme.colorScheme.surface,
                                           borderRadius: const BorderRadius.all(Radius.circular(20)),
                                           boxShadow: [
                                             BoxShadow(
                                               color: theme.colorScheme.onSurface.withOpacity(0.2),
+=======
+                                          color: theme.colorScheme
+                                              .surface, // Lighter background for contrast
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(20)),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: Colors.white.withOpacity(
+                                                  0.1), // Subtle shadow for dark mode
+>>>>>>> Stashed changes
                                               spreadRadius: 2,
                                               blurRadius: 5,
                                               offset: const Offset(0, 3),
@@ -431,18 +502,25 @@ class _PracticeScreenState extends State<PracticeScreen>
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 buildAnswerButton(
-                                                    answerOptions[0], () => checkAnswer(answerOptions[0])),
+                                                    answerOptions[0],
+                                                    () => checkAnswer(
+                                                        answerOptions[0])),
                                                 const SizedBox(width: 20),
                                                 buildAnswerButton(
-                                                    answerOptions[1], () => checkAnswer(answerOptions[1])),
+                                                    answerOptions[1],
+                                                    () => checkAnswer(
+                                                        answerOptions[1])),
                                               ],
                                             ),
                                             const SizedBox(height: 20),
                                             buildAnswerButton(
-                                                answerOptions[2], () => checkAnswer(answerOptions[2])),
+                                                answerOptions[2],
+                                                () => checkAnswer(
+                                                    answerOptions[2])),
                                           ],
                                         ),
                                       ),

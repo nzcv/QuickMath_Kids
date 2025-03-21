@@ -30,12 +30,16 @@ class WrongQuestionsService {
   static Future<List<Map<String, dynamic>>> getWrongQuestions() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> storedQuestions = prefs.getStringList(_key) ?? [];
-    return storedQuestions.map((string) => jsonDecode(string) as Map<String, dynamic>).toList();
+    return storedQuestions
+        .map((string) => jsonDecode(string) as Map<String, dynamic>)
+        .toList();
   }
 
-  static Future<void> updateWrongQuestion(String question, {bool correct = false}) async {
+  static Future<void> updateWrongQuestion(String question,
+      {bool correct = false}) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> storedQuestions = prefs.getStringList(_key) ?? [];
+    bool updated = false;
 
     for (int i = 0; i < storedQuestions.length; i++) {
       Map<String, dynamic> questionData = jsonDecode(storedQuestions[i]);
@@ -50,10 +54,22 @@ class WrongQuestionsService {
           } else {
             storedQuestions[i] = jsonEncode(questionData);
           }
+        } else {
+          // Reset correctCount to 0 when answered incorrectly
+          questionData['correctCount'] = 0;
+          storedQuestions[i] = jsonEncode(questionData);
         }
+        updated = true;
         break;
       }
     }
+
+    if (!updated && !correct) {
+      // If the question wasn’t found and it’s a wrong answer, this should not happen
+      // since we only update existing questions for wrong answers in this case.
+      return;
+    }
+
     await prefs.setStringList(_key, storedQuestions);
   }
 
