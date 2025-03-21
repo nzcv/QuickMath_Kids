@@ -34,8 +34,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   Operation _selectedOperation = Operation.addition_2A;
   String _selectedRange = 'Upto +5';
   int? _selectedTimeLimit;
-  int _selectedMinutes = 5;
-  bool _noLimit = true;
+  int _selectedIndex = 0; // 0 for "No Limit", 1-60 for minutes
   bool _isDarkMode = false;
   bool _isRestoring = false;
 
@@ -44,6 +43,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     super.initState();
     _isDarkMode = widget.isDarkMode;
     _selectedTimeLimit = null;
+    _selectedIndex = 0; // Default to "No Limit"
   }
 
   @override
@@ -69,83 +69,71 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               padding: const EdgeInsets.all(16),
               child: Column(
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Set Time Limit', style: theme.textTheme.titleLarge),
-                      Row(
-                        children: [
-                          Text('No Limit', style: theme.textTheme.bodyLarge),
-                          Switch(
-                            value: _noLimit,
-                            onChanged: (value) {
-                              setModalState(() {
-                                _noLimit = value;
-                              });
-                            },
-                            activeTrackColor: theme.colorScheme.primary,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  if (!_noLimit)
-                    SizedBox(
-                      height: 150,
-                      child: ListWheelScrollView.useDelegate(
-                        itemExtent: 50,
-                        diameterRatio: 1.5,
-                        physics: const FixedExtentScrollPhysics(),
-                        onSelectedItemChanged: (index) {
-                          setModalState(() {
-                            _selectedMinutes = index + 1;
-                          });
-                        },
-                        childDelegate: ListWheelChildBuilderDelegate(
-                          builder: (context, index) {
-                            final minute = index + 1;
-                            final isSelected = minute == _selectedMinutes;
-                            return Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8, horizontal: 16),
-                                decoration: BoxDecoration(
+                  Text('Set Time Limit', style: theme.textTheme.titleLarge),
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    height: 150,
+                    child: ListWheelScrollView.useDelegate(
+                      itemExtent: 50,
+                      diameterRatio: 1.5,
+                      physics: const FixedExtentScrollPhysics(),
+                      onSelectedItemChanged: (index) {
+                        setModalState(() {
+                          _selectedIndex = index;
+                        });
+                      },
+                      childDelegate: ListWheelChildBuilderDelegate(
+                        builder: (context, index) {
+                          final isSelected = index == _selectedIndex;
+                          String displayText;
+                          if (index == 0) {
+                            displayText = 'No Limit';
+                          } else {
+                            final minute = index; // 1 to 60
+                            displayText = '$minute minute${minute == 1 ? '' : 's'}';
+                          }
+                          return Center(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 8, horizontal: 16),
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? theme.colorScheme.primary.withOpacity(0.2)
+                                    : Colors.transparent,
+                                border: isSelected
+                                    ? Border.all(
+                                        color: theme.colorScheme.primary,
+                                        width: 2)
+                                    : null,
+                                borderRadius:
+                                    const BorderRadius.all(Radius.circular(8)),
+                              ),
+                              child: Text(
+                                displayText,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontSize: 20,
                                   color: isSelected
-                                      ? theme.colorScheme.primary.withOpacity(0.2)
-                                      : Colors.transparent,
-                                  border: isSelected
-                                      ? Border.all(
-                                          color: theme.colorScheme.primary,
-                                          width: 2)
-                                      : null,
-                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                ),
-                                child: Text(
-                                  '$minute minute${minute == 1 ? '' : 's'}',
-                                  style: theme.textTheme.bodyLarge?.copyWith(
-                                    fontSize: 20,
-                                    color: isSelected
-                                        ? theme.colorScheme.primary
-                                        : theme.colorScheme.onSurface,
-                                    fontWeight:
-                                        isSelected ? FontWeight.bold : FontWeight.normal,
-                                  ),
+                                      ? theme.colorScheme.primary
+                                      : theme.colorScheme.onSurface,
+                                  fontWeight:
+                                      isSelected ? FontWeight.bold : FontWeight.normal,
                                 ),
                               ),
-                            );
-                          },
-                          childCount: 60,
-                        ),
+                            ),
+                          );
+                        },
+                        childCount: 61, // 0 for "No Limit", 1-60 for minutes
                       ),
                     ),
+                  ),
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
-                        if (_noLimit) {
-                          _selectedTimeLimit = null;
+                        if (_selectedIndex == 0) {
+                          _selectedTimeLimit = null; // "No Limit"
                         } else {
-                          _selectedTimeLimit = _selectedMinutes * 60;
+                          _selectedTimeLimit = _selectedIndex * 60; // Convert minutes to seconds
                         }
                       });
                       Navigator.pop(context);
@@ -349,7 +337,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary, // Blue or amber based on isPremium
+              color: theme.colorScheme.primary,
             ),
             child: Text(
               'QuickMath Kids',
