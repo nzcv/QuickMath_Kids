@@ -19,7 +19,7 @@ class OperationDropdown extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
       child: SizedBox(
-        height: isTablet ? 60 : 50, // Increased height on tablets
+        height: isTablet ? 60 : 50,
         child: DropdownButtonFormField<Operation>(
           value: selectedOperation,
           items: Operation.values.map((operation) {
@@ -45,7 +45,7 @@ class OperationDropdown extends StatelessWidget {
                 ? theme.colorScheme.surface
                 : Colors.white,
             contentPadding: EdgeInsets.symmetric(
-              vertical: isTablet ? 20 : 10, // Increased vertical padding on tablets
+              vertical: isTablet ? 20 : 10,
               horizontal: isTablet ? 30 : 20,
             ),
             enabledBorder: OutlineInputBorder(
@@ -83,10 +83,24 @@ class RangeDropdown extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
       child: SizedBox(
-        height: isTablet ? 60 : 50, // Increased height on tablets
+        height: isTablet ? 60 : 50,
         child: DropdownButtonFormField<String>(
           value: selectedRange,
-          items: items,
+          items: items.map((DropdownMenuItem<String> item) {
+            return DropdownMenuItem<String>(
+              value: item.value,
+              child: Text(
+                item.value ?? '',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: theme.brightness == Brightness.dark
+                      ? theme.colorScheme.onSurface
+                      : theme.colorScheme.onBackground,
+                ),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
+            );
+          }).toList(),
           onChanged: onChanged,
           isExpanded: true,
           style: theme.textTheme.bodyLarge?.copyWith(
@@ -100,7 +114,7 @@ class RangeDropdown extends StatelessWidget {
                 ? theme.colorScheme.surface
                 : Colors.white,
             contentPadding: EdgeInsets.symmetric(
-              vertical: isTablet ? 20 : 10, // Increased vertical padding on tablets
+              vertical: isTablet ? 20 : 10,
               horizontal: isTablet ? 30 : 20,
             ),
             enabledBorder: OutlineInputBorder(
