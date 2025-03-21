@@ -16,7 +16,11 @@ Widget buildTimerCard(String time, BuildContext context) {
     shape: RoundedRectangleBorder(
       borderRadius: BorderRadius.circular(screenWidth * 0.04), // Scales radius
     ),
+<<<<<<< Updated upstream
     color: theme.brightness == Brightness.dark ? Colors.white : Colors.black,
+=======
+    color: theme.colorScheme.surface,
+>>>>>>> Stashed changes
     child: Padding(
       padding: EdgeInsets.symmetric(
         vertical: paddingVertical,
@@ -26,22 +30,29 @@ Widget buildTimerCard(String time, BuildContext context) {
         children: [
           Text(
             'Time',
-            style: TextStyle(
+            style: theme.textTheme.titleMedium?.copyWith(
               fontSize: fontSizeTitle,
+<<<<<<< Updated upstream
               color: theme.brightness == Brightness.dark
                   ? Colors.black
                   : Colors.grey[400],
+=======
+>>>>>>> Stashed changes
               fontWeight: FontWeight.w500,
             ),
           ),
           SizedBox(height: screenHeight * 0.01), // Scales spacing
           Text(
             time,
-            style: TextStyle(
+            style: theme.textTheme.headlineMedium?.copyWith(
               fontSize: fontSizeTime,
+<<<<<<< Updated upstream
               color: theme.brightness == Brightness.dark
                   ? Colors.blue[300]
                   : Colors.blue[700],
+=======
+              color: theme.colorScheme.primary,
+>>>>>>> Stashed changes
               fontWeight: FontWeight.bold,
             ),
           ),

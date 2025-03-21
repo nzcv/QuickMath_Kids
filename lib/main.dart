@@ -56,8 +56,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void switchToPracticeScreen(
-      Operation operation, String range, int? timeLimit) {
+  void switchToPracticeScreen(Operation operation, String range, int? timeLimit) {
     setState(() {
       _selectedOperation = operation;
       _selectedRange = range;
@@ -126,6 +125,7 @@ class _MyAppState extends State<MyApp> {
                         _selectedOperation,
                         _selectedRange,
                         _selectedTimeLimit,
+                        isDarkMode: _isDarkMode, // Pass isDarkMode here
                       )
                     : ResultScreen(
                         answeredQuestions,

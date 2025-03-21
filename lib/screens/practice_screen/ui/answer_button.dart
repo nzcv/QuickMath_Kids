@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 Widget buildAnswerButton(int answer, VoidCallback onPressed) {
   return LayoutBuilder(
     builder: (context, constraints) {
+      final theme = Theme.of(context);
       final screenWidth = MediaQuery.of(context).size.width;
       final buttonWidth = screenWidth * 0.5; // 35% of screen width, max 140
       final buttonHeight = screenWidth * 0.500; // Scales with width, ~50 on 400px
@@ -14,8 +15,8 @@ Widget buildAnswerButton(int answer, VoidCallback onPressed) {
         child: ElevatedButton(
           onPressed: onPressed,
           style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.blue[700],
-            foregroundColor: Colors.white,
+            backgroundColor: theme.colorScheme.secondary,
+            foregroundColor: theme.colorScheme.onSecondary,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(screenWidth * 0.06), // Scales radius
             ),
@@ -23,8 +24,13 @@ Widget buildAnswerButton(int answer, VoidCallback onPressed) {
           ),
           child: Text(
             answer.toString(),
+<<<<<<< Updated upstream
             style: TextStyle(
               fontSize: fontSize.clamp(16, 20), // Min 16, max 20
+=======
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontSize: fontSize.clamp(16, 20),
+>>>>>>> Stashed changes
               fontWeight: FontWeight.bold,
             ),
           ),

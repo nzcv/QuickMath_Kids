@@ -22,15 +22,18 @@ class PracticeScreen extends StatefulWidget {
   final Operation selectedOperation;
   final String selectedRange;
   final int? sessionTimeLimit;
+  final bool isDarkMode; // Added isDarkMode parameter
 
   const PracticeScreen(
-      this.switchToResultScreen,
-      this.switchToStartScreen,
-      this.triggerTTS,
-      this.selectedOperation,
-      this.selectedRange,
-      this.sessionTimeLimit,
-      {super.key});
+    this.switchToResultScreen,
+    this.switchToStartScreen,
+    this.triggerTTS,
+    this.selectedOperation,
+    this.selectedRange,
+    this.sessionTimeLimit, {
+    required this.isDarkMode, // Required parameter
+    super.key,
+  });
 
   @override
   _PracticeScreenState createState() => _PracticeScreenState();
@@ -272,7 +275,9 @@ class _PracticeScreenState extends State<PracticeScreen>
     showDialog(
       context: context,
       builder: (BuildContext context) {
+        final theme = Theme.of(context);
         return AlertDialog(
+<<<<<<< Updated upstream
           title: const Text('Hint', style: TextStyle(color: Colors.white)),
           content: Text(currentHintMessage,
               style: const TextStyle(color: Colors.white)),
@@ -283,6 +288,16 @@ class _PracticeScreenState extends State<PracticeScreen>
                 Navigator.pop(context);
               },
               child: const Text('Close', style: TextStyle(color: Colors.white)),
+=======
+          title: Text('Hint', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onSurface)),
+          content: Text(currentHintMessage, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface)),
+          backgroundColor: theme.colorScheme.surface,
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text('Close', style: TextStyle(color: theme.colorScheme.primary)),
+>>>>>>> Stashed changes
             ),
           ],
         );
@@ -326,7 +341,16 @@ class _PracticeScreenState extends State<PracticeScreen>
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
+<<<<<<< Updated upstream
         final theme = AppTheme.getTheme(ref, true, context); // Enable dark mode
+=======
+        final theme = AppTheme.getTheme(ref, widget.isDarkMode, context); // Use widget.isDarkMode
+        final screenWidth = MediaQuery.of(context).size.width;
+        final scale = screenWidth / 360;
+        final adjustedScale = screenWidth > 600 ? scale.clamp(0.8, 1.2) : scale;
+        final isTablet = screenWidth > 600;
+
+>>>>>>> Stashed changes
         int displayTime = widget.sessionTimeLimit != null
             ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
             : _quizTimer.secondsPassed;
@@ -338,8 +362,12 @@ class _PracticeScreenState extends State<PracticeScreen>
           return Theme(
             data: theme,
             child: const Scaffold(
+<<<<<<< Updated upstream
               body:
                   Center(child: CircularProgressIndicator(color: Colors.white)),
+=======
+              body: Center(child: CircularProgressIndicator()),
+>>>>>>> Stashed changes
             ),
           );
         }
@@ -348,14 +376,19 @@ class _PracticeScreenState extends State<PracticeScreen>
           data: theme,
           child: Scaffold(
             appBar: AppBar(
+<<<<<<< Updated upstream
               title:
                   const Text('Practice', style: TextStyle(color: Colors.white)),
+=======
+              title: Text('Practice', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary)),
+>>>>>>> Stashed changes
               backgroundColor: theme.colorScheme.primary.withOpacity(0.7),
               actions: [
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton.icon(
                     onPressed: _showQuitDialog,
+<<<<<<< Updated upstream
                     icon: const Icon(Icons.exit_to_app_rounded,
                         color: Colors.white),
                     label: const Text('Quit',
@@ -363,25 +396,40 @@ class _PracticeScreenState extends State<PracticeScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: theme.colorScheme.error,
                     ),
+=======
+                    icon: Icon(Icons.exit_to_app_rounded, color: theme.colorScheme.onPrimary),
+                    label: Text('Quit', style: TextStyle(color: theme.colorScheme.onPrimary)),
+                    style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.error),
+>>>>>>> Stashed changes
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: ElevatedButton.icon(
                     onPressed: endQuiz,
+<<<<<<< Updated upstream
                     icon: const Icon(Icons.assessment, color: Colors.white),
                     label: const Text('Results',
                         style: TextStyle(color: Colors.white)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
+=======
+                    icon: Icon(Icons.assessment, color: theme.colorScheme.onPrimary),
+                    label: Text('Results', style: TextStyle(color: theme.colorScheme.onPrimary)),
+                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+>>>>>>> Stashed changes
                   ),
                 ),
               ],
             ),
             body: SafeArea(
               child: Container(
+<<<<<<< Updated upstream
                 color: Colors.black, // Set background to black
+=======
+                color: theme.colorScheme.background,
+>>>>>>> Stashed changes
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -417,8 +465,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                                           ),
                                           child: Icon(
                                             Icons.record_voice_over,
+<<<<<<< Updated upstream
                                             size: screenWidth * 0.1,
                                             color: Colors.white,
+=======
+                                            size: isTablet ? screenWidth * 0.1 : 60 * adjustedScale,
+                                            color: theme.colorScheme.onPrimary,
+>>>>>>> Stashed changes
                                           ),
                                         ),
                                         Positioned(
@@ -426,9 +479,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                                           right: 0,
                                           child: IconButton(
                                             onPressed: _showHintDialog,
+<<<<<<< Updated upstream
                                             icon: const Icon(
                                                 Icons.lightbulb_outline,
                                                 color: Colors.white),
+=======
+                                            icon: Icon(Icons.lightbulb_outline, color: theme.colorScheme.onPrimary),
+>>>>>>> Stashed changes
                                             style: IconButton.styleFrom(
                                               backgroundColor:
                                                   theme.colorScheme.surface,
@@ -451,8 +508,14 @@ class _PracticeScreenState extends State<PracticeScreen>
                                               Radius.circular(20)),
                                           boxShadow: [
                                             BoxShadow(
+<<<<<<< Updated upstream
                                               color: Colors.white.withOpacity(
                                                   0.1), // Subtle shadow for dark mode
+=======
+                                              color: theme.brightness == Brightness.dark
+                                                  ? Colors.black.withOpacity(0.3)
+                                                  : Colors.grey.withOpacity(0.3),
+>>>>>>> Stashed changes
                                               spreadRadius: 2,
                                               blurRadius: 5,
                                               offset: const Offset(0, 3),
