@@ -225,7 +225,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 ),
               ],
             ),
-            drawer: _buildDrawer(context),
+            drawer: _buildDrawer(context, billingService),
             body: Center(
               child: ConstrainedBox(
                 constraints: BoxConstraints(maxWidth: isTablet ? 700 : double.infinity),
@@ -314,7 +314,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         onPressed: () async {
                           final billingService = ref.read(billingServiceProvider);
                           await billingService.resetPremium();
-                          setState(() {});
+                          // No need for setState here; Consumer will rebuild due to notifyListeners
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text(
@@ -340,8 +340,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
-    final billingService = ref.watch(billingServiceProvider);
+  Widget _buildDrawer(BuildContext context, BillingService billingService) {
     final theme = Theme.of(context);
 
     return Drawer(
@@ -351,11 +350,13 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         children: [
           DrawerHeader(
             decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
+              color: theme.colorScheme.primary, // Will be blue or amber based on isPremium
             ),
-            child: Text('QuickMath Kids',
-                style: theme.textTheme.headlineMedium
-                    ?.copyWith(color: theme.colorScheme.onPrimary)),
+            child: Text(
+              'QuickMath Kids',
+              style: theme.textTheme.headlineMedium
+                  ?.copyWith(color: theme.colorScheme.onPrimary),
+            ),
           ),
           if (!billingService.isPremium)
             Container(
@@ -509,7 +510,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 Navigator.pop(context);
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                  MaterialPageRoute(
+                    builder: (context) => PurchaseScreen(
+                    ),
+                  ),
                 );
               },
             ),

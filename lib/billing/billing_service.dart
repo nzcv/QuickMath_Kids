@@ -5,14 +5,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Create a Provider for BillingService
-final billingServiceProvider = Provider<BillingService>((ref) {
+// Create a ChangeNotifierProvider for BillingService
+final billingServiceProvider = ChangeNotifierProvider<BillingService>((ref) {
   final billingService = BillingService();
   ref.onDispose(() => billingService.dispose());
   return billingService;
 });
 
-class BillingService {
+class BillingService extends ChangeNotifier {
   static const String _premiumProductId = 'premium_plan';
   static const String _premiumKey = 'is_premium';
   static const String _resetKey = 'is_reset'; // Track reset state
@@ -38,6 +38,7 @@ class BillingService {
       debugPrint('BillingService: This app only supports Android billing.');
       _isPremium = false;
       _isInitialized = true;
+      notifyListeners(); // Notify initial state
       return;
     }
 
@@ -48,6 +49,7 @@ class BillingService {
       debugPrint('BillingService: Error checking billing availability: $e');
       _isPremium = false;
       _isInitialized = true;
+      notifyListeners();
       return;
     }
 
@@ -55,6 +57,7 @@ class BillingService {
       debugPrint('BillingService: In-app purchase not available on this device');
       _isPremium = false;
       _isInitialized = true;
+      notifyListeners();
       return;
     }
 
@@ -71,6 +74,7 @@ class BillingService {
 
     await _loadPremiumStatus();
     _isInitialized = true;
+    notifyListeners(); // Notify after initialization
   }
 
   Future<void> _loadPremiumStatus() async {
@@ -83,6 +87,7 @@ class BillingService {
       await _storage.write(key: _premiumKey, value: 'false');
       await _storage.write(key: _resetKey, value: 'false'); // Clear reset after applying
       debugPrint('BillingService: Reset applied, premium revoked');
+      notifyListeners();
       return;
     }
 
@@ -154,6 +159,7 @@ class BillingService {
       await _storage.write(key: _resetKey, value: 'false');
       debugPrint('BillingService: No premium purchase found');
     }
+    notifyListeners(); // Notify after loading status
   }
 
   Future<bool> purchasePremium(BuildContext context) async {
@@ -189,7 +195,7 @@ class BillingService {
 
     try {
       await _iap.buyNonConsumable(purchaseParam: purchaseParam);
-      return true;
+      return true; // Success will be handled by _handlePurchaseUpdates
     } catch (e) {
       debugPrint('BillingService: Purchase error: $e');
       if (e.toString().contains('itemAlreadyOwned')) {
@@ -204,16 +210,17 @@ class BillingService {
   Future<void> restorePurchase() async {
     _isReset = false; // Clear reset flag before checking
     await _storage.write(key: _resetKey, value: 'false');
-    await _loadPremiumStatus(); // Only check current status
+    await _loadPremiumStatus(); // Check current status and notify
+    notifyListeners(); // Ensure UI updates after restore
   }
 
-  // Reset premium access locally without affecting Play Store
   Future<void> resetPremium() async {
     _isPremium = false;
     _isReset = true; // Set reset flag
     await _storage.write(key: _premiumKey, value: 'false');
     await _storage.write(key: _resetKey, value: 'true');
     debugPrint('BillingService: Premium access reset locally');
+    notifyListeners(); // Notify UI of reset
   }
 
   void _handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) {
@@ -228,6 +235,7 @@ class BillingService {
             _storage.write(key: _resetKey, value: 'false');
             _iap.completePurchase(purchase);
             debugPrint('BillingService: Premium purchased/restored successfully');
+            notifyListeners(); // Notify UI of purchase/restore
             break;
           case PurchaseStatus.pending:
             debugPrint('BillingService: Purchase pending');
@@ -247,9 +255,5 @@ class BillingService {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
-  }
-
-  void dispose() {
-    _subscription?.cancel();
   }
 }

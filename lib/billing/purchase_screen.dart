@@ -15,7 +15,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final billingService = ref.read(billingServiceProvider);
+    final billingService = ref.watch(billingServiceProvider); // Watch for changes
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
 
@@ -85,8 +85,11 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                 ),
                 const SizedBox(height: 24),
                 Center(
-                  child: _isPurchasing
-                      ? const CircularProgressIndicator(strokeWidth: 4)
+                  child: _isPurchasing || billingService.isPremium
+                      ? _isPurchasing
+                          ? const CircularProgressIndicator(strokeWidth: 4)
+                          : const Text('Already Premium',
+                              style: TextStyle(color: Colors.green))
                       : ElevatedButton(
                           onPressed: () async {
                             setState(() {
