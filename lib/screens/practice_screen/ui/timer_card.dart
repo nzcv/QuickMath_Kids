@@ -2,25 +2,22 @@ import 'package:flutter/material.dart';
 
 Widget buildTimerCard(String time, BuildContext context) {
   final theme = Theme.of(context);
-  final screenWidth = MediaQuery.of(context).size.width * 0.8;
-  final screenHeight = MediaQuery.of(context).size.height * 0.8;
+  final screenWidth = MediaQuery.of(context).size.width;
+  final scale = screenWidth / 360;
+  final adjustedScale = screenWidth > 600 ? scale.clamp(0.8, 1.2) : scale;
+  final isTablet = screenWidth > 600;
 
-  // Scale padding and font sizes based on screen width
-  double paddingHorizontal = screenWidth * 0.06; // 6% of screen width
-  double paddingVertical = screenHeight * 0.02;  // 2% of screen height
-  double fontSizeTitle = screenWidth * 0.045;    // ~18 on a 400px wide screen
-  double fontSizeTime = screenWidth * 0.09;      // ~36 on a 400px wide screen
+  double paddingHorizontal = isTablet ? screenWidth * 0.06 : 16 * adjustedScale;
+  double paddingVertical = isTablet ? screenWidth * 0.03 : 8 * adjustedScale;
+  double fontSizeTitle = isTablet ? screenWidth * 0.045 : 16 * adjustedScale;
+  double fontSizeTime = isTablet ? screenWidth * 0.09 : 24 * adjustedScale;
 
   return Card(
     elevation: 4,
     shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(screenWidth * 0.04), // Scales radius
+      borderRadius: BorderRadius.circular(12 * adjustedScale),
     ),
-<<<<<<< Updated upstream
-    color: theme.brightness == Brightness.dark ? Colors.white : Colors.black,
-=======
     color: theme.colorScheme.surface,
->>>>>>> Stashed changes
     child: Padding(
       padding: EdgeInsets.symmetric(
         vertical: paddingVertical,
@@ -32,27 +29,15 @@ Widget buildTimerCard(String time, BuildContext context) {
             'Time',
             style: theme.textTheme.titleMedium?.copyWith(
               fontSize: fontSizeTitle,
-<<<<<<< Updated upstream
-              color: theme.brightness == Brightness.dark
-                  ? Colors.black
-                  : Colors.grey[400],
-=======
->>>>>>> Stashed changes
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: screenHeight * 0.01), // Scales spacing
+          SizedBox(height: 4 * adjustedScale),
           Text(
             time,
             style: theme.textTheme.headlineMedium?.copyWith(
               fontSize: fontSizeTime,
-<<<<<<< Updated upstream
-              color: theme.brightness == Brightness.dark
-                  ? Colors.blue[300]
-                  : Colors.blue[700],
-=======
               color: theme.colorScheme.primary,
->>>>>>> Stashed changes
               fontWeight: FontWeight.bold,
             ),
           ),

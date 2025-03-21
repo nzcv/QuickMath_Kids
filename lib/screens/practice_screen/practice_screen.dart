@@ -10,13 +10,13 @@ import 'package:QuickMath_Kids/screens/practice_screen/helpers/confetti_helper.d
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/answer_option_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int, Operation, String, int?)
-      switchToResultScreen;
+  final Function(List<String>, List<bool>, int, Operation, String, int?) switchToResultScreen;
   final VoidCallback switchToStartScreen;
   final Function(String) triggerTTS;
   final Operation selectedOperation;
@@ -39,8 +39,7 @@ class PracticeScreen extends StatefulWidget {
   _PracticeScreenState createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen>
-    with SingleTickerProviderStateMixin {
+class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProviderStateMixin {
   List<int> numbers = [0, 0, 0];
   List<int> answerOptions = [];
   List<String> answeredQuestions = [];
@@ -50,7 +49,6 @@ class _PracticeScreenState extends State<PracticeScreen>
   bool _isInitialized = false;
 
   int correctAnswer = 0;
-  String resultText = '';
   String currentHintMessage = '';
   bool hasListenedToQuestion = false;
 
@@ -70,20 +68,27 @@ class _PracticeScreenState extends State<PracticeScreen>
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
-        if (widget.sessionTimeLimit != null &&
-            secondsPassed >= widget.sessionTimeLimit!) {
+        if (widget.sessionTimeLimit != null && secondsPassed >= widget.sessionTimeLimit!) {
           endQuiz();
         }
       });
     });
 
-    _controller = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
+    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
     _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _fadeAnimation = Tween<double>(begin: 0, end: 1)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _controller.forward();
+  }
+
+  Future<void> _initializeScreen() async {
+    await _loadWrongQuestions();
+    setState(() {
+      _setInitialQuestion();
+      _updateHintMessage();
+      _isInitialized = true;
+    });
   }
 
   @override
@@ -98,23 +103,12 @@ class _PracticeScreenState extends State<PracticeScreen>
   void pauseTimer() => _quizTimer.pauseTimer();
   void resumeTimer() => _quizTimer.resumeTimer();
 
-  Future<void> _initializeScreen() async {
-    await _loadWrongQuestions();
-    setState(() {
-      _setInitialQuestion();
-      _updateHintMessage();
-      _isInitialized = true;
-    });
-  }
-
   Future<void> _loadWrongQuestions() async {
-    List<Map<String, dynamic>> allWrongQuestions =
-        await WrongQuestionsService.getWrongQuestions();
+    List<Map<String, dynamic>> allWrongQuestions = await WrongQuestionsService.getWrongQuestions();
     setState(() {
       _wrongQuestions = allWrongQuestions.where((question) {
         String category = question['category'] ?? '';
-        return category
-            .startsWith(widget.selectedOperation.toString().split('.').last);
+        return category.startsWith(widget.selectedOperation.toString().split('.').last);
       }).toList();
     });
   }
@@ -158,8 +152,7 @@ class _PracticeScreenState extends State<PracticeScreen>
   }
 
   void regenerateNumbers() {
-    numbers = QuestionGenerator().generateTwoRandomNumbers(
-        widget.selectedOperation, widget.selectedRange);
+    numbers = QuestionGenerator().generateTwoRandomNumbers(widget.selectedOperation, widget.selectedRange);
     correctAnswer = numbers.length > 2 ? numbers[2] : numbers[1];
     answerOptions = generateAnswerOptions(correctAnswer);
   }
@@ -176,31 +169,21 @@ class _PracticeScreenState extends State<PracticeScreen>
       String currentQuestion = _formatQuestionText();
 
       if (!isCorrect) {
-        // Check if the question already exists in wrong questions
-        bool questionExists =
-            _wrongQuestions.any((q) => q['question'] == currentQuestion);
+        bool questionExists = _wrongQuestions.any((q) => q['question'] == currentQuestion);
         if (questionExists) {
-          // Update the existing question by resetting correctCount to 0
-          WrongQuestionsService.updateWrongQuestion(
-            currentQuestion,
-            correct: false, // Reset correctCount to 0 when wrong
-          );
+          WrongQuestionsService.updateWrongQuestion(currentQuestion, correct: false);
         } else {
-          // Save as a new wrong question if it doesn’t exist
           WrongQuestionsService.saveWrongQuestion(
             question: currentQuestion,
             userAnswer: selectedAnswer,
             correctAnswer: correctAnswer,
-            category:
-                '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+            category: '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
           );
         }
-        _loadWrongQuestions(); // Refresh the wrong questions list
+        _loadWrongQuestions();
       } else if (_usedWrongQuestionThisSession && _wrongQuestions.isNotEmpty) {
-        // If answered correctly, update the existing wrong question
-        WrongQuestionsService.updateWrongQuestion(currentQuestion,
-            correct: true);
-        _wrongQuestions.removeAt(0); // Remove from local list after updating
+        WrongQuestionsService.updateWrongQuestion(currentQuestion, correct: true);
+        _wrongQuestions.removeAt(0);
       }
 
       if (isCorrect) confettiManager.correctConfettiController.play();
@@ -218,10 +201,7 @@ class _PracticeScreenState extends State<PracticeScreen>
 
   List<int> _parseQuestion(String questionText) {
     RegExp regExp = RegExp(r'\d+');
-    return regExp
-        .allMatches(questionText)
-        .map((m) => int.parse(m[0]!))
-        .toList();
+    return regExp.allMatches(questionText).map((m) => int.parse(m[0]!)).toList();
   }
 
   String _formatQuestionText() {
@@ -277,18 +257,6 @@ class _PracticeScreenState extends State<PracticeScreen>
       builder: (BuildContext context) {
         final theme = Theme.of(context);
         return AlertDialog(
-<<<<<<< Updated upstream
-          title: const Text('Hint', style: TextStyle(color: Colors.white)),
-          content: Text(currentHintMessage,
-              style: const TextStyle(color: Colors.white)),
-          backgroundColor: Colors.grey[900], // Dark background for dialog
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text('Close', style: TextStyle(color: Colors.white)),
-=======
           title: Text('Hint', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onSurface)),
           content: Text(currentHintMessage, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface)),
           backgroundColor: theme.colorScheme.surface,
@@ -297,7 +265,6 @@ class _PracticeScreenState extends State<PracticeScreen>
             TextButton(
               onPressed: () => Navigator.pop(context),
               child: Text('Close', style: TextStyle(color: theme.colorScheme.primary)),
->>>>>>> Stashed changes
             ),
           ],
         );
@@ -305,69 +272,26 @@ class _PracticeScreenState extends State<PracticeScreen>
     );
   }
 
-  Widget buildPauseButton(VoidCallback onPressed, BuildContext context) {
-    final screenWidth =
-        MediaQuery.of(context).size.width; // ~360 dp on 1080px, 3x density
-
-    return Container(
-      width:
-          screenWidth * 0.12, // ~43 dp (~129 physical px on 3x), much smaller
-      height: screenWidth * 0.12, // ~43 dp, keeps it circular
-      child: ElevatedButton(
-        onPressed: onPressed,
-        style: ElevatedButton.styleFrom(
-          shape: CircleBorder(
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.primary, // Thin border color
-              width: 1.0, // Reduced thickness (default is thicker)
-            ),
-          ),
-          elevation: 4, // Reduced from 8 for a flatter, less "thick" look
-          backgroundColor: Theme.of(context).colorScheme.primary,
-          padding: EdgeInsets.all(
-              screenWidth * 0.02), // ~7 dp padding, tight but balanced
-        ),
-        child: Icon(
-          Icons.pause_circle_filled, // Kept for clarity at smaller size
-          size: screenWidth *
-              0.08, // ~29 dp (~87 physical px), smaller but visible
-          color: Colors.white,
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-<<<<<<< Updated upstream
-        final theme = AppTheme.getTheme(ref, true, context); // Enable dark mode
-=======
         final theme = AppTheme.getTheme(ref, widget.isDarkMode, context); // Use widget.isDarkMode
         final screenWidth = MediaQuery.of(context).size.width;
         final scale = screenWidth / 360;
         final adjustedScale = screenWidth > 600 ? scale.clamp(0.8, 1.2) : scale;
         final isTablet = screenWidth > 600;
 
->>>>>>> Stashed changes
         int displayTime = widget.sessionTimeLimit != null
             ? (widget.sessionTimeLimit! - _quizTimer.secondsPassed)
             : _quizTimer.secondsPassed;
         if (widget.sessionTimeLimit != null && displayTime < 0) displayTime = 0;
 
-        final screenWidth = MediaQuery.of(context).size.width;
-
         if (!_isInitialized) {
           return Theme(
             data: theme,
             child: const Scaffold(
-<<<<<<< Updated upstream
-              body:
-                  Center(child: CircularProgressIndicator(color: Colors.white)),
-=======
               body: Center(child: CircularProgressIndicator()),
->>>>>>> Stashed changes
             ),
           );
         }
@@ -376,60 +300,32 @@ class _PracticeScreenState extends State<PracticeScreen>
           data: theme,
           child: Scaffold(
             appBar: AppBar(
-<<<<<<< Updated upstream
-              title:
-                  const Text('Practice', style: TextStyle(color: Colors.white)),
-=======
               title: Text('Practice', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary)),
->>>>>>> Stashed changes
               backgroundColor: theme.colorScheme.primary.withOpacity(0.7),
               actions: [
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0 * adjustedScale),
                   child: ElevatedButton.icon(
                     onPressed: _showQuitDialog,
-<<<<<<< Updated upstream
-                    icon: const Icon(Icons.exit_to_app_rounded,
-                        color: Colors.white),
-                    label: const Text('Quit',
-                        style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: theme.colorScheme.error,
-                    ),
-=======
                     icon: Icon(Icons.exit_to_app_rounded, color: theme.colorScheme.onPrimary),
                     label: Text('Quit', style: TextStyle(color: theme.colorScheme.onPrimary)),
                     style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.error),
->>>>>>> Stashed changes
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.all(8.0),
+                  padding: EdgeInsets.all(8.0 * adjustedScale),
                   child: ElevatedButton.icon(
                     onPressed: endQuiz,
-<<<<<<< Updated upstream
-                    icon: const Icon(Icons.assessment, color: Colors.white),
-                    label: const Text('Results',
-                        style: TextStyle(color: Colors.white)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                    ),
-=======
                     icon: Icon(Icons.assessment, color: theme.colorScheme.onPrimary),
                     label: Text('Results', style: TextStyle(color: theme.colorScheme.onPrimary)),
                     style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
->>>>>>> Stashed changes
                   ),
                 ),
               ],
             ),
             body: SafeArea(
               child: Container(
-<<<<<<< Updated upstream
-                color: Colors.black, // Set background to black
-=======
                 color: theme.colorScheme.background,
->>>>>>> Stashed changes
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -437,9 +333,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        const SizedBox(height: 16),
-                        buildTimerCard(
-                            formatTime(_quizTimer.secondsPassed), context),
+                        SizedBox(height: 16 * adjustedScale),
+                        buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
                         Expanded(
                           child: Center(
                             child: FadeTransition(
@@ -458,20 +353,13 @@ class _PracticeScreenState extends State<PracticeScreen>
                                           style: ElevatedButton.styleFrom(
                                             shape: const CircleBorder(),
                                             elevation: 8,
-                                            backgroundColor:
-                                                theme.colorScheme.primary,
-                                            padding: EdgeInsets.all(
-                                                screenWidth * 0.1),
+                                            backgroundColor: theme.colorScheme.primary,
+                                            padding: EdgeInsets.all(isTablet ? screenWidth * 0.1 : 40 * adjustedScale),
                                           ),
                                           child: Icon(
                                             Icons.record_voice_over,
-<<<<<<< Updated upstream
-                                            size: screenWidth * 0.1,
-                                            color: Colors.white,
-=======
                                             size: isTablet ? screenWidth * 0.1 : 60 * adjustedScale,
                                             color: theme.colorScheme.onPrimary,
->>>>>>> Stashed changes
                                           ),
                                         ),
                                         Positioned(
@@ -479,16 +367,9 @@ class _PracticeScreenState extends State<PracticeScreen>
                                           right: 0,
                                           child: IconButton(
                                             onPressed: _showHintDialog,
-<<<<<<< Updated upstream
-                                            icon: const Icon(
-                                                Icons.lightbulb_outline,
-                                                color: Colors.white),
-=======
                                             icon: Icon(Icons.lightbulb_outline, color: theme.colorScheme.onPrimary),
->>>>>>> Stashed changes
                                             style: IconButton.styleFrom(
-                                              backgroundColor:
-                                                  theme.colorScheme.surface,
+                                              backgroundColor: theme.colorScheme.surface,
                                               shape: const CircleBorder(),
                                             ),
                                             tooltip: 'Show Hint',
@@ -496,61 +377,52 @@ class _PracticeScreenState extends State<PracticeScreen>
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 40),
+                                    SizedBox(height: isTablet ? 40 : 40 * adjustedScale),
                                     Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 16.0),
+                                      padding: EdgeInsets.symmetric(horizontal: 16.0 * adjustedScale),
                                       child: Container(
                                         decoration: BoxDecoration(
-                                          color: theme.colorScheme
-                                              .surface, // Lighter background for contrast
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(20)),
+                                          color: theme.colorScheme.surface,
+                                          borderRadius: BorderRadius.all(Radius.circular(20 * adjustedScale)),
                                           boxShadow: [
                                             BoxShadow(
-<<<<<<< Updated upstream
-                                              color: Colors.white.withOpacity(
-                                                  0.1), // Subtle shadow for dark mode
-=======
                                               color: theme.brightness == Brightness.dark
                                                   ? Colors.black.withOpacity(0.3)
                                                   : Colors.grey.withOpacity(0.3),
->>>>>>> Stashed changes
                                               spreadRadius: 2,
                                               blurRadius: 5,
                                               offset: const Offset(0, 3),
                                             ),
                                           ],
                                         ),
-                                        padding: const EdgeInsets.all(16),
+                                        padding: EdgeInsets.all(16 * adjustedScale),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
+                                              mainAxisAlignment: MainAxisAlignment.center,
                                               children: [
                                                 buildAnswerButton(
-                                                    answerOptions[0],
-                                                    () => checkAnswer(
-                                                        answerOptions[0])),
-                                                const SizedBox(width: 20),
+                                                  answerOptions[0],
+                                                  () => checkAnswer(answerOptions[0]),
+                                                ),
+                                                SizedBox(width: isTablet ? 20 : 12 * adjustedScale),
                                                 buildAnswerButton(
-                                                    answerOptions[1],
-                                                    () => checkAnswer(
-                                                        answerOptions[1])),
+                                                  answerOptions[1],
+                                                  () => checkAnswer(answerOptions[1]),
+                                                ),
                                               ],
                                             ),
-                                            const SizedBox(height: 20),
+                                            SizedBox(height: isTablet ? 20 : 12 * adjustedScale),
                                             buildAnswerButton(
-                                                answerOptions[2],
-                                                () => checkAnswer(
-                                                    answerOptions[2])),
+                                              answerOptions[2],
+                                              () => checkAnswer(answerOptions[2]),
+                                            ),
                                           ],
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 80),
+                                    SizedBox(height: isTablet ? 80 : 40 * adjustedScale),
                                   ],
                                 ),
                               ),
@@ -560,8 +432,8 @@ class _PracticeScreenState extends State<PracticeScreen>
                       ],
                     ),
                     Positioned(
-                      bottom: 24,
-                      right: 16,
+                      bottom: 24 * adjustedScale,
+                      right: 16 * adjustedScale,
                       child: buildPauseButton(_showPauseDialog, context),
                     ),
                   ],
