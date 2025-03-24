@@ -16,7 +16,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int, Operation, String, int?) switchToResultScreen;
+  final Function(List<String>, List<bool>, int, Operation, String, int?)
+      switchToResultScreen;
   final VoidCallback switchToStartScreen;
   final Function(String) triggerTTS;
   final Operation selectedOperation;
@@ -39,7 +40,8 @@ class PracticeScreen extends StatefulWidget {
   _PracticeScreenState createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProviderStateMixin {
+class _PracticeScreenState extends State<PracticeScreen>
+    with SingleTickerProviderStateMixin {
   List<int> numbers = [0, 0, 0];
   List<int> answerOptions = [];
   List<String> answeredQuestions = [];
@@ -68,13 +70,15 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
     _ttsHelper = TTSHelper(widget.triggerTTS);
     _quizTimer.startTimer((secondsPassed) {
       setState(() {
-        if (widget.sessionTimeLimit != null && secondsPassed >= widget.sessionTimeLimit!) {
+        if (widget.sessionTimeLimit != null &&
+            secondsPassed >= widget.sessionTimeLimit!) {
           endQuiz();
         }
       });
     });
 
-    _controller = AnimationController(vsync: this, duration: const Duration(milliseconds: 600));
+    _controller = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 600));
     _slideAnimation = Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero)
         .animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
     _fadeAnimation = Tween<double>(begin: 0, end: 1)
@@ -104,11 +108,13 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
   void resumeTimer() => _quizTimer.resumeTimer();
 
   Future<void> _loadWrongQuestions() async {
-    List<Map<String, dynamic>> allWrongQuestions = await WrongQuestionsService.getWrongQuestions();
+    List<Map<String, dynamic>> allWrongQuestions =
+        await WrongQuestionsService.getWrongQuestions();
     setState(() {
       _wrongQuestions = allWrongQuestions.where((question) {
         String category = question['category'] ?? '';
-        return category.startsWith(widget.selectedOperation.toString().split('.').last);
+        return category
+            .startsWith(widget.selectedOperation.toString().split('.').last);
       }).toList();
     });
   }
@@ -152,7 +158,8 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
   }
 
   void regenerateNumbers() {
-    numbers = QuestionGenerator().generateTwoRandomNumbers(widget.selectedOperation, widget.selectedRange);
+    numbers = QuestionGenerator().generateTwoRandomNumbers(
+        widget.selectedOperation, widget.selectedRange);
     correctAnswer = numbers.length > 2 ? numbers[2] : numbers[1];
     answerOptions = generateAnswerOptions(correctAnswer);
   }
@@ -169,20 +176,24 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
       String currentQuestion = _formatQuestionText();
 
       if (!isCorrect) {
-        bool questionExists = _wrongQuestions.any((q) => q['question'] == currentQuestion);
+        bool questionExists =
+            _wrongQuestions.any((q) => q['question'] == currentQuestion);
         if (questionExists) {
-          WrongQuestionsService.updateWrongQuestion(currentQuestion, correct: false);
+          WrongQuestionsService.updateWrongQuestion(currentQuestion,
+              correct: false);
         } else {
           WrongQuestionsService.saveWrongQuestion(
             question: currentQuestion,
             userAnswer: selectedAnswer,
             correctAnswer: correctAnswer,
-            category: '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+            category:
+                '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
           );
         }
         _loadWrongQuestions();
       } else if (_usedWrongQuestionThisSession && _wrongQuestions.isNotEmpty) {
-        WrongQuestionsService.updateWrongQuestion(currentQuestion, correct: true);
+        WrongQuestionsService.updateWrongQuestion(currentQuestion,
+            correct: true);
         _wrongQuestions.removeAt(0);
       }
 
@@ -201,7 +212,10 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
 
   List<int> _parseQuestion(String questionText) {
     RegExp regExp = RegExp(r'\d+');
-    return regExp.allMatches(questionText).map((m) => int.parse(m[0]!)).toList();
+    return regExp
+        .allMatches(questionText)
+        .map((m) => int.parse(m[0]!))
+        .toList();
   }
 
   String _formatQuestionText() {
@@ -257,14 +271,20 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
       builder: (BuildContext context) {
         final theme = Theme.of(context);
         return AlertDialog(
-          title: Text('Hint', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onSurface)),
-          content: Text(currentHintMessage, style: theme.textTheme.bodyLarge?.copyWith(color: theme.colorScheme.onSurface)),
+          title: Text('Hint',
+              style: theme.textTheme.titleLarge
+                  ?.copyWith(color: theme.colorScheme.onSurface)),
+          content: Text(currentHintMessage,
+              style: theme.textTheme.bodyLarge
+                  ?.copyWith(color: theme.colorScheme.onSurface)),
           backgroundColor: theme.colorScheme.surface,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text('Close', style: TextStyle(color: theme.colorScheme.primary)),
+              child: Text('Close',
+                  style: TextStyle(color: theme.colorScheme.primary)),
             ),
           ],
         );
@@ -276,7 +296,7 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
-        final theme = AppTheme.getTheme(ref, widget.isDarkMode, context); // Use widget.isDarkMode
+        final theme = AppTheme.getTheme(ref, widget.isDarkMode, context);
         final screenWidth = MediaQuery.of(context).size.width;
         final scale = screenWidth / 360;
         final adjustedScale = screenWidth > 600 ? scale.clamp(0.8, 1.2) : scale;
@@ -300,25 +320,33 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
           data: theme,
           child: Scaffold(
             appBar: AppBar(
-              title: Text('Practice', style: theme.textTheme.titleLarge?.copyWith(color: theme.colorScheme.onPrimary)),
+              title: Text('Practice',
+                  style: theme.textTheme.titleLarge
+                      ?.copyWith(color: theme.colorScheme.onPrimary)),
               backgroundColor: theme.colorScheme.primary.withOpacity(0.7),
               actions: [
                 Padding(
                   padding: EdgeInsets.all(8.0 * adjustedScale),
                   child: ElevatedButton.icon(
                     onPressed: _showQuitDialog,
-                    icon: Icon(Icons.exit_to_app_rounded, color: theme.colorScheme.onPrimary),
-                    label: Text('Quit', style: TextStyle(color: theme.colorScheme.onPrimary)),
-                    style: ElevatedButton.styleFrom(backgroundColor: theme.colorScheme.error),
+                    icon: Icon(Icons.exit_to_app_rounded,
+                        color: theme.colorScheme.onPrimary),
+                    label: Text('Quit',
+                        style: TextStyle(color: theme.colorScheme.onPrimary)),
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: theme.colorScheme.error),
                   ),
                 ),
                 Padding(
                   padding: EdgeInsets.all(8.0 * adjustedScale),
                   child: ElevatedButton.icon(
                     onPressed: endQuiz,
-                    icon: Icon(Icons.assessment, color: theme.colorScheme.onPrimary),
-                    label: Text('Results', style: TextStyle(color: theme.colorScheme.onPrimary)),
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+                    icon: Icon(Icons.assessment,
+                        color: theme.colorScheme.onPrimary),
+                    label: Text('Results',
+                        style: TextStyle(color: theme.colorScheme.onPrimary)),
+                    style:
+                        ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   ),
                 ),
               ],
@@ -334,7 +362,8 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SizedBox(height: 16 * adjustedScale),
-                        buildTimerCard(formatTime(_quizTimer.secondsPassed), context),
+                        buildTimerCard(
+                            formatTime(_quizTimer.secondsPassed), context),
                         Expanded(
                           child: Center(
                             child: FadeTransition(
@@ -353,12 +382,17 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                                           style: ElevatedButton.styleFrom(
                                             shape: const CircleBorder(),
                                             elevation: 8,
-                                            backgroundColor: theme.colorScheme.primary,
-                                            padding: EdgeInsets.all(isTablet ? screenWidth * 0.1 : 40 * adjustedScale),
+                                            backgroundColor: theme
+                                                .colorScheme.primary, // Blue
+                                            padding: EdgeInsets.all(isTablet
+                                                ? screenWidth * 0.1
+                                                : 40 * adjustedScale),
                                           ),
                                           child: Icon(
                                             Icons.record_voice_over,
-                                            size: isTablet ? screenWidth * 0.1 : 60 * adjustedScale,
+                                            size: isTablet
+                                                ? screenWidth * 0.1
+                                                : 60 * adjustedScale,
                                             color: theme.colorScheme.onPrimary,
                                           ),
                                         ),
@@ -367,9 +401,12 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                                           right: 0,
                                           child: IconButton(
                                             onPressed: _showHintDialog,
-                                            icon: Icon(Icons.lightbulb_outline, color: theme.colorScheme.onPrimary),
+                                            icon: Icon(Icons.lightbulb_outline,
+                                                color: theme.iconTheme
+                                                    .color), // Gold for premium
                                             style: IconButton.styleFrom(
-                                              backgroundColor: theme.colorScheme.surface,
+                                              backgroundColor:
+                                                  theme.colorScheme.surface,
                                               shape: const CircleBorder(),
                                             ),
                                             tooltip: 'Show Hint',
@@ -377,52 +414,73 @@ class _PracticeScreenState extends State<PracticeScreen> with SingleTickerProvid
                                         ),
                                       ],
                                     ),
-                                    SizedBox(height: isTablet ? 40 : 40 * adjustedScale),
+                                    SizedBox(
+                                        height:
+                                            isTablet ? 40 : 40 * adjustedScale),
                                     Padding(
-                                      padding: EdgeInsets.symmetric(horizontal: 16.0 * adjustedScale),
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16.0 * adjustedScale),
                                       child: Container(
                                         decoration: BoxDecoration(
                                           color: theme.colorScheme.surface,
-                                          borderRadius: BorderRadius.all(Radius.circular(20 * adjustedScale)),
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(
+                                                  20 * adjustedScale)),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: theme.brightness == Brightness.dark
-                                                  ? Colors.black.withOpacity(0.3)
-                                                  : Colors.grey.withOpacity(0.3),
+                                              color: theme.brightness ==
+                                                      Brightness.dark
+                                                  ? Colors.black
+                                                      .withOpacity(0.3)
+                                                  : Colors.grey
+                                                      .withOpacity(0.3),
                                               spreadRadius: 2,
                                               blurRadius: 5,
                                               offset: const Offset(0, 3),
                                             ),
                                           ],
                                         ),
-                                        padding: EdgeInsets.all(16 * adjustedScale),
+                                        padding:
+                                            EdgeInsets.all(16 * adjustedScale),
                                         child: Column(
                                           mainAxisSize: MainAxisSize.min,
                                           children: [
                                             Row(
-                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: [
                                                 buildAnswerButton(
                                                   answerOptions[0],
-                                                  () => checkAnswer(answerOptions[0]),
+                                                  () => checkAnswer(
+                                                      answerOptions[0]),
                                                 ),
-                                                SizedBox(width: isTablet ? 20 : 12 * adjustedScale),
+                                                SizedBox(
+                                                    width: isTablet
+                                                        ? 20
+                                                        : 12 * adjustedScale),
                                                 buildAnswerButton(
                                                   answerOptions[1],
-                                                  () => checkAnswer(answerOptions[1]),
+                                                  () => checkAnswer(
+                                                      answerOptions[1]),
                                                 ),
                                               ],
                                             ),
-                                            SizedBox(height: isTablet ? 20 : 12 * adjustedScale),
+                                            SizedBox(
+                                                height: isTablet
+                                                    ? 20
+                                                    : 12 * adjustedScale),
                                             buildAnswerButton(
                                               answerOptions[2],
-                                              () => checkAnswer(answerOptions[2]),
+                                              () =>
+                                                  checkAnswer(answerOptions[2]),
                                             ),
                                           ],
                                         ),
                                       ),
                                     ),
-                                    SizedBox(height: isTablet ? 80 : 40 * adjustedScale),
+                                    SizedBox(
+                                        height:
+                                            isTablet ? 80 : 40 * adjustedScale),
                                   ],
                                 ),
                               ),

@@ -346,183 +346,181 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   Widget _buildDrawer(BuildContext context, BillingService billingService) {
-    final theme = Theme.of(context);
+  final theme = Theme.of(context);
 
-    return Drawer(
-      width: MediaQuery.of(context).size.width * 0.7,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
-            ),
-            child: Text(
-              'QuickMath Kids',
-              style: theme.textTheme.headlineMedium
-                  ?.copyWith(color: theme.colorScheme.onPrimary),
-            ),
+  return Drawer(
+    width: MediaQuery.of(context).size.width * 0.7,
+    child: ListView(
+      padding: EdgeInsets.zero,
+      children: [
+        DrawerHeader(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.primary, // Blue
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: const Icon(Icons.help_outline),
-              title: const Text('FAQ'),
-              onTap: () {
-                Navigator.pop(context);
+          child: Text(
+            'QuickMath Kids',
+            style: theme.textTheme.headlineMedium
+                ?.copyWith(color: theme.colorScheme.onPrimary),
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            leading: Icon(Icons.help_outline, color: theme.colorScheme.primary), // Blue
+            title: const Text('FAQ'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => FAQScreen()),
+              );
+            },
+          ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            leading: Icon(Icons.help_outline, color: theme.colorScheme.primary), // Blue
+            title: const Text('How to use?'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HowToUseScreen()),
+              );
+            },
+          ),
+        ),
+        Container(
+          margin: billingService.isPremium
+              ? const EdgeInsets.symmetric(vertical: 4)
+              : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: !billingService.isPremium
+              ? BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.error, width: 2),
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                )
+              : null,
+          child: ListTile(
+            leading: Icon(Icons.settings, color: theme.colorScheme.primary), // Blue
+            title: const Text('Settings'),
+            trailing: !billingService.isPremium
+                ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
+                : null,
+            onTap: () {
+              Navigator.pop(context);
+              if (billingService.isPremium) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => FAQScreen()),
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
                 );
-              },
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: const Icon(Icons.help_outline),
-              title: const Text('How to use?'),
-              onTap: () {
-                Navigator.pop(context);
+              } else {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => HowToUseScreen()),
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                 );
-              },
-            ),
+              }
+            },
           ),
-          Container(
-            margin: billingService.isPremium
-                ? const EdgeInsets.symmetric(vertical: 4)
-                : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: !billingService.isPremium
-                ? BoxDecoration(
-                    border: Border.all(color: theme.colorScheme.error, width: 2),
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  )
+        ),
+        Container(
+          margin: billingService.isPremium
+              ? const EdgeInsets.symmetric(vertical: 4)
+              : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: !billingService.isPremium
+              ? BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.error, width: 2),
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                )
+              : null,
+          child: ListTile(
+            leading: Icon(Icons.history, color: theme.colorScheme.primary), // Blue
+            title: const Text('Wrong Answers History'),
+            trailing: !billingService.isPremium
+                ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
                 : null,
-            child: ListTile(
-              leading: const Icon(Icons.settings),
-              title: const Text('Settings'),
-              trailing: !billingService.isPremium
-                  ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
-                  : null,
-              onTap: () {
-                Navigator.pop(context);
-                if (billingService.isPremium) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                  );
-                }
-              },
-            ),
+            onTap: () {
+              Navigator.pop(context);
+              if (billingService.isPremium) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const WrongAnswersScreen(),
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                );
+              }
+            },
           ),
-          Container(
-            margin: billingService.isPremium
-                ? const EdgeInsets.symmetric(vertical: 4)
-                : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: !billingService.isPremium
-                ? BoxDecoration(
-                    border: Border.all(color: theme.colorScheme.error, width: 2),
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  )
+        ),
+        Container(
+          margin: billingService.isPremium
+              ? const EdgeInsets.symmetric(vertical: 4)
+              : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          decoration: !billingService.isPremium
+              ? BoxDecoration(
+                  border: Border.all(color: theme.colorScheme.error, width: 2),
+                  borderRadius: const BorderRadius.all(Radius.circular(8)),
+                )
+              : null,
+          child: ListTile(
+            leading: Icon(Icons.history_toggle_off, color: theme.colorScheme.primary), // Blue
+            title: const Text('Quiz History'),
+            trailing: !billingService.isPremium
+                ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
                 : null,
-            child: ListTile(
-              leading: const Icon(Icons.history),
-              title: const Text('Wrong Answers History'),
-              trailing: !billingService.isPremium
-                  ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
-                  : null,
-              onTap: () {
-                Navigator.pop(context);
-                if (billingService.isPremium) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WrongAnswersScreen(),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                  );
-                }
-              },
-            ),
+            onTap: () {
+              Navigator.pop(context);
+              if (billingService.isPremium) {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        QuizHistoryScreen(widget.switchToStartScreen),
+                  ),
+                );
+              } else {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+                );
+              }
+            },
           ),
-          Container(
-            margin: billingService.isPremium
-                ? const EdgeInsets.symmetric(vertical: 4)
-                : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            decoration: !billingService.isPremium
-                ? BoxDecoration(
-                    border: Border.all(color: theme.colorScheme.error, width: 2),
-                    borderRadius: const BorderRadius.all(Radius.circular(8)),
-                  )
-                : null,
-            child: ListTile(
-              leading: const Icon(Icons.history_toggle_off),
-              title: const Text('Quiz History'),
-              trailing: !billingService.isPremium
-                  ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
-                  : null,
-              onTap: () {
-                Navigator.pop(context);
-                if (billingService.isPremium) {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) =>
-                          QuizHistoryScreen(widget.switchToStartScreen),
-                    ),
-                  );
-                } else {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                  );
-                }
-              },
-            ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: ListTile(
+            leading: Icon(Icons.star, color: theme.iconTheme.color), // Gold for premium
+            title: const Text('Purchase Premium'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+              );
+            },
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: const Icon(Icons.star, color: Colors.amber),
-              title: const Text('Purchase Premium'),
-              onTap: () {
-                Navigator.pop(context);
-                
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                  );
-                
-              },
-            ),
+        ),
+        Container(
+          margin: const EdgeInsets.symmetric(vertical: 4),
+          child: SwitchListTile(
+            title: const Text("Dark Mode"),
+            value: _isDarkMode,
+            onChanged: (bool value) {
+              setState(() {
+                _isDarkMode = value;
+                widget.toggleDarkMode(value);
+              });
+            },
           ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: SwitchListTile(
-              title: const Text("Dark Mode"),
-              value: _isDarkMode,
-              onChanged: (bool value) {
-                setState(() {
-                  _isDarkMode = value;
-                  widget.toggleDarkMode(value);
-                });
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
+}
 }

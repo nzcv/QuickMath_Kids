@@ -17,14 +17,15 @@ class AppTheme {
     final isTablet = MediaQuery.of(context).size.width > 600;
 
     // Core colors
-    final Color primaryColor = isPremium ? Colors.amber[600]! : Colors.blue[600]!;
-    final Color secondaryColor = isPremium ? Colors.amber[300]! : Colors.blue[300]!;
+    final Color primaryColor = Colors.blue[600]!; // Always blue for primary elements
+    final Color secondaryColor = Colors.blue[300]!; // Lighter blue for secondary elements
+    final Color premiumAccentColor = isPremium ? Colors.amber[600]! : Colors.blue[400]!; // Gold for premium, blue for non-premium
     final Color backgroundColor = isDarkMode ? Colors.black : Colors.white;
 
-    // Ensure 50% White (Light Mode) / 50% Black (Dark Mode)
+    // Surface color: Closer to white/black, with a subtle tint of primaryColor
     final Color surfaceColor = isDarkMode
-        ? Color.alphaBlend(primaryColor.withOpacity(0.3), Colors.black)
-        : Color.alphaBlend(primaryColor.withOpacity(0.3), Colors.white);
+        ? Color.alphaBlend(primaryColor.withOpacity(0.1), Colors.black) // Reduced opacity to 0.1
+        : Color.alphaBlend(primaryColor.withOpacity(0.1), Colors.white);
 
     final Color onPrimaryColor = isDarkMode ? Colors.white : Colors.black;
     final Color onSurfaceColor = isDarkMode ? Colors.white : Colors.black;
@@ -46,7 +47,7 @@ class AppTheme {
         onError: Colors.white,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor.withOpacity(0.7),
+        backgroundColor: primaryColor.withOpacity(0.7), // Blue AppBar
         foregroundColor: onPrimaryColor,
         elevation: 0,
         toolbarHeight: 56 * scale,
@@ -56,16 +57,20 @@ class AppTheme {
           fontWeight: FontWeight.bold,
         ),
         iconTheme: IconThemeData(
-          color: onPrimaryColor,
+          color: premiumAccentColor, // Gold icons for premium users
           size: 22 * scale,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor.withOpacity(0.8),
+          backgroundColor: primaryColor.withOpacity(0.8), // Blue buttons
           foregroundColor: onPrimaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16 * scale),
+            side: BorderSide(
+              color: premiumAccentColor, // Gold border for premium users
+              width: 2 * scale,
+            ),
           ),
           padding: EdgeInsets.symmetric(
             vertical: 10 * scale,
@@ -96,31 +101,49 @@ class AppTheme {
           color: onSurfaceColor,
         ),
         bodyLarge: TextStyle(
-          fontSize: (isTablet ? 14 : 14) * scale, // Reduced further for tablets
+          fontSize: (isTablet ? 14 : 14) * scale,
           color: onSurfaceColor,
         ),
         titleMedium: TextStyle(
           fontSize: (isTablet ? 14 : 14) * scale,
-          color: onSurfaceColor
+          color: onSurfaceColor,
         ),
       ),
       iconTheme: IconThemeData(
-        color: onPrimaryColor,
+        color: premiumAccentColor, // Gold icons for premium users
         size: 22 * scale,
       ),
       dividerColor: secondaryColor.withOpacity(0.3),
       scaffoldBackgroundColor: backgroundColor,
       inputDecorationTheme: InputDecorationTheme(
         labelStyle: TextStyle(
-          fontSize: (isTablet ? 14 : 14) * scale, // Reduced for consistency
+          fontSize: (isTablet ? 14 : 14) * scale,
           color: onSurfaceColor,
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8 * scale)),
+          borderSide: BorderSide(
+            color: premiumAccentColor, // Gold border for premium users
+            width: 2 * scale,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8 * scale)),
+          borderSide: BorderSide(
+            color: premiumAccentColor, // Gold border for premium users
+            width: 2 * scale,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.all(Radius.circular(8 * scale)),
+          borderSide: BorderSide(
+            color: secondaryColor, // Blue when focused
+            width: 2 * scale,
+          ),
         ),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: primaryColor,
+        color: primaryColor, // Blue progress indicator
         linearTrackColor: secondaryColor.withOpacity(0.3),
         circularTrackColor: secondaryColor.withOpacity(0.3),
       ),
