@@ -265,12 +265,30 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       ),
                       const SizedBox(height: 20),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        padding: const EdgeInsets.symmetric(horizontal: 40), // Match Operation and Range dropdowns
                         child: InkWell(
                           onTap: () => _showTimeWheelPicker(context),
                           child: InputDecorator(
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               labelText: 'Session Time Limit',
+                              filled: true,
+                              fillColor: theme.brightness == Brightness.dark
+                                  ? theme.colorScheme.surface
+                                  : Colors.white,
+                              contentPadding: EdgeInsets.symmetric(
+                                vertical: isTablet ? 20 : 10,
+                                horizontal: isTablet ? 30 : 20,
+                              ),
+                              enabledBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                    color: theme.colorScheme.primary, width: 2),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10),
+                                borderSide: BorderSide(
+                                    color: theme.colorScheme.secondary, width: 2),
+                              ),
                             ),
                             child: Text(
                               _selectedTimeLimit != null
@@ -474,21 +492,22 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               },
             ),
           ),
-          if (!billingService.isPremium)
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 4),
-              child: ListTile(
-                leading: const Icon(Icons.star),
-                title: const Text('Purchase Premium'),
-                onTap: () {
-                  Navigator.pop(context);
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            child: ListTile(
+              leading: const Icon(Icons.star),
+              title: const Text('Purchase Premium'),
+              onTap: () {
+                Navigator.pop(context);
+                
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                   );
-                },
-              ),
+                
+              },
             ),
+          ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 4),
             child: SwitchListTile(
