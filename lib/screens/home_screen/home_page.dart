@@ -364,6 +364,34 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             ),
           ),
           Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            child: ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('FAQ'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => FAQScreen()),
+                );
+              },
+            ),
+          ),
+          Container(
+            margin: const EdgeInsets.symmetric(vertical: 4),
+            child: ListTile(
+              leading: const Icon(Icons.help_outline),
+              title: const Text('How to use?'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => HowToUseScreen()),
+                );
+              },
+            ),
+          ),
+          Container(
             margin: billingService.isPremium
                 ? const EdgeInsets.symmetric(vertical: 4)
                 : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -392,34 +420,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                     MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                   );
                 }
-              },
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: const Icon(Icons.help_outline),
-              title: const Text('FAQ'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => FAQScreen()),
-                );
-              },
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4),
-            child: ListTile(
-              leading: const Icon(Icons.help_outline),
-              title: const Text('How to use?'),
-              onTap: () {
-                Navigator.pop(context);
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => HowToUseScreen()),
-                );
               },
             ),
           ),
@@ -495,7 +495,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           Container(
             margin: const EdgeInsets.symmetric(vertical: 4),
             child: ListTile(
-              leading: const Icon(Icons.star),
+              leading: const Icon(Icons.star, color: Colors.amber),
               title: const Text('Purchase Premium'),
               onTap: () {
                 Navigator.pop(context);
