@@ -1,6 +1,6 @@
 name: QuickMath_Kids
 description: "A new Flutter project."
-publish_to: 'none' 
+publish_to: 'none'
 
 version: 3.0.4+11
 
@@ -27,12 +27,27 @@ dependencies:
   in_app_purchase: ^3.2.1
   flutter_secure_storage: ^9.2.4
   consumer: ^2.3.1
+  flutter_native_splash: ^2.4.1 # Added for runtime use
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  flutter_native_splash: ^2.4.1 # Added for generating the splash screen
 
 flutter:
   assets:
     - assets/QuickMath_Kids_logo.png
   uses-material-design: true
+
+flutter_native_splash:
+  color: "#FFFFFF" # White background for light mode
+  image: assets/QuickMath_Kids_logo.png
+  color_dark: "#000000" # Black background for dark mode
+  image_dark: assets/QuickMath_Kids_logo.png
+  android_12:
+    image: assets/QuickMath_Kids_logo.png
+    color: "#FFFFFF"
+  android_12_dark:
+    image: assets/QuickMath_Kids_logo.png
+    color: "#000000"
+  fullscreen: true

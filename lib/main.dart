@@ -7,17 +7,21 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final container = ProviderContainer();
-  await container.read(billingServiceProvider).initialize();
-  runApp(UncontrolledProviderScope(container: container, child: const MyApp()));
+  // Initialize the billing service but don't await here
+  final billingFuture = container.read(billingServiceProvider).initialize();
+  runApp(UncontrolledProviderScope(container: container, child: MyApp(billingFuture: billingFuture)));
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+  final Future<void> billingFuture;
+
+  const MyApp({super.key, required this.billingFuture});
 
   @override
   State<StatefulWidget> createState() {
@@ -39,6 +43,10 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadDarkModePreference();
+    // Wait for the billing service to initialize, then remove the splash screen
+    widget.billingFuture.then((_) {
+      FlutterNativeSplash.remove();
+    });
   }
 
   Future<void> _loadDarkModePreference() async {
@@ -125,7 +133,7 @@ class _MyAppState extends State<MyApp> {
                         _selectedOperation,
                         _selectedRange,
                         _selectedTimeLimit,
-                        isDarkMode: _isDarkMode, // Pass isDarkMode here
+                        isDarkMode: _isDarkMode,
                       )
                     : ResultScreen(
                         answeredQuestions,
