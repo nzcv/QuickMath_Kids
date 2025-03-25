@@ -18,8 +18,7 @@ class WrongQuestionsService {
       'userAnswer': userAnswer,
       'correctAnswer': correctAnswer,
       'category': category,
-      'sessionsRemaining': 3,
-      'correctCount': 0,
+      'correctSessionTimestamps': [], // List to track sessions where answered correctly
       'timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -44,19 +43,28 @@ class WrongQuestionsService {
     for (int i = 0; i < storedQuestions.length; i++) {
       Map<String, dynamic> questionData = jsonDecode(storedQuestions[i]);
       if (questionData['question'] == question) {
+        List<String> correctSessionTimestamps =
+            List<String>.from(questionData['correctSessionTimestamps'] ?? []);
+
         if (correct) {
-          int correctCount = (questionData['correctCount'] ?? 0) + 1;
-          questionData['correctCount'] = correctCount;
-          int sessionsRemaining = (questionData['sessionsRemaining'] ?? 3) - 1;
-          questionData['sessionsRemaining'] = sessionsRemaining;
-          if (sessionsRemaining <= 0) {
-            storedQuestions.removeAt(i);
+          // Add the current session timestamp
+          correctSessionTimestamps.add(DateTime.now().toIso8601String());
+          // Keep only the last 3 timestamps
+          if (correctSessionTimestamps.length > 3) {
+            correctSessionTimestamps = correctSessionTimestamps.sublist(
+                correctSessionTimestamps.length - 3);
+          }
+          questionData['correctSessionTimestamps'] = correctSessionTimestamps;
+
+          // Check if the question was answered correctly in 3 consecutive sessions
+          if (correctSessionTimestamps.length >= 3) {
+            storedQuestions.removeAt(i); // Remove the question
           } else {
             storedQuestions[i] = jsonEncode(questionData);
           }
         } else {
-          // Reset correctCount to 0 when answered incorrectly
-          questionData['correctCount'] = 0;
+          // Reset the correct session timestamps if answered incorrectly
+          questionData['correctSessionTimestamps'] = [];
           storedQuestions[i] = jsonEncode(questionData);
         }
         updated = true;
@@ -65,8 +73,6 @@ class WrongQuestionsService {
     }
 
     if (!updated && !correct) {
-      // If the question wasn’t found and it’s a wrong answer, this should not happen
-      // since we only update existing questions for wrong answers in this case.
       return;
     }
 
