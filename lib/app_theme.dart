@@ -20,6 +20,7 @@ class AppTheme {
     final Color primaryColor = Colors.blue[600]!; // Always blue for primary elements
     final Color secondaryColor = Colors.blue[300]!; // Lighter blue for secondary elements
     final Color premiumAccentColor = isPremium ? Colors.amber[600]! : Colors.blue[400]!; // Gold for premium, blue for non-premium
+    final Color premiumIconColor = isPremium ? Colors.amber[600]! : Colors.white; // Gold for premium, blue for non-premium
     final Color backgroundColor = isDarkMode ? Colors.black : Colors.white;
 
     // Surface color: Closer to white/black, with a subtle tint of primaryColor
@@ -47,7 +48,7 @@ class AppTheme {
         onError: Colors.white,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: primaryColor.withOpacity(0.7), // Blue AppBar
+        backgroundColor: premiumAccentColor,
         foregroundColor: onPrimaryColor,
         elevation: 0,
         toolbarHeight: 56 * scale,
@@ -57,7 +58,7 @@ class AppTheme {
           fontWeight: FontWeight.bold,
         ),
         iconTheme: IconThemeData(
-          color: premiumAccentColor, // Gold icons for premium users
+          color: Colors.white, // Gold icons for premium users
           size: 22 * scale,
         ),
       ),
@@ -110,7 +111,7 @@ class AppTheme {
         ),
       ),
       iconTheme: IconThemeData(
-        color: premiumAccentColor, // Gold icons for premium users
+        color: premiumIconColor, // Gold icons for premium users
         size: 22 * scale,
       ),
       dividerColor: secondaryColor.withOpacity(0.3),
