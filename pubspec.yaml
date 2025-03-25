@@ -27,12 +27,11 @@ dependencies:
   in_app_purchase: ^3.2.1
   flutter_secure_storage: ^9.2.4
   consumer: ^2.3.1
-  flutter_native_splash: ^2.4.1 # Added for runtime use
+  flutter_native_splash: ^2.4.1 # For runtime use
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_native_splash: ^2.4.1 # Added for generating the splash screen
 
 flutter:
   assets:
@@ -47,7 +46,5 @@ flutter_native_splash:
   android_12:
     image: assets/QuickMath_Kids_logo.png
     color: "#FFFFFF"
-  android_12_dark:
-    image: assets/QuickMath_Kids_logo.png
-    color: "#000000"
   fullscreen: true
+  # Ensure the splash screen stays until we remove it manually

@@ -43,9 +43,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadDarkModePreference();
-    // Wait for the billing service to initialize, then remove the splash screen
+    // Wait for the billing service to initialize and the first frame to render
     widget.billingFuture.then((_) {
-      FlutterNativeSplash.remove();
+      // Ensure the splash screen is removed only after the first frame is rendered
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        FlutterNativeSplash.remove();
+      });
     });
   }
 
