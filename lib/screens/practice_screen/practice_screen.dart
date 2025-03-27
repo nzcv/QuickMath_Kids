@@ -100,38 +100,37 @@ class _PracticeScreenState extends State<PracticeScreen> {
   Future<void> _loadWrongQuestions() async {
     List<Map<String, dynamic>> allWrongQuestions =
         await WrongQuestionsService.getWrongQuestions();
+
     setState(() {
       _wrongQuestions = [];
-      final seenQuestions = <String>{};
+      _wrongQuestionsToShowThisSession = [];
 
+      // Filter questions matching current operation and range
+      final currentOperation =
+          widget.selectedOperation.toString().split('.').last;
       for (var question in allWrongQuestions) {
         String category = question['category']?.toString() ?? '';
         String questionText = question['question']?.toString() ?? '';
         String operationFromCategory = category.split(' - ').first;
-        String currentOperation =
-            widget.selectedOperation.toString().split('.').last;
+        String rangeFromCategory = category.split(' - ').last;
 
         if (operationFromCategory == currentOperation &&
-            !seenQuestions.contains(questionText)) {
+            rangeFromCategory == widget.selectedRange) {
           _wrongQuestions.add(question);
-          seenQuestions.add(questionText);
+          _wrongQuestionsToShowThisSession.add(questionText);
         }
       }
 
-      // Filter out questions that have already been shown or answered in this session
-      _wrongQuestionsToShowThisSession = _wrongQuestions
-          .map((q) => q['question']?.toString() ?? '')
-          .where((q) =>
-              !_shownWrongQuestionsThisSession.contains(q) &&
-              !_answeredQuestionsThisSession.contains(q))
-          .toList();
+      // Reset tracking lists for new session
+      _shownWrongQuestionsThisSession.clear();
+      _answeredQuestionsThisSession.clear();
+      _wrongQuestionsThisSession.clear();
     });
   }
 
   void _setInitialQuestion() {
-    if (_wrongQuestionsToShowThisSession.isNotEmpty &&
-        _shownWrongQuestionsThisSession.length <
-            _wrongQuestionsToShowThisSession.length) {
+    if (_wrongQuestionsToShowThisSession.isNotEmpty) {
+      // Show all WAQs first before generating new questions
       _useWrongQuestion();
     } else {
       regenerateNumbers();
@@ -144,9 +143,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
       return;
     }
 
-    String nextQuestionText = _wrongQuestionsToShowThisSession.first;
+    String nextQuestionText = _wrongQuestionsToShowThisSession.firstWhere(
+      (q) => !_shownWrongQuestionsThisSession.contains(q),
+      orElse: () => '',
+    );
 
-    try {
+    if (nextQuestionText.isNotEmpty) {
       setState(() {
         numbers = _parseQuestion(nextQuestionText);
         correctAnswer =
@@ -154,13 +156,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
         answerOptions = generateAnswerOptions(correctAnswer);
         _shownWrongQuestionsThisSession.add(nextQuestionText);
         _answeredQuestionsThisSession.add(nextQuestionText);
-        _wrongQuestionsToShowThisSession.remove(nextQuestionText);
       });
-    } catch (e) {
-      // If question not found or any other error occurs
-      setState(() {
-        _wrongQuestionsToShowThisSession.remove(nextQuestionText);
-      });
+    } else {
+      // All WAQs shown, proceed with normal questions
       regenerateNumbers();
     }
   }
@@ -279,44 +277,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void checkAnswer(int selectedAnswer) {
     bool isCorrect = selectedAnswer == correctAnswer;
     String currentQuestion = _formatQuestionText();
-    List<int> nextNumbers = [];
-    int nextCorrectAnswer = 0;
-    List<int> nextAnswerOptions = [];
-
-    // Prepare the next question before state update
-    if (_shownWrongQuestionsThisSession.length <
-        _wrongQuestionsToShowThisSession.length) {
-      // Get next wrong question
-      String nextQuestionText = _wrongQuestionsToShowThisSession[
-          _shownWrongQuestionsThisSession.length];
-      nextNumbers = _parseQuestion(nextQuestionText);
-      nextCorrectAnswer =
-          _calculateCorrectAnswer(nextNumbers, widget.selectedOperation);
-      nextAnswerOptions = generateAnswerOptions(nextCorrectAnswer);
-    } else {
-      // Generate new random question
-      QuestionGenerator generator = QuestionGenerator();
-      nextNumbers = generator.generateTwoRandomNumbers(
-          widget.selectedOperation, widget.selectedRange);
-
-      if (widget.selectedOperation == Operation.lcm ||
-          widget.selectedOperation == Operation.gcf) {
-        nextCorrectAnswer = nextNumbers.last;
-        nextNumbers = nextNumbers.sublist(0, nextNumbers.length - 1);
-      } else {
-        nextCorrectAnswer =
-            _calculateCorrectAnswer(nextNumbers, widget.selectedOperation);
-      }
-      nextAnswerOptions = generateAnswerOptions(nextCorrectAnswer);
-    }
 
     setState(() {
-      // Record current answer
+      // Record current answer with correct/wrong status (EXACTLY AS YOU HAD IT)
       answeredQuestions.add('$currentQuestion = $selectedAnswer '
           '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
       answeredCorrectly.add(isCorrect);
 
-      // Update WAQ tracking
+      // Update WAQ tracking (EXACTLY AS YOU HAD IT)
       if (!isCorrect) {
         if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
           _wrongQuestionsThisSession.add(currentQuestion);
@@ -328,26 +296,48 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
           );
         }
+      } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
+        WrongQuestionsService.updateWrongQuestion(currentQuestion,
+            correct: true);
       }
 
-      // Update to next question
-      numbers = nextNumbers;
-      correctAnswer = nextCorrectAnswer;
-      answerOptions = nextAnswerOptions;
-
-      // Update shown questions tracking
-      if (_shownWrongQuestionsThisSession.length <
-          _wrongQuestionsToShowThisSession.length) {
-        _shownWrongQuestionsThisSession.add(currentQuestion);
-      }
-      _answeredQuestionsThisSession.add(currentQuestion);
-
+      // Play confetti for correct answers (EXACTLY AS YOU HAD IT)
       if (isCorrect) {
         confettiManager.correctConfettiController.play();
       }
+
+      // ONLY CHANGE: Modified WAQ sequencing logic
+      if (_wrongQuestionsToShowThisSession.isNotEmpty) {
+        // Find next unshown WAQ
+        String? nextWAQ = _wrongQuestionsToShowThisSession.firstWhere(
+          (q) => !_shownWrongQuestionsThisSession.contains(q),
+          orElse: () => '',
+        );
+
+        if (nextWAQ.isNotEmpty) {
+          // Show next WAQ
+          Map<String, dynamic> question = _wrongQuestions.firstWhere(
+            (q) => q['question'] == nextWAQ,
+          );
+          numbers = _parseQuestion(nextWAQ);
+          correctAnswer =
+              _calculateCorrectAnswer(numbers, widget.selectedOperation);
+          answerOptions = generateAnswerOptions(correctAnswer);
+          _shownWrongQuestionsThisSession.add(nextWAQ);
+        } else {
+          // No more WAQs - proceed normally
+          regenerateNumbers();
+        }
+      } else {
+        // No WAQs - proceed normally
+        regenerateNumbers();
+      }
+
+      // Track all answered questions (EXACTLY AS YOU HAD IT)
+      _answeredQuestionsThisSession.add(currentQuestion);
     });
 
-    // Trigger TTS for the new question
+    // Trigger TTS for the new question (EXACTLY AS YOU HAD IT)
     _triggerTTSSpeech();
   }
 
