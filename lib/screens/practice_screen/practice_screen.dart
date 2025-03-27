@@ -279,28 +279,47 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void checkAnswer(int selectedAnswer) {
     bool isCorrect = selectedAnswer == correctAnswer;
     String currentQuestion = _formatQuestionText();
+    List<int> nextNumbers = [];
+    int nextCorrectAnswer = 0;
+    List<int> nextAnswerOptions = [];
+
+    // Prepare the next question before state update
+    if (_shownWrongQuestionsThisSession.length <
+        _wrongQuestionsToShowThisSession.length) {
+      // Get next wrong question
+      String nextQuestionText = _wrongQuestionsToShowThisSession[
+          _shownWrongQuestionsThisSession.length];
+      nextNumbers = _parseQuestion(nextQuestionText);
+      nextCorrectAnswer =
+          _calculateCorrectAnswer(nextNumbers, widget.selectedOperation);
+      nextAnswerOptions = generateAnswerOptions(nextCorrectAnswer);
+    } else {
+      // Generate new random question
+      QuestionGenerator generator = QuestionGenerator();
+      nextNumbers = generator.generateTwoRandomNumbers(
+          widget.selectedOperation, widget.selectedRange);
+
+      if (widget.selectedOperation == Operation.lcm ||
+          widget.selectedOperation == Operation.gcf) {
+        nextCorrectAnswer = nextNumbers.last;
+        nextNumbers = nextNumbers.sublist(0, nextNumbers.length - 1);
+      } else {
+        nextCorrectAnswer =
+            _calculateCorrectAnswer(nextNumbers, widget.selectedOperation);
+      }
+      nextAnswerOptions = generateAnswerOptions(nextCorrectAnswer);
+    }
 
     setState(() {
-      String questionText = '${currentQuestion} = $selectedAnswer '
-          '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})';
-      answeredQuestions.add(questionText);
+      // Record current answer
+      answeredQuestions.add('$currentQuestion = $selectedAnswer '
+          '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
       answeredCorrectly.add(isCorrect);
 
       // Update WAQ tracking
       if (!isCorrect) {
         if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
           _wrongQuestionsThisSession.add(currentQuestion);
-        }
-      }
-
-      // Update WAQ counter if this is a wrong question
-      if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
-        WrongQuestionsService.updateWrongQuestion(currentQuestion,
-            correct: isCorrect);
-      } else if (!isCorrect) {
-        bool questionExists =
-            _wrongQuestions.any((q) => q['question'] == currentQuestion);
-        if (!questionExists) {
           WrongQuestionsService.saveWrongQuestion(
             question: currentQuestion,
             userAnswer: selectedAnswer,
@@ -311,19 +330,24 @@ class _PracticeScreenState extends State<PracticeScreen> {
         }
       }
 
-      if (isCorrect) confettiManager.correctConfettiController.play();
+      // Update to next question
+      numbers = nextNumbers;
+      correctAnswer = nextCorrectAnswer;
+      answerOptions = nextAnswerOptions;
 
-      // Load updated questions
-      _loadWrongQuestions().then((_) {
-        // Decide the next question
-        if (_wrongQuestionsToShowThisSession.isNotEmpty) {
-          _useWrongQuestion();
-        } else {
-          regenerateNumbers();
-        }
-      });
+      // Update shown questions tracking
+      if (_shownWrongQuestionsThisSession.length <
+          _wrongQuestionsToShowThisSession.length) {
+        _shownWrongQuestionsThisSession.add(currentQuestion);
+      }
+      _answeredQuestionsThisSession.add(currentQuestion);
+
+      if (isCorrect) {
+        confettiManager.correctConfettiController.play();
+      }
     });
 
+    // Trigger TTS for the new question
     _triggerTTSSpeech();
   }
 
@@ -385,9 +409,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _triggerTTSSpeech() {
-    _ttsHelper.playSpeech(widget.selectedOperation, numbers);
-    setState(() {
-      hasListenedToQuestion = true;
+    // Use the current numbers after ensuring they're updated
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _ttsHelper.playSpeech(widget.selectedOperation, numbers);
+      setState(() {
+        hasListenedToQuestion = true;
+      });
     });
   }
 
