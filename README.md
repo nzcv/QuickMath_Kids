@@ -9,31 +9,39 @@ An interactive math practice app designed to make learning fun and engaging for 
 - **Focus on Skill Development**: Improves calculation speed, math fluency, and listening comprehension.
 
 ## Features
-
-- **Operation Selection**: Choose from addition, subtraction, multiplication, or division on the home screen.
-- **Range Customization**: Select difficulty ranges (e.g., "Up to +5", "Up to +10") to suit the child's level.
-- **Flexible Time Limits**: 
-  - Set a specific time limit using a scroll wheel (1-60 minutes).
-  - Opt for no time limit, with the timer counting up until manually stopped.
-- **Text-to-Speech**: 
-  - Hear math questions aloud with a tap of the voice button.
-  - Supports repeated playback for better understanding.
-- **Practice Mode**: 
-  - Unlimited questions generated based on selected parameters.
-  - Pause or quit sessions at any time.
-  - Tracks wrong answers for focused review in future sessions.
-- **Wrong Answers History**: 
-  - View all incorrectly answered questions with details (question, user answer, correct answer, times corrected).
-  - Swipe to delete individual entries or clear all with confirmation.
-- **Detailed Results**: 
-  - Post-session breakdown includes time taken, questions attempted, and correct answers.
-  - Lists each question with correctness indicators.
-- **PDF Report Sharing**: Export results as a PDF with a summary and detailed question list, shareable via messaging or social apps.
-- **Dark Mode**: Toggle between light and dark themes for comfortable use.
-- **Offline Functionality**: Works fully without an internet connection.
-- **User Guide & FAQ**: 
-  - "How to Use" screen with step-by-step instructions.
-  - Comprehensive FAQ section with search functionality.
+  Operation Selection: Choose from addition, subtraction, multiplication, or division on the home screen.
+  
+  Range Customization: Select difficulty ranges (e.g., "Up to +5", "Up to +10") to suit the child’s level.
+  
+  Flexible Time Limits:
+    * Set a specific time limit (1-60 minutes) via a scroll wheel.
+    * Option for no time limit, with the timer counting up until stopped.
+    
+  Text-to-Speech:
+    * Questions read aloud with a voice button tap.
+    * Supports repeated playback for comprehension.
+    
+  Practice Mode:
+    * Unlimited questions based on selected parameters.
+    * Pause or quit sessions anytime.
+    * Tracks wrong answers for review.
+    
+  Wrong Answers History:
+    * View incorrect answers with details (question, user answer, correct answer, times corrected).
+    * Swipe to delete entries or clear all with confirmation.
+    
+  Detailed Results:
+    * Post-session stats: time taken, questions attempted, correct answers.
+    * Lists each question with correctness indicators.
+    * PDF Report Sharing: Export results as a PDF (summary + question list), shareable via messaging or social apps.
+    
+  Dark Mode: Toggle between light and dark themes.
+  
+  Offline Functionality: Works fully without internet.
+  
+  User Guide & FAQ:
+    * "How to Use" screen with step-by-step instructions.
+    * Searchable FAQ section.
 
 ## Target Audience
 
