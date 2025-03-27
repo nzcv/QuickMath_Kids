@@ -176,6 +176,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
             appBar: AppBar(
               title: const Text('QuickMath Kids'),
               actions: [
+                /*
                 IconButton(
                   icon: _isRestoring
                       ? SizedBox(
@@ -211,7 +212,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             );
                           }
                         },
-                ),
+                ),*/
               ],
             ),
             drawer: AppDrawer(
@@ -329,6 +330,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
+                      /*
                       ElevatedButton(
                         onPressed: () async {
                           final billingService =
@@ -347,7 +349,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             horizontal: isTablet ? 24 : 18,
                           ),
                         ),
-                      ),
+                      ),*/
                     ],
                   ),
                 ),

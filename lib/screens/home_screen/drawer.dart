@@ -74,14 +74,12 @@ class AppDrawer extends StatelessWidget {
               if (billingService.isPremium) {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const SettingsScreen()),
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
                 );
               } else {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const PurchaseScreen()),
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                 );
               }
             },
@@ -103,8 +101,7 @@ class AppDrawer extends StatelessWidget {
               } else {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const PurchaseScreen()),
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                 );
               }
             },
@@ -120,15 +117,13 @@ class AppDrawer extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) =>
-                        QuizHistoryScreen(switchToStartScreen),
+                    builder: (context) => QuizHistoryScreen(switchToStartScreen),
                   ),
                 );
               } else {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                      builder: (context) => const PurchaseScreen()),
+                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
                 );
               }
             },
@@ -148,43 +143,13 @@ class AppDrawer extends StatelessWidget {
           ),
           Container(
             margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            child: ListTile(
-              title: const Text("Theme Mode"),
-              trailing: SizedBox(
-                width: 100,
-                child: Slider(
-                  value: isDarkMode ? 1.0 : 0.0,
-                  onChanged: (value) => toggleDarkMode(value > 0.5),
-                  activeColor: theme.colorScheme.primary,
-                  inactiveColor: Colors.grey[300],
-                  thumbColor: theme.colorScheme.primary,
-                ),
-              ),
-            ),
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            child: ListTile(
+            child: SwitchListTile(
               title: const Text("Dark Mode"),
-              trailing: GestureDetector(
-                onTap: () => toggleDarkMode(!isDarkMode),
-                child: Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    CircularProgressIndicator(
-                      value: isDarkMode ? 1.0 : 0.0,
-                      backgroundColor: Colors.grey[300],
-                      valueColor:
-                          AlwaysStoppedAnimation(theme.colorScheme.primary),
-                    ),
-                    Icon(
-                      isDarkMode ? Icons.nightlight : Icons.wb_sunny,
-                      size: 20,
-                      color: theme.colorScheme.primary,
-                    ),
-                  ],
-                ),
-              ),
+              value: isDarkMode,
+              onChanged: (bool value) {
+                toggleDarkMode(value);
+              },
+              activeColor: theme.colorScheme.primary,
             ),
           ),
         ],
@@ -201,11 +166,11 @@ class AppDrawer extends StatelessWidget {
     Color? iconColor,
   }) {
     final theme = Theme.of(context);
-
+    
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
       decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark
+        color: theme.brightness == Brightness.dark 
             ? Colors.grey[800]
             : Colors.grey[100],
         borderRadius: BorderRadius.circular(8),
