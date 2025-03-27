@@ -315,10 +315,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
         );
 
         if (nextWAQ.isNotEmpty) {
-          // Show next WAQ
-          Map<String, dynamic> question = _wrongQuestions.firstWhere(
-            (q) => q['question'] == nextWAQ,
-          );
           numbers = _parseQuestion(nextWAQ);
           correctAnswer =
               _calculateCorrectAnswer(numbers, widget.selectedOperation);
