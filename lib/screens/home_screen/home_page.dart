@@ -1,15 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
-import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
-import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
-import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
-import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
-import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
+import 'package:QuickMath_Kids/screens/home_screen/drawer.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
-import 'package:QuickMath_Kids/billing/purchase_screen.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
@@ -90,7 +85,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             displayText = 'No Limit';
                           } else {
                             final minute = index; // 1 to 60
-                            displayText = '$minute minute${minute == 1 ? '' : 's'}';
+                            displayText =
+                                '$minute minute${minute == 1 ? '' : 's'}';
                           }
                           return Center(
                             child: Container(
@@ -115,8 +111,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                   color: isSelected
                                       ? theme.colorScheme.primary
                                       : theme.colorScheme.onSurface,
-                                  fontWeight:
-                                      isSelected ? FontWeight.bold : FontWeight.normal,
+                                  fontWeight: isSelected
+                                      ? FontWeight.bold
+                                      : FontWeight.normal,
                                 ),
                               ),
                             ),
@@ -133,7 +130,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         if (_selectedIndex == 0) {
                           _selectedTimeLimit = null; // "No Limit"
                         } else {
-                          _selectedTimeLimit = _selectedIndex * 60; // Convert minutes to seconds
+                          _selectedTimeLimit =
+                              _selectedIndex * 60; // Convert minutes to seconds
                         }
                       });
                       Navigator.pop(context);
@@ -195,28 +193,37 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           setState(() {
                             _isRestoring = true;
                           });
-                          final billingService = ref.read(billingServiceProvider);
+                          final billingService =
+                              ref.read(billingServiceProvider);
                           await billingService.restorePurchase();
                           setState(() {
                             _isRestoring = false;
                           });
                           if (billingService.isPremium) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Premium status restored')),
+                              const SnackBar(
+                                  content: Text('Premium status restored')),
                             );
                           } else {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('No premium purchase found')),
+                              const SnackBar(
+                                  content: Text('No premium purchase found')),
                             );
                           }
                         },
                 ),
               ],
             ),
-            drawer: _buildDrawer(context, billingService),
+            drawer: AppDrawer(
+              billingService: billingService,
+              switchToStartScreen: widget.switchToStartScreen,
+              isDarkMode: _isDarkMode,
+              toggleDarkMode: widget.toggleDarkMode,
+            ),
             body: Center(
               child: ConstrainedBox(
-                constraints: BoxConstraints(maxWidth: isTablet ? 700 : double.infinity),
+                constraints:
+                    BoxConstraints(maxWidth: isTablet ? 700 : double.infinity),
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(isTablet ? 24 : 16),
                   child: Column(
@@ -242,10 +249,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             setState(() {
                               _selectedOperation = newValue;
                               _selectedRange = getDefaultRange(newValue);
-                              if (!getDropdownItems(_selectedOperation)
-                                  .any((item) => item.value == _selectedRange)) {
+                              if (!getDropdownItems(_selectedOperation).any(
+                                  (item) => item.value == _selectedRange)) {
                                 _selectedRange =
-                                    getDropdownItems(_selectedOperation).first.value!;
+                                    getDropdownItems(_selectedOperation)
+                                        .first
+                                        .value!;
                               }
                             });
                           }
@@ -265,7 +274,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       ),
                       const SizedBox(height: 20),
                       Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40), // Match Operation and Range dropdowns
+                        padding: const EdgeInsets.symmetric(
+                            horizontal:
+                                40), // Match Operation and Range dropdowns
                         child: InkWell(
                           onTap: () => _showTimeWheelPicker(context),
                           child: InputDecorator(
@@ -287,7 +298,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               focusedBorder: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(10),
                                 borderSide: BorderSide(
-                                    color: theme.colorScheme.secondary, width: 2),
+                                    color: theme.colorScheme.secondary,
+                                    width: 2),
                               ),
                             ),
                             child: Text(
@@ -302,10 +314,11 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       const SizedBox(height: 40),
                       ElevatedButton.icon(
                         iconAlignment: IconAlignment.end,
-                        icon: const Icon(Icons.arrow_forward, color: Colors.white),
+                        icon: const Icon(Icons.arrow_forward,
+                            color: Colors.white),
                         onPressed: () {
-                          widget.switchToPracticeScreen(
-                              _selectedOperation, _selectedRange, _selectedTimeLimit);
+                          widget.switchToPracticeScreen(_selectedOperation,
+                              _selectedRange, _selectedTimeLimit);
                         },
                         label: const Text('Start Oral Practice'),
                         style: ElevatedButton.styleFrom(
@@ -318,7 +331,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       const SizedBox(height: 20),
                       ElevatedButton(
                         onPressed: () async {
-                          final billingService = ref.read(billingServiceProvider);
+                          final billingService =
+                              ref.read(billingServiceProvider);
                           await billingService.resetPremium();
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
@@ -344,183 +358,4 @@ class _StartScreenState extends ConsumerState<StartScreen> {
       },
     );
   }
-
-  Widget _buildDrawer(BuildContext context, BillingService billingService) {
-  final theme = Theme.of(context);
-
-  return Drawer(
-    width: MediaQuery.of(context).size.width * 0.7,
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        DrawerHeader(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.primary, // Blue
-          ),
-          child: Text(
-            'QuickMath Kids',
-            style: theme.textTheme.headlineMedium
-                ?.copyWith(color: theme.colorScheme.onPrimary),
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: ListTile(
-            leading: Icon(Icons.help_outline, color: theme.colorScheme.primary), // Blue
-            title: const Text('FAQ'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FAQScreen()),
-              );
-            },
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: ListTile(
-            leading: Icon(Icons.help_outline, color: theme.colorScheme.primary), // Blue
-            title: const Text('How to use?'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HowToUseScreen()),
-              );
-            },
-          ),
-        ),
-        Container(
-          margin: billingService.isPremium
-              ? const EdgeInsets.symmetric(vertical: 4)
-              : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: !billingService.isPremium
-              ? BoxDecoration(
-                  border: Border.all(color: theme.colorScheme.error, width: 2),
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                )
-              : null,
-          child: ListTile(
-            leading: Icon(Icons.settings, color: theme.colorScheme.primary), // Blue
-            title: const Text('Settings'),
-            trailing: !billingService.isPremium
-                ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
-                : null,
-            onTap: () {
-              Navigator.pop(context);
-              if (billingService.isPremium) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              }
-            },
-          ),
-        ),
-        Container(
-          margin: billingService.isPremium
-              ? const EdgeInsets.symmetric(vertical: 4)
-              : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: !billingService.isPremium
-              ? BoxDecoration(
-                  border: Border.all(color: theme.colorScheme.error, width: 2),
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                )
-              : null,
-          child: ListTile(
-            leading: Icon(Icons.history, color: theme.colorScheme.primary), // Blue
-            title: const Text('Wrong Answers History'),
-            trailing: !billingService.isPremium
-                ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
-                : null,
-            onTap: () {
-              Navigator.pop(context);
-              if (billingService.isPremium) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const WrongAnswersScreen(),
-                  ),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              }
-            },
-          ),
-        ),
-        Container(
-          margin: billingService.isPremium
-              ? const EdgeInsets.symmetric(vertical: 4)
-              : const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          decoration: !billingService.isPremium
-              ? BoxDecoration(
-                  border: Border.all(color: theme.colorScheme.error, width: 2),
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                )
-              : null,
-          child: ListTile(
-            leading: Icon(Icons.history_toggle_off, color: theme.colorScheme.primary), // Blue
-            title: const Text('Quiz History'),
-            trailing: !billingService.isPremium
-                ? Icon(Icons.lock, size: 20, color: theme.colorScheme.error)
-                : null,
-            onTap: () {
-              Navigator.pop(context);
-              if (billingService.isPremium) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) =>
-                        QuizHistoryScreen(widget.switchToStartScreen),
-                  ),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              }
-            },
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: ListTile(
-            leading: Icon(Icons.star, color: theme.iconTheme.color), // Gold for premium
-            title: const Text('Purchase Premium'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-              );
-            },
-          ),
-        ),
-        Container(
-          margin: const EdgeInsets.symmetric(vertical: 4),
-          child: SwitchListTile(
-            title: const Text("Dark Mode"),
-            value: _isDarkMode,
-            onChanged: (bool value) {
-              setState(() {
-                _isDarkMode = value;
-                widget.toggleDarkMode(value);
-              });
-            },
-          ),
-        ),
-      ],
-    ),
-  );
-}
 }
