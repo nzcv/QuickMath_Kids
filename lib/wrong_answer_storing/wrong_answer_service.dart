@@ -18,7 +18,7 @@ class WrongQuestionsService {
       'userAnswer': userAnswer,
       'correctAnswer': correctAnswer,
       'category': category,
-      'correctSessionTimestamps': [], // List to track sessions where answered correctly
+      'correctCount': 0, // Initialize counter
       'timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -35,7 +35,7 @@ class WrongQuestionsService {
   }
 
   static Future<void> updateWrongQuestion(String question,
-      {bool correct = false}) async {
+      {required bool correct}) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> storedQuestions = prefs.getStringList(_key) ?? [];
     bool updated = false;
@@ -43,28 +43,21 @@ class WrongQuestionsService {
     for (int i = 0; i < storedQuestions.length; i++) {
       Map<String, dynamic> questionData = jsonDecode(storedQuestions[i]);
       if (questionData['question'] == question) {
-        List<String> correctSessionTimestamps =
-            List<String>.from(questionData['correctSessionTimestamps'] ?? []);
-
         if (correct) {
-          // Add the current session timestamp
-          correctSessionTimestamps.add(DateTime.now().toIso8601String());
-          // Keep only the last 3 timestamps
-          if (correctSessionTimestamps.length > 3) {
-            correctSessionTimestamps = correctSessionTimestamps.sublist(
-                correctSessionTimestamps.length - 3);
-          }
-          questionData['correctSessionTimestamps'] = correctSessionTimestamps;
+          // Increment the correct count
+          int correctCount = (questionData['correctCount'] ?? 0) + 1;
+          questionData['correctCount'] = correctCount;
 
-          // Check if the question was answered correctly in 3 consecutive sessions
-          if (correctSessionTimestamps.length >= 3) {
-            storedQuestions.removeAt(i); // Remove the question
+          if (correctCount >= 3) {
+            // Remove the question if the counter reaches 3
+            storedQuestions.removeAt(i);
           } else {
+            // Update the question with the new counter
             storedQuestions[i] = jsonEncode(questionData);
           }
         } else {
-          // Reset the correct session timestamps if answered incorrectly
-          questionData['correctSessionTimestamps'] = [];
+          // Reset the counter if answered incorrectly
+          questionData['correctCount'] = 0;
           storedQuestions[i] = jsonEncode(questionData);
         }
         updated = true;

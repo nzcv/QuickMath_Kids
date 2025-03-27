@@ -46,12 +46,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
   List<Map<String, dynamic>> _wrongQuestions = [];
-  List<String> _wrongQuestionsToShowThisSession =
-      []; // Questions to show this session
+  List<String> _wrongQuestionsToShowThisSession = [];
   List<String> _shownWrongQuestionsThisSession = [];
   List<String> _answeredQuestionsThisSession = [];
-  List<String> _wrongQuestionsThisSession =
-      []; // Track wrong questions in this session
+  List<String> _wrongQuestionsThisSession = [];
   bool _isInitialized = false;
 
   int correctAnswer = 0;
@@ -103,28 +101,30 @@ class _PracticeScreenState extends State<PracticeScreen> {
     List<Map<String, dynamic>> allWrongQuestions =
         await WrongQuestionsService.getWrongQuestions();
     setState(() {
-      // Filter questions by category and remove duplicates
       _wrongQuestions = [];
       final seenQuestions = <String>{};
+
       for (var question in allWrongQuestions) {
         String category = question['category']?.toString() ?? '';
         String questionText = question['question']?.toString() ?? '';
-        if (category.startsWith(
-                widget.selectedOperation.toString().split('.').last) &&
+        String operationFromCategory = category.split(' - ').first;
+        String currentOperation =
+            widget.selectedOperation.toString().split('.').last;
+
+        if (operationFromCategory == currentOperation &&
             !seenQuestions.contains(questionText)) {
           _wrongQuestions.add(question);
           seenQuestions.add(questionText);
         }
       }
 
-      // Determine which wrong questions to show this session (from previous sessions)
+      // Filter out questions that have already been shown or answered in this session
       _wrongQuestionsToShowThisSession = _wrongQuestions
           .map((q) => q['question']?.toString() ?? '')
-          .where((q) => !_wrongQuestionsThisSession
-              .contains(q)) // Exclude questions from this session
+          .where((q) =>
+              !_shownWrongQuestionsThisSession.contains(q) &&
+              !_answeredQuestionsThisSession.contains(q))
           .toList();
-      _shownWrongQuestionsThisSession.clear();
-      _answeredQuestionsThisSession.clear();
     });
   }
 
@@ -139,31 +139,31 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _useWrongQuestion() {
-  String nextQuestionText = '';
-  Map<String, dynamic>? nextQuestion;
+    if (_wrongQuestionsToShowThisSession.isEmpty) {
+      regenerateNumbers();
+      return;
+    }
 
-  for (var question in _wrongQuestions) {
-    String questionText = question['question']?.toString() ?? '';
-    if (_wrongQuestionsToShowThisSession.contains(questionText) &&
-        !_shownWrongQuestionsThisSession.contains(questionText)) {
-      nextQuestionText = questionText;
-      nextQuestion = question;
-      break;
+    String nextQuestionText = _wrongQuestionsToShowThisSession.first;
+
+    try {
+      setState(() {
+        numbers = _parseQuestion(nextQuestionText);
+        correctAnswer =
+            _calculateCorrectAnswer(numbers, widget.selectedOperation);
+        answerOptions = generateAnswerOptions(correctAnswer);
+        _shownWrongQuestionsThisSession.add(nextQuestionText);
+        _answeredQuestionsThisSession.add(nextQuestionText);
+        _wrongQuestionsToShowThisSession.remove(nextQuestionText);
+      });
+    } catch (e) {
+      // If question not found or any other error occurs
+      setState(() {
+        _wrongQuestionsToShowThisSession.remove(nextQuestionText);
+      });
+      regenerateNumbers();
     }
   }
-
-  if (nextQuestion != null) {
-    setState(() {
-      numbers = _parseQuestion(nextQuestionText);
-      correctAnswer = _calculateCorrectAnswer(numbers, widget.selectedOperation); // Recalculate
-      answerOptions = generateAnswerOptions(correctAnswer);
-      _shownWrongQuestionsThisSession.add(nextQuestionText);
-      _answeredQuestionsThisSession.add(nextQuestionText);
-    });
-  } else {
-    regenerateNumbers();
-  }
-}
 
   void _updateHintMessage() {
     currentHintMessage = hintManager.getRandomHintMessage();
@@ -189,51 +189,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     String questionText;
 
     do {
-      numbers = QuestionGenerator().generateTwoRandomNumbers(
-          widget.selectedOperation, widget.selectedRange);
-
-      // Calculate the correct answer based on the operation
-      if (widget.selectedOperation == Operation.lcm ||
-          widget.selectedOperation == Operation.gcf) {
-        // For LCM and GCF, the correct answer is the last element in the list
-        correctAnswer = numbers.last;
-        // Remove the correct answer from the numbers list
-        numbers = numbers.sublist(0, numbers.length - 1);
-      } else {
-        // For other operations, calculate the correct answer
-        if (numbers.length >= 2) {
-          switch (widget.selectedOperation) {
-            case Operation.addition_2A:
-            case Operation.addition_A:
-            case Operation.addition_B:
-              correctAnswer = numbers[0] + numbers[1];
-              break;
-            case Operation.subtraction_A:
-            case Operation.subtraction_B:
-              correctAnswer = numbers[0] - numbers[1];
-              break;
-            case Operation.multiplication_C:
-              correctAnswer = numbers[0] * numbers[1];
-              break;
-            case Operation.division_C:
-            case Operation.division_D:
-              correctAnswer = numbers[0] ~/ numbers[1]; // Integer division
-              break;
-            default:
-              correctAnswer = 0; // Fallback
-          }
-        } else {
-          correctAnswer = 0; // Fallback in case numbers list is invalid
-        }
-      }
-
-      questionText = _formatQuestionText();
-      attempts++;
-    } while (_answeredQuestionsThisSession.contains(questionText) &&
-        attempts < maxAttempts);
-
-    if (attempts >= maxAttempts) {
-      _answeredQuestionsThisSession.clear();
       numbers = QuestionGenerator().generateTwoRandomNumbers(
           widget.selectedOperation, widget.selectedRange);
 
@@ -267,77 +222,113 @@ class _PracticeScreenState extends State<PracticeScreen> {
           correctAnswer = 0;
         }
       }
+
+      questionText = _formatQuestionText();
+      attempts++;
+    } while (_answeredQuestionsThisSession.contains(questionText) &&
+        attempts < maxAttempts);
+
+    if (attempts >= maxAttempts) {
+      int num1, num2;
+      do {
+        num1 = (DateTime.now().millisecondsSinceEpoch % 10) + 1;
+        num2 = (DateTime.now().millisecondsSinceEpoch % 10) + 1;
+        numbers = [num1, num2];
+
+        if (widget.selectedOperation == Operation.lcm ||
+            widget.selectedOperation == Operation.gcf) {
+          correctAnswer = widget.selectedOperation == Operation.lcm
+              ? _lcm(num1, num2)
+              : _gcd(num1, num2);
+        } else {
+          switch (widget.selectedOperation) {
+            case Operation.addition_2A:
+            case Operation.addition_A:
+            case Operation.addition_B:
+              correctAnswer = num1 + num2;
+              break;
+            case Operation.subtraction_A:
+            case Operation.subtraction_B:
+              correctAnswer = num1 - num2;
+              break;
+            case Operation.multiplication_C:
+              correctAnswer = num1 * num2;
+              break;
+            case Operation.division_C:
+            case Operation.division_D:
+              if (num2 != 0) {
+                correctAnswer = num1 ~/ num2;
+              } else {
+                num2 = 1;
+                correctAnswer = num1 ~/ num2;
+              }
+              break;
+            default:
+              correctAnswer = 0;
+          }
+        }
+
+        questionText = _formatQuestionText();
+      } while (_answeredQuestionsThisSession.contains(questionText));
     }
 
     answerOptions = generateAnswerOptions(correctAnswer);
+    _answeredQuestionsThisSession.add(questionText);
   }
 
   void checkAnswer(int selectedAnswer) {
     bool isCorrect = selectedAnswer == correctAnswer;
+    String currentQuestion = _formatQuestionText();
 
     setState(() {
-      String questionText = '${_formatQuestionText()} = $selectedAnswer '
+      String questionText = '${currentQuestion} = $selectedAnswer '
           '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})';
       answeredQuestions.add(questionText);
       answeredCorrectly.add(isCorrect);
-      String currentQuestion = _formatQuestionText();
 
-      _answeredQuestionsThisSession.add(currentQuestion);
+      // Update WAQ tracking
+      if (!isCorrect) {
+        if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
+          _wrongQuestionsThisSession.add(currentQuestion);
+        }
+      }
 
-      // Recalculate the correct answer to ensure accuracy
-      int recalculatedCorrectAnswer =
-          _calculateCorrectAnswer(numbers, widget.selectedOperation);
-
-      // If the question is a wrong question from a previous session
+      // Update WAQ counter if this is a wrong question
       if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
         WrongQuestionsService.updateWrongQuestion(currentQuestion,
             correct: isCorrect);
-        _loadWrongQuestions();
       } else if (!isCorrect) {
-        // Add to wrong questions for the next session
-        _wrongQuestionsThisSession.add(currentQuestion);
         bool questionExists =
             _wrongQuestions.any((q) => q['question'] == currentQuestion);
         if (!questionExists) {
-          WrongQuestionsService.getWrongQuestions().then((allQuestions) {
-            bool alreadyInStorage =
-                allQuestions.any((q) => q['question'] == currentQuestion);
-            if (!alreadyInStorage) {
-              WrongQuestionsService.saveWrongQuestion(
-                question: currentQuestion,
-                userAnswer: selectedAnswer,
-                correctAnswer:
-                    recalculatedCorrectAnswer, // Use recalculated value
-                category:
-                    '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
-              );
-            }
-            _loadWrongQuestions();
-          });
-        } else {
-          _loadWrongQuestions();
+          WrongQuestionsService.saveWrongQuestion(
+            question: currentQuestion,
+            userAnswer: selectedAnswer,
+            correctAnswer: correctAnswer,
+            category:
+                '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+          );
         }
-      } else {
-        _loadWrongQuestions();
       }
 
       if (isCorrect) confettiManager.correctConfettiController.play();
 
-      // Decide the next question
-      if (_wrongQuestionsToShowThisSession.isNotEmpty &&
-          _shownWrongQuestionsThisSession.length <
-              _wrongQuestionsToShowThisSession.length) {
-        _useWrongQuestion();
-      } else {
-        regenerateNumbers();
-      }
+      // Load updated questions
+      _loadWrongQuestions().then((_) {
+        // Decide the next question
+        if (_wrongQuestionsToShowThisSession.isNotEmpty) {
+          _useWrongQuestion();
+        } else {
+          regenerateNumbers();
+        }
+      });
     });
 
     _triggerTTSSpeech();
   }
 
   int _calculateCorrectAnswer(List<int> numbers, Operation operation) {
-    if (numbers.length < 2) return 0; // Safety check
+    if (numbers.length < 2) return 0;
     switch (operation) {
       case Operation.addition_2A:
       case Operation.addition_A:
@@ -350,7 +341,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         return numbers[0] * numbers[1];
       case Operation.division_C:
       case Operation.division_D:
-        return numbers[0] ~/ numbers[1]; // Integer division
+        return numbers[0] ~/ numbers[1];
       case Operation.lcm:
         return _lcm(numbers[0], numbers[1]);
       case Operation.gcf:
@@ -389,7 +380,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     } else if (widget.selectedOperation == Operation.gcf) {
       return 'GCF of ${numbers[0]}, ${numbers[1]}';
     } else {
-      //return '${numbers[0]} ${getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
       return '${numbers[0]} ${OperatorHelper.getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
     }
   }
@@ -547,7 +537,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                         shape: const CircleBorder(),
                                         elevation: 8,
                                         backgroundColor:
-                                            theme.colorScheme.primary, // Blue
+                                            theme.colorScheme.primary,
                                         padding: EdgeInsets.all(isTablet
                                             ? screenWidth * 0.1
                                             : 40 * adjustedScale),
@@ -566,8 +556,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                       child: IconButton(
                                         onPressed: _showHintDialog,
                                         icon: Icon(Icons.lightbulb_outline,
-                                            color: theme.iconTheme
-                                                .color), // Gold for premium
+                                            color: theme.iconTheme.color),
                                         style: IconButton.styleFrom(
                                           backgroundColor:
                                               theme.colorScheme.surface,
