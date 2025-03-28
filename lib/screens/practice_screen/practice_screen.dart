@@ -572,7 +572,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                             color: theme.iconTheme.color),
                                         style: IconButton.styleFrom(
                                           backgroundColor:
-                                              theme.colorScheme.surface,
+                                              Colors.deepOrangeAccent,
                                           shape: const CircleBorder(),
                                         ),
                                         tooltip: 'Show Hint',

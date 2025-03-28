@@ -132,7 +132,7 @@ class AppDrawer extends StatelessWidget {
             context: context,
             icon: Icons.star,
             title: 'Purchase Premium',
-            iconColor: theme.iconTheme.color,
+            iconColor: Colors.amber,
             onTap: () {
               Navigator.pop(context);
               Navigator.push(
@@ -172,7 +172,7 @@ class AppDrawer extends StatelessWidget {
       decoration: BoxDecoration(
         color: theme.brightness == Brightness.dark 
             ? Colors.grey[800]
-            : Colors.grey[100],
+            : Colors.grey[900],
         borderRadius: BorderRadius.circular(8),
         border: isPremiumRequired
             ? Border.all(color: theme.colorScheme.error, width: 1.5)
@@ -197,7 +197,9 @@ class AppDrawer extends StatelessWidget {
                 child: Text(
                   title,
                   style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.colorScheme.onSurface,
+                    color: theme.brightness == Brightness.dark 
+                        ? Colors.white 
+                        : Colors.white,
                   ),
                 ),
               ),

@@ -31,7 +31,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   int? _selectedTimeLimit;
   int _selectedIndex = 0; // 0 for "No Limit", 1-60 for minutes
   bool _isDarkMode = false;
-  bool _isRestoring = false;
+  //bool _isRestoring = false;
 
   @override
   void initState() {
