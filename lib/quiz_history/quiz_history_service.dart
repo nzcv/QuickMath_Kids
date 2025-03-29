@@ -65,7 +65,7 @@ class QuizHistoryService {
     int suffix = 2;
 
     while (quizzes.any((quiz) => quiz['title'] == newTitle)) {
-      newTitle = '$baseTitle $suffix';
+      newTitle = '$baseTitle-$suffix'; // Append suffix with a hyphen
       suffix++;
     }
     return newTitle;
@@ -80,7 +80,8 @@ class QuizHistoryService {
 
     String uniqueNewTitle = newTitle;
     int suffix = 2;
-    while (quizzes.any((quiz) => quiz['title'] == uniqueNewTitle && quiz['title'] != oldTitle)) {
+    while (quizzes.any((quiz) =>
+        quiz['title'] == uniqueNewTitle && quiz['title'] != oldTitle)) {
       uniqueNewTitle = '$newTitle $suffix';
       suffix++;
     }

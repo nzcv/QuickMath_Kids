@@ -74,7 +74,9 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Future<void> _promptForTitle() async {
-    final baseTitle = DateTime.now().toString().split(' ')[0];
+    final now = DateTime.now();
+    final baseTitle =
+        '${now.day.toString().padLeft(2, '0')}-${now.month.toString().padLeft(2, '0')}-${now.year}';
     final uniqueTitle = await QuizHistoryService.generateUniqueTitle(baseTitle);
 
     if (!mounted) return;
@@ -90,7 +92,7 @@ class _ResultScreenState extends State<ResultScreen>
             controller: controller,
             decoration: const InputDecoration(
               labelText: 'Enter quiz title',
-              hintText: 'e.g., 2025-03-03',
+              hintText: 'e.g., 28-03-2025',
             ),
           ),
           actions: [
@@ -191,7 +193,8 @@ class _ResultScreenState extends State<ResultScreen>
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Card(
-                  color: Colors.white60, // Set card background color based on theme
+                  color: Colors
+                      .white60, // Set card background color based on theme
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
