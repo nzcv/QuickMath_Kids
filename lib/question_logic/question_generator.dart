@@ -28,7 +28,7 @@ class QuestionGenerator {
       return 50;
     }
 
-    return 10; // Default value
+    return 10; 
   }
 
   int calculateGCF(int a, int b) {
@@ -37,7 +37,7 @@ class QuestionGenerator {
       b = a % b;
       a = temp;
     }
-    return a; // No forced minimum value
+    return a; 
   }
 
   int calculateLCM(int a, int b) {
@@ -200,7 +200,6 @@ class QuestionGenerator {
       correctAnswer = random.nextInt(10) + 1;
       num1 = num2 * correctAnswer;
     } else if (operation == Operation.lcm) {
-      // LCM logic
       int maxLimit = 10;
       if (dropdownValue.startsWith('upto')) {
         maxLimit = int.parse(dropdownValue.split(' ')[1]);
@@ -210,10 +209,8 @@ class QuestionGenerator {
       num2 = random.nextInt(maxLimit) + 1;
 
       if (dropdownValue.contains('3 numbers')) {
-        // 3-number LCM logic for specific ranges
         List<int> nums = [];
 
-        // Validate range parameter
         if (dropdownValue == '3 numbers upto 10') {
           nums = _generateThreeUniqueRandomNumbers(10);
         } else if (dropdownValue == '3 numbers upto 20') {
@@ -225,22 +222,17 @@ class QuestionGenerator {
         } else if (dropdownValue == '3 numbers upto 50') {
           nums = _generateThreeUniqueRandomNumbers(50);
         } else {
-          // Fallback to default range
           nums = _generateThreeUniqueRandomNumbers(10);
         }
 
-        // Calculate LCM of all three numbers
         int correctAnswer = calculateLCM3(nums[0], nums[1], nums[2]);
 
-        // Return the three numbers and their LCM
         return [...nums, correctAnswer];
       } else {
-        // 2-number LCM
         correctAnswer = calculateLCM(num1, num2);
         return [num1, num2, correctAnswer];
       }
     } else if (operation == Operation.gcf) {
-      // GCF logic
       int maxLimit = 10;
       if (dropdownValue.startsWith('upto')) {
         maxLimit = int.parse(dropdownValue.split(' ')[1]);
@@ -259,6 +251,6 @@ class QuestionGenerator {
 
   int generateRandomNumber() {
     final random = Random();
-    return random.nextInt(100) + 1; // Generate random number between 1 and 100
+    return random.nextInt(100) + 1;
   }
 }
