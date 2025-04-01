@@ -1,8 +1,8 @@
 name: QuickMath_Kids
-description: "A new Flutter project."
+description: ""
 publish_to: 'none'
 
-version: 3.0.4+11
+version: 3.0.5+12
 
 environment:
   sdk: ^3.5.2
