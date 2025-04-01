@@ -197,20 +197,20 @@ class _PracticeScreenState extends State<PracticeScreen> {
       } else {
         if (numbers.length >= 2) {
           switch (widget.selectedOperation) {
-            case Operation.addition_2A:
-            case Operation.addition_A:
-            case Operation.addition_B:
+            case Operation.additionBeginner:
+            case Operation.additionIntermediate:
+            case Operation.additionAdvanced:
               correctAnswer = numbers[0] + numbers[1];
               break;
-            case Operation.subtraction_A:
-            case Operation.subtraction_B:
+            case Operation.subtractionBeginner:
+            case Operation.subtractionIntermediate:
               correctAnswer = numbers[0] - numbers[1];
               break;
-            case Operation.multiplication_C:
+            case Operation.multiplicationTables:
               correctAnswer = numbers[0] * numbers[1];
               break;
-            case Operation.division_C:
-            case Operation.division_D:
+            case Operation.divisionBasic:
+            case Operation.divisionMixed:
               correctAnswer = numbers[0] ~/ numbers[1];
               break;
             default:
@@ -240,20 +240,20 @@ class _PracticeScreenState extends State<PracticeScreen> {
               : _gcd(num1, num2);
         } else {
           switch (widget.selectedOperation) {
-            case Operation.addition_2A:
-            case Operation.addition_A:
-            case Operation.addition_B:
+            case Operation.additionBeginner:
+            case Operation.additionIntermediate:
+            case Operation.additionAdvanced:
               correctAnswer = num1 + num2;
               break;
-            case Operation.subtraction_A:
-            case Operation.subtraction_B:
+            case Operation.subtractionBeginner:
+            case Operation.subtractionIntermediate:
               correctAnswer = num1 - num2;
               break;
-            case Operation.multiplication_C:
+            case Operation.multiplicationTables:
               correctAnswer = num1 * num2;
               break;
-            case Operation.division_C:
-            case Operation.division_D:
+            case Operation.divisionBasic:
+            case Operation.divisionMixed:
               if (num2 != 0) {
                 correctAnswer = num1 ~/ num2;
               } else {
@@ -340,17 +340,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
   int _calculateCorrectAnswer(List<int> numbers, Operation operation) {
     if (numbers.length < 2) return 0;
     switch (operation) {
-      case Operation.addition_2A:
-      case Operation.addition_A:
-      case Operation.addition_B:
+      case Operation.additionBeginner:
+      case Operation.additionIntermediate:
+      case Operation.additionAdvanced:
         return numbers[0] + numbers[1];
-      case Operation.subtraction_A:
-      case Operation.subtraction_B:
+      case Operation.subtractionBeginner:
+      case Operation.subtractionIntermediate:
         return numbers[0] - numbers[1];
-      case Operation.multiplication_C:
+      case Operation.multiplicationTables:
         return numbers[0] * numbers[1];
-      case Operation.division_C:
-      case Operation.division_D:
+      case Operation.divisionBasic:
+      case Operation.divisionMixed:
         return numbers[0] ~/ numbers[1];
       case Operation.lcm:
         return _lcm(numbers[0], numbers[1]);

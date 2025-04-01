@@ -26,8 +26,8 @@ class StartScreen extends ConsumerStatefulWidget {
 }
 
 class _StartScreenState extends ConsumerState<StartScreen> {
-  Operation _selectedOperation = Operation.addition_2A;
-  String _selectedRange = 'Upto +5';
+  Operation _selectedOperation = Operation.additionBeginner;
+  String _selectedRange = '1-5';
   int? _selectedTimeLimit;
   int _selectedIndex = 0; // 0 for "No Limit", 1-60 for minutes
   bool _isDarkMode = false;

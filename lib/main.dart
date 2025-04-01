@@ -34,7 +34,7 @@ class _MyAppState extends State<MyApp> {
   List<String> answeredQuestions = [];
   List<bool> answeredCorrectly = [];
   int totalTimeInSeconds = 0;
-  Operation _selectedOperation = Operation.addition_2A;
+  Operation _selectedOperation = Operation.additionBeginner;
   String _selectedRange = 'Upto +5';
   int? _selectedTimeLimit;
   bool _isDarkMode = false;

@@ -209,7 +209,7 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                                   },
                                   operation: Operation.values.firstWhere(
                                     (op) => op.toString().split('.').last == quiz['operation'],
-                                    orElse: () => Operation.addition_2A,
+                                    orElse: () => Operation.additionBeginner,
                                   ),
                                   range: quiz['range'],
                                   timeLimit: quiz['timeLimit'],

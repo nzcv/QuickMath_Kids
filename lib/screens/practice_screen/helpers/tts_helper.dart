@@ -11,20 +11,20 @@ class TTSHelper {
   ) {
     String operatorWord = '';
     switch (selectedOperation) {
-      case Operation.addition_2A:
-      case Operation.addition_A:
-      case Operation.addition_B:
+      case Operation.additionBeginner:
+      case Operation.additionIntermediate:
+      case Operation.additionAdvanced:
         operatorWord = 'plus';
         break;
-      case Operation.subtraction_A:
-      case Operation.subtraction_B:
+      case Operation.subtractionBeginner:
+      case Operation.subtractionIntermediate:
         operatorWord = 'minus';
         break;
-      case Operation.multiplication_C:
+      case Operation.multiplicationTables:
         operatorWord = 'times';
         break;
-      case Operation.division_C:
-      case Operation.division_D:
+      case Operation.divisionBasic:
+      case Operation.divisionMixed:
         operatorWord = 'divided by';
         break;
       case Operation.lcm:

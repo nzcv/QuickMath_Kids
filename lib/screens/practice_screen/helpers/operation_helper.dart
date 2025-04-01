@@ -2,17 +2,17 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 
 class OperatorHelper {
   static String getOperatorSymbol(Operation operation) {
-    if (operation == Operation.addition_2A ||
-        operation == Operation.addition_A ||
-        operation == Operation.addition_B) {
+    if (operation == Operation.additionBeginner ||
+        operation == Operation.additionIntermediate ||
+        operation == Operation.additionAdvanced) {
       return '+';
-    } else if (operation == Operation.subtraction_A ||
-        operation == Operation.subtraction_B) {
+    } else if (operation == Operation.subtractionBeginner ||
+        operation == Operation.subtractionIntermediate) {
       return '-';
-    } else if (operation == Operation.multiplication_C) {
+    } else if (operation == Operation.multiplicationTables) {
       return 'x';
-    } else if (operation == Operation.division_C ||
-        operation == Operation.division_D) {
+    } else if (operation == Operation.divisionBasic||
+        operation == Operation.divisionMixed) {
       return '÷';
     } else if (operation == Operation.lcm) {
       return 'LCM';

@@ -11,6 +11,31 @@ class OperationDropdown extends StatelessWidget {
     super.key,
   });
 
+  String _getDisplayName(Operation operation) {
+    switch (operation) {
+      case Operation.additionBeginner:
+        return 'Addition: Beginner';
+      case Operation.additionIntermediate:
+        return 'Addition: Intermediate';
+      case Operation.additionAdvanced:
+        return 'Addition: Advanced';
+      case Operation.subtractionBeginner:
+        return 'Subtraction: Beginner';
+      case Operation.subtractionIntermediate:
+        return 'Subtraction: Intermediate';
+      case Operation.multiplicationTables:
+        return 'Multiplication Tables';
+      case Operation.divisionBasic:
+        return 'Division: Basic';
+      case Operation.divisionMixed:
+        return 'Division: Mixed';
+      case Operation.lcm:
+        return 'LCM';
+      case Operation.gcf:
+        return 'GCF';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -26,7 +51,7 @@ class OperationDropdown extends StatelessWidget {
             return DropdownMenuItem(
               value: operation,
               child: Text(
-                operation.name.toUpperCase(),
+                _getDisplayName(operation),
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: theme.brightness == Brightness.dark
                       ? theme.colorScheme.onSurface
@@ -50,11 +75,13 @@ class OperationDropdown extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+              borderSide:
+                  BorderSide(color: theme.colorScheme.primary, width: 2),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
+              borderSide:
+                  BorderSide(color: theme.colorScheme.secondary, width: 2),
             ),
           ),
         ),
@@ -119,11 +146,13 @@ class RangeDropdown extends StatelessWidget {
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.primary, width: 2),
+              borderSide:
+                  BorderSide(color: theme.colorScheme.primary, width: 2),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
+              borderSide:
+                  BorderSide(color: theme.colorScheme.secondary, width: 2),
             ),
           ),
         ),
