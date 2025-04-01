@@ -74,11 +74,37 @@ class QuestionGenerator {
         break;
 
       case Operation.multiplicationTables:
-        int multiplierRange = range == Range.multiplicationTables2to5 ? 5 : 10;
-        int minMultiplier = range == Range.multiplicationTables2to5 ? 2 : 6;
-        num1 = random.nextInt(10) + 1;
-        num2 =
-            random.nextInt(multiplierRange - minMultiplier + 1) + minMultiplier;
+        int multiplier;
+        switch (range) {
+          case Range.multiplicationTable2:
+            multiplier = 2;
+            break;
+          case Range.multiplicationTable3:
+            multiplier = 3;
+            break;
+          case Range.multiplicationTable4:
+            multiplier = 4;
+            break;
+          case Range.multiplicationTable5:
+            multiplier = 5;
+            break;
+          case Range.multiplicationTable6:
+            multiplier = 6;
+            break;
+          case Range.multiplicationTable7:
+            multiplier = 7;
+            break;
+          case Range.multiplicationTable8:
+            multiplier = 8;
+            break;
+          case Range.multiplicationTable9:
+            multiplier = 9;
+            break;
+          default:
+            multiplier = 2; // Fallback
+        }
+        num1 = random.nextInt(10) + 1; // 1 to 10
+        num2 = multiplier;
         correctAnswer = num1 * num2;
         break;
 
