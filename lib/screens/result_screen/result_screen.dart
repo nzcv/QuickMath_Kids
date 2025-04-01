@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_row.dart';
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_service.dart';
-import 'package:QuickMath_Kids/question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:share_plus/share_plus.dart';
 
 class ResultScreen extends StatefulWidget {

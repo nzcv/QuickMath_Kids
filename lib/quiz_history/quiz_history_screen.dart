@@ -1,8 +1,7 @@
-
+import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:flutter/material.dart';
 import 'quiz_history_service.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
-import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 
 class QuizHistoryScreen extends StatefulWidget {
   final Function switchToStartScreen;

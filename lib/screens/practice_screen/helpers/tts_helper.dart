@@ -1,4 +1,4 @@
-import '../../../question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 
 class TTSHelper {
   final Function(String) triggerTTS;

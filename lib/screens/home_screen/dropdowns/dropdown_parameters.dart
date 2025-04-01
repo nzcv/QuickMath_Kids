@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:QuickMath_Kids/question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 
 String getDefaultRange(Operation operation) {
   switch (operation) {

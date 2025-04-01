@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
+import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/pause_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/timer_helper.dart';

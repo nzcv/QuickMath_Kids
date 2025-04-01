@@ -1,17 +1,5 @@
 import 'dart:math';
-
-enum Operation {
-  additionBeginner,
-  additionIntermediate,
-  additionAdvanced,
-  subtractionBeginner,
-  subtractionIntermediate,
-  multiplicationTables,
-  divisionBasic,
-  divisionMixed,
-  lcm,
-  gcf,
-}
+import 'enum_values.dart';
 
 class QuestionGenerator {
   List<int> generateTwoRandomNumbers(Operation operation, String dropdownValue) {
