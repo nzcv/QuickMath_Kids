@@ -1,4 +1,3 @@
-// lib/services/quiz_history_service.dart
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
@@ -10,7 +9,7 @@ class QuizHistoryService {
     required String title,
     required String timestamp,
     required Operation operation,
-    required String range,
+    required Range range,
     required int? timeLimit,
     required int totalTime,
     required List<String> answeredQuestions,
@@ -23,7 +22,7 @@ class QuizHistoryService {
       'title': title,
       'timestamp': timestamp,
       'operation': operation.toString().split('.').last,
-      'range': range,
+      'range': range.toString().split('.').last, // Convert Range enum to string
       'timeLimit': timeLimit,
       'totalTime': totalTime,
       'questions': answeredQuestions,
@@ -39,9 +38,15 @@ class QuizHistoryService {
   static Future<List<Map<String, dynamic>>> getQuizzes() async {
     final prefs = await SharedPreferences.getInstance();
     List<String> storedQuizzes = prefs.getStringList(_key) ?? [];
-    return storedQuizzes
-        .map((string) => jsonDecode(string) as Map<String, dynamic>)
-        .toList();
+    return storedQuizzes.map((string) {
+      final Map<String, dynamic> quizData = jsonDecode(string);
+      // Convert the range string back to a Range enum
+      quizData['range'] = Range.values.firstWhere(
+        (r) => r.toString().split('.').last == quizData['range'],
+        orElse: () => Range.additionBeginner1to5, // Default fallback
+      );
+      return quizData;
+    }).toList();
   }
 
   static Future<void> removeQuiz(String title) async {

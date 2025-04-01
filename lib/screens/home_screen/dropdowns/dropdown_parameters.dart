@@ -1,99 +1,191 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 
-String getDefaultRange(Operation operation) {
-  switch (operation) {
-    case Operation.additionBeginner: return '1-5';
-    case Operation.additionIntermediate: return '10-20';
-    case Operation.additionAdvanced: return '50-100';
-    case Operation.subtractionBeginner: return '1-10';
-    case Operation.subtractionIntermediate: return '20-50';
-    case Operation.multiplicationTables: return '2-5';
-    case Operation.divisionBasic: return 'Divided by 2';
-    case Operation.divisionMixed: return 'Mixed Division';
-    case Operation.lcm: return 'upto 10';
-    case Operation.gcf: return 'upto 10';
-  }
-}
-
-List<DropdownMenuItem<String>> getDropdownItems(Operation selectedOperation) {
+List<DropdownMenuItem<Range>> getDropdownItems(Operation selectedOperation) {
+  List<Range> ranges;
   switch (selectedOperation) {
     case Operation.additionBeginner:
-      return const [
-        DropdownMenuItem(value: '1-5', child: Text('1-5')),
-        DropdownMenuItem(value: '6-10', child: Text('6-10')),
-      ];
+      ranges = [Range.additionBeginner1to5, Range.additionBeginner6to10];
+      break;
     case Operation.additionIntermediate:
-      return const [
-        DropdownMenuItem(value: '10-20', child: Text('10-20')),
-        DropdownMenuItem(value: '20-50', child: Text('20-50')),
-      ];
+      ranges = [Range.additionIntermediate10to20, Range.additionIntermediate20to50];
+      break;
     case Operation.additionAdvanced:
-      return const [
-        DropdownMenuItem(value: '50-100', child: Text('50-100')),
-        DropdownMenuItem(value: '100-200', child: Text('100-200')),
-      ];
+      ranges = [Range.additionAdvanced50to100, Range.additionAdvanced100to200];
+      break;
     case Operation.subtractionBeginner:
-      return const [
-        DropdownMenuItem(value: '1-10', child: Text('1-10')),
-        DropdownMenuItem(value: '10-20', child: Text('10-20')),
-      ];
+      ranges = [Range.subtractionBeginner1to10, Range.subtractionBeginner10to20];
+      break;
     case Operation.subtractionIntermediate:
-      return const [
-        DropdownMenuItem(value: '20-50', child: Text('20-50')),
-        DropdownMenuItem(value: '50-100', child: Text('50-100')),
-      ];
+      ranges = [Range.subtractionIntermediate20to50, Range.subtractionIntermediate50to100];
+      break;
     case Operation.multiplicationTables:
-      return const [
-        DropdownMenuItem(value: '2-5', child: Text('2-5')),
-        DropdownMenuItem(value: '6-10', child: Text('6-10')),
-      ];
+      ranges = [Range.multiplicationTables2to5, Range.multiplicationTables6to10];
+      break;
     case Operation.divisionBasic:
-      return const [
-        DropdownMenuItem(value: 'Divided by 2', child: Text('Divided by 2')),
-        DropdownMenuItem(value: 'Divided by 3', child: Text('Divided by 3')),
-        DropdownMenuItem(value: 'Divided by 4', child: Text('Divided by 4')),
-        DropdownMenuItem(value: 'Divided by 5', child: Text('Divided by 5')),
-        DropdownMenuItem(value: 'Divided by 6', child: Text('Divided by 6')),
-        DropdownMenuItem(value: 'Divided by 7', child: Text('Divided by 7')),
-        DropdownMenuItem(value: 'Divided by 8', child: Text('Divided by 8')),
-        DropdownMenuItem(value: 'Divided by 9', child: Text('Divided by 9')),
-        DropdownMenuItem(value: 'Divided by 10', child: Text('Divided by 10')),
+      ranges = [
+        Range.divisionBasicBy2,
+        Range.divisionBasicBy3,
+        Range.divisionBasicBy4,
+        Range.divisionBasicBy5,
+        Range.divisionBasicBy6,
+        Range.divisionBasicBy7,
+        Range.divisionBasicBy8,
+        Range.divisionBasicBy9,
+        Range.divisionBasicBy10,
       ];
+      break;
     case Operation.divisionMixed:
-      return const [
-        DropdownMenuItem(value: 'Mixed Division', child: Text('Mixed Division')),
-      ];
+      ranges = [Range.divisionMixed];
+      break;
     case Operation.lcm:
-      return const [
-        DropdownMenuItem(value: 'upto 10', child: Text('upto 10')),
-        DropdownMenuItem(value: 'upto 20', child: Text('upto 20')),
-        DropdownMenuItem(value: 'upto 30', child: Text('upto 30')),
-        DropdownMenuItem(value: 'upto 40', child: Text('upto 40')),
-        DropdownMenuItem(value: 'upto 50', child: Text('upto 50')),
-        DropdownMenuItem(value: 'upto 60', child: Text('upto 60')),
-        DropdownMenuItem(value: 'upto 70', child: Text('upto 70')),
-        DropdownMenuItem(value: 'upto 80', child: Text('upto 80')),
-        DropdownMenuItem(value: 'upto 90', child: Text('upto 90')),
-        DropdownMenuItem(value: 'upto 100', child: Text('upto 100')),
-        DropdownMenuItem(value: '3 numbers upto 10', child: Text('3 numbers upto 10')),
-        DropdownMenuItem(value: '3 numbers upto 20', child: Text('3 numbers upto 20')),
-        DropdownMenuItem(value: '3 numbers upto 30', child: Text('3 numbers upto 30')),
-        DropdownMenuItem(value: '3 numbers upto 40', child: Text('3 numbers upto 40')),
-        DropdownMenuItem(value: '3 numbers upto 50', child: Text('3 numbers upto 50')),
+      ranges = [
+        Range.lcmUpto10,
+        Range.lcmUpto20,
+        Range.lcmUpto30,
+        Range.lcmUpto40,
+        Range.lcmUpto50,
+        Range.lcmUpto60,
+        Range.lcmUpto70,
+        Range.lcmUpto80,
+        Range.lcmUpto90,
+        Range.lcmUpto100,
+        Range.lcm3NumbersUpto10,
+        Range.lcm3NumbersUpto20,
+        Range.lcm3NumbersUpto30,
+        Range.lcm3NumbersUpto40,
+        Range.lcm3NumbersUpto50,
       ];
+      break;
     case Operation.gcf:
-      return const [
-        DropdownMenuItem(value: 'upto 10', child: Text('upto 10')),
-        DropdownMenuItem(value: 'upto 20', child: Text('upto 20')),
-        DropdownMenuItem(value: 'upto 30', child: Text('upto 30')),
-        DropdownMenuItem(value: 'upto 40', child: Text('upto 40')),
-        DropdownMenuItem(value: 'upto 50', child: Text('upto 50')),
-        DropdownMenuItem(value: 'upto 60', child: Text('upto 60')),
-        DropdownMenuItem(value: 'upto 70', child: Text('upto 70')),
-        DropdownMenuItem(value: 'upto 80', child: Text('upto 80')),
-        DropdownMenuItem(value: 'upto 90', child: Text('upto 90')),
-        DropdownMenuItem(value: 'upto 100', child: Text('upto 100')),
+      ranges = [
+        Range.gcfUpto10,
+        Range.gcfUpto20,
+        Range.gcfUpto30,
+        Range.gcfUpto40,
+        Range.gcfUpto50,
+        Range.gcfUpto60,
+        Range.gcfUpto70,
+        Range.gcfUpto80,
+        Range.gcfUpto90,
+        Range.gcfUpto100,
       ];
+      break;
+  }
+
+  return ranges.map((range) {
+    return DropdownMenuItem<Range>(
+      value: range,
+      child: Text(_getRangeDisplayName(range)),
+    );
+  }).toList();
+}
+
+String _getRangeDisplayName(Range range) {
+  switch (range) {
+    // Addition Beginner
+    case Range.additionBeginner1to5:
+      return '1-5';
+    case Range.additionBeginner6to10:
+      return '6-10';
+    // Addition Intermediate
+    case Range.additionIntermediate10to20:
+      return '10-20';
+    case Range.additionIntermediate20to50:
+      return '20-50';
+    // Addition Advanced
+    case Range.additionAdvanced50to100:
+      return '50-100';
+    case Range.additionAdvanced100to200:
+      return '100-200';
+    // Subtraction Beginner
+    case Range.subtractionBeginner1to10:
+      return '1-10';
+    case Range.subtractionBeginner10to20:
+      return '10-20';
+    // Subtraction Intermediate
+    case Range.subtractionIntermediate20to50:
+      return '20-50';
+    case Range.subtractionIntermediate50to100:
+      return '50-100';
+    // Multiplication Tables
+    case Range.multiplicationTables2to5:
+      return '2-5';
+    case Range.multiplicationTables6to10:
+      return '6-10';
+    // Division Basic
+    case Range.divisionBasicBy2:
+      return 'Divided by 2';
+    case Range.divisionBasicBy3:
+      return 'Divided by 3';
+    case Range.divisionBasicBy4:
+      return 'Divided by 4';
+    case Range.divisionBasicBy5:
+      return 'Divided by 5';
+    case Range.divisionBasicBy6:
+      return 'Divided by 6';
+    case Range.divisionBasicBy7:
+      return 'Divided by 7';
+    case Range.divisionBasicBy8:
+      return 'Divided by 8';
+    case Range.divisionBasicBy9:
+      return 'Divided by 9';
+    case Range.divisionBasicBy10:
+      return 'Divided by 10';
+    // Division Mixed
+    case Range.divisionMixed:
+      return 'Mixed Division';
+    // LCM
+    case Range.lcmUpto10:
+      return 'upto 10';
+    case Range.lcmUpto20:
+      return 'upto 20';
+    case Range.lcmUpto30:
+      return 'upto 30';
+    case Range.lcmUpto40:
+      return 'upto 40';
+    case Range.lcmUpto50:
+      return 'upto 50';
+    case Range.lcmUpto60:
+      return 'upto 60';
+    case Range.lcmUpto70:
+      return 'upto 70';
+    case Range.lcmUpto80:
+      return 'upto 80';
+    case Range.lcmUpto90:
+      return 'upto 90';
+    case Range.lcmUpto100:
+      return 'upto 100';
+    case Range.lcm3NumbersUpto10:
+      return '3 numbers upto 10';
+    case Range.lcm3NumbersUpto20:
+      return '3 numbers upto 20';
+    case Range.lcm3NumbersUpto30:
+      return '3 numbers upto 30';
+    case Range.lcm3NumbersUpto40:
+      return '3 numbers upto 40';
+    case Range.lcm3NumbersUpto50:
+      return '3 numbers upto 50';
+    // GCF
+    case Range.gcfUpto10:
+      return 'upto 10';
+    case Range.gcfUpto20:
+      return 'upto 20';
+    case Range.gcfUpto30:
+      return 'upto 30';
+    case Range.gcfUpto40:
+      return 'upto 40';
+    case Range.gcfUpto50:
+      return 'upto 50';
+    case Range.gcfUpto60:
+      return 'upto 60';
+    case Range.gcfUpto70:
+      return 'upto 70';
+    case Range.gcfUpto80:
+      return 'upto 80';
+    case Range.gcfUpto90:
+      return 'upto 90';
+    case Range.gcfUpto100:
+      return 'upto 100';
   }
 }

@@ -3,7 +3,7 @@ import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/practice_screen.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
-import 'package:QuickMath_Kids/question_logic/enum_values.dart';
+import 'package:QuickMath_Kids/question_logic/enum_values.dart'; // Ensure this includes Range enum
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
@@ -13,7 +13,6 @@ import 'app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final container = ProviderContainer();
-  // Initialize the billing service but don't await here
   final billingFuture = container.read(billingServiceProvider).initialize();
   runApp(UncontrolledProviderScope(container: container, child: MyApp(billingFuture: billingFuture)));
 }
@@ -35,7 +34,7 @@ class _MyAppState extends State<MyApp> {
   List<bool> answeredCorrectly = [];
   int totalTimeInSeconds = 0;
   Operation _selectedOperation = Operation.additionBeginner;
-  String _selectedRange = 'Upto +5';
+  Range _selectedRange = Range.additionBeginner1to5; // Updated to Range enum
   int? _selectedTimeLimit;
   bool _isDarkMode = false;
 
@@ -43,9 +42,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadDarkModePreference();
-    // Wait for the billing service to initialize and the first frame to render
     widget.billingFuture.then((_) {
-      // Ensure the splash screen is removed only after the first frame is rendered
       WidgetsBinding.instance.addPostFrameCallback((_) {
         FlutterNativeSplash.remove();
       });
@@ -56,6 +53,7 @@ class _MyAppState extends State<MyApp> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkMode = prefs.getBool('isDarkMode') ?? false;
+      _selectedRange = getDefaultRange(_selectedOperation); // Ensure default range matches operation
     });
   }
 
@@ -67,7 +65,7 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
-  void switchToPracticeScreen(Operation operation, String range, int? timeLimit) {
+  void switchToPracticeScreen(Operation operation, Range range, int? timeLimit) {
     setState(() {
       _selectedOperation = operation;
       _selectedRange = range;
@@ -87,7 +85,7 @@ class _MyAppState extends State<MyApp> {
     List<bool> correctAnswers,
     int time,
     Operation operation,
-    String range,
+    Range range, // Updated to Range
     int? timeLimit,
   ) {
     setState(() {

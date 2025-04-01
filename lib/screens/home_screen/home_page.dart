@@ -8,7 +8,7 @@ import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
-  final Function(Operation, String, int?) switchToPracticeScreen;
+  final Function(Operation, Range, int?) switchToPracticeScreen;
   final VoidCallback switchToStartScreen;
   final Function(bool) toggleDarkMode;
   final bool isDarkMode;
@@ -27,11 +27,10 @@ class StartScreen extends ConsumerStatefulWidget {
 
 class _StartScreenState extends ConsumerState<StartScreen> {
   Operation _selectedOperation = Operation.additionBeginner;
-  String _selectedRange = '1-5';
+  Range _selectedRange = Range.additionBeginner1to5;
   int? _selectedTimeLimit;
   int _selectedIndex = 0; // 0 for "No Limit", 1-60 for minutes
   bool _isDarkMode = false;
-  //bool _isRestoring = false;
 
   @override
   void initState() {
@@ -175,45 +174,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           child: Scaffold(
             appBar: AppBar(
               title: const Text('QuickMath Kids'),
-              actions: [
-                /*
-                IconButton(
-                  icon: _isRestoring
-                      ? SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: theme.colorScheme.onPrimary,
-                          ),
-                        )
-                      : const Icon(Icons.refresh),
-                  onPressed: _isRestoring
-                      ? null
-                      : () async {
-                          setState(() {
-                            _isRestoring = true;
-                          });
-                          final billingService =
-                              ref.read(billingServiceProvider);
-                          await billingService.restorePurchase();
-                          setState(() {
-                            _isRestoring = false;
-                          });
-                          if (billingService.isPremium) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('Premium status restored')),
-                            );
-                          } else {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text('No premium purchase found')),
-                            );
-                          }
-                        },
-                ),*/
-              ],
+              actions: [],
             ),
             drawer: AppDrawer(
               billingService: billingService,
@@ -265,7 +226,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       RangeDropdown(
                         selectedRange: _selectedRange,
                         items: getDropdownItems(_selectedOperation),
-                        onChanged: (String? newValue) {
+                        onChanged: (Range? newValue) {
                           if (newValue != null) {
                             setState(() {
                               _selectedRange = newValue;
@@ -275,9 +236,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       ),
                       const SizedBox(height: 20),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal:
-                                40), // Match Operation and Range dropdowns
+                        padding: const EdgeInsets.symmetric(horizontal: 40),
                         child: InkWell(
                           onTap: () => _showTimeWheelPicker(context),
                           child: InputDecorator(
@@ -329,27 +288,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 20),
-                      /*
-                      ElevatedButton(
-                        onPressed: () async {
-                          final billingService =
-                              ref.read(billingServiceProvider);
-                          await billingService.resetPremium();
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text(
-                                    'Premium access reset. You can purchase again.')),
-                          );
-                        },
-                        child: const Text('Reset Premium'),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: isTablet ? 24 : 18,
-                          ),
-                        ),
-                      ),*/
                     ],
                   ),
                 ),

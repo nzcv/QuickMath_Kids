@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
-import 'package:QuickMath_Kids/question_logic/enum_values.dart';
+import 'package:QuickMath_Kids/question_logic/enum_values.dart'; // Ensure this includes Range enum
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/pause_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/timer_helper.dart';
@@ -17,12 +17,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int, Operation, String, int?)
+  final Function(List<String>, List<bool>, int, Operation, Range, int?) // Updated to Range
       switchToResultScreen;
   final VoidCallback switchToStartScreen;
   final Function(String) triggerTTS;
   final Operation selectedOperation;
-  final String selectedRange;
+  final Range selectedRange; // Updated to Range
   final int? sessionTimeLimit;
   final bool isDarkMode;
 
@@ -106,9 +106,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       _wrongQuestions = [];
       _wrongQuestionsToShowThisSession = [];
 
-      // Filter questions matching current operation and range
       final currentOperation =
           widget.selectedOperation.toString().split('.').last;
+      final rangeDisplayName = _getRangeDisplayName(widget.selectedRange);
       for (var question in allWrongQuestions) {
         String category = question['category']?.toString() ?? '';
         String questionText = question['question']?.toString() ?? '';
@@ -116,70 +116,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
         String rangeFromCategory = category.split(' - ').last;
 
         if (operationFromCategory == currentOperation &&
-            rangeFromCategory == widget.selectedRange) {
+            rangeFromCategory == rangeDisplayName) {
           _wrongQuestions.add(question);
           _wrongQuestionsToShowThisSession.add(questionText);
         }
       }
 
-      // Reset tracking lists for new session
       _shownWrongQuestionsThisSession.clear();
       _answeredQuestionsThisSession.clear();
       _wrongQuestionsThisSession.clear();
     });
-  }
-
-  void _setInitialQuestion() {
-    if (_wrongQuestionsToShowThisSession.isNotEmpty) {
-      // Show all WAQs first before generating new questions
-      _useWrongQuestion();
-    } else {
-      regenerateNumbers();
-    }
-  }
-
-  void _useWrongQuestion() {
-    if (_wrongQuestionsToShowThisSession.isEmpty) {
-      regenerateNumbers();
-      return;
-    }
-
-    String nextQuestionText = _wrongQuestionsToShowThisSession.firstWhere(
-      (q) => !_shownWrongQuestionsThisSession.contains(q),
-      orElse: () => '',
-    );
-
-    if (nextQuestionText.isNotEmpty) {
-      setState(() {
-        numbers = _parseQuestion(nextQuestionText);
-        correctAnswer =
-            _calculateCorrectAnswer(numbers, widget.selectedOperation);
-        answerOptions = generateAnswerOptions(correctAnswer);
-        _shownWrongQuestionsThisSession.add(nextQuestionText);
-        _answeredQuestionsThisSession.add(nextQuestionText);
-      });
-    } else {
-      // All WAQs shown, proceed with normal questions
-      regenerateNumbers();
-    }
-  }
-
-  void _updateHintMessage() {
-    currentHintMessage = hintManager.getRandomHintMessage();
-  }
-
-  String formatTime(int seconds) {
-    if (widget.sessionTimeLimit == null) {
-      final minutes = (seconds / 60).floor();
-      final secs = seconds % 60;
-      return '$minutes:${secs.toString().padLeft(2, '0')}';
-    } else {
-      int remaining = widget.sessionTimeLimit! - seconds;
-      if (remaining < 0) remaining = 0;
-      final minutes = (remaining / 60).floor();
-      final secs = remaining % 60;
-      return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
-    }
   }
 
   void regenerateNumbers() {
@@ -275,17 +221,66 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _answeredQuestionsThisSession.add(questionText);
   }
 
+  void _setInitialQuestion() {
+    if (_wrongQuestionsToShowThisSession.isNotEmpty) {
+      _useWrongQuestion();
+    } else {
+      regenerateNumbers();
+    }
+  }
+
+  void _useWrongQuestion() {
+    if (_wrongQuestionsToShowThisSession.isEmpty) {
+      regenerateNumbers();
+      return;
+    }
+
+    String nextQuestionText = _wrongQuestionsToShowThisSession.firstWhere(
+      (q) => !_shownWrongQuestionsThisSession.contains(q),
+      orElse: () => '',
+    );
+
+    if (nextQuestionText.isNotEmpty) {
+      setState(() {
+        numbers = _parseQuestion(nextQuestionText);
+        correctAnswer =
+            _calculateCorrectAnswer(numbers, widget.selectedOperation);
+        answerOptions = generateAnswerOptions(correctAnswer);
+        _shownWrongQuestionsThisSession.add(nextQuestionText);
+        _answeredQuestionsThisSession.add(nextQuestionText);
+      });
+    } else {
+      regenerateNumbers();
+    }
+  }
+
+  void _updateHintMessage() {
+    currentHintMessage = hintManager.getRandomHintMessage();
+  }
+
+  String formatTime(int seconds) {
+    if (widget.sessionTimeLimit == null) {
+      final minutes = (seconds / 60).floor();
+      final secs = seconds % 60;
+      return '$minutes:${secs.toString().padLeft(2, '0')}';
+    } else {
+      int remaining = widget.sessionTimeLimit! - seconds;
+      if (remaining < 0) remaining = 0;
+      final minutes = (remaining / 60).floor();
+      final secs = remaining % 60;
+      return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
+    }
+  }
+
   void checkAnswer(int selectedAnswer) {
     bool isCorrect = selectedAnswer == correctAnswer;
     String currentQuestion = _formatQuestionText();
 
     setState(() {
-      // Record current answer with correct/wrong status (EXACTLY AS YOU HAD IT)
       answeredQuestions.add('$currentQuestion = $selectedAnswer '
           '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
       answeredCorrectly.add(isCorrect);
 
-      // Update WAQ tracking (EXACTLY AS YOU HAD IT)
       if (!isCorrect) {
         if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
           _wrongQuestionsThisSession.add(currentQuestion);
@@ -294,7 +289,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             userAnswer: selectedAnswer,
             correctAnswer: correctAnswer,
             category:
-                '${widget.selectedOperation.toString().split('.').last} - ${widget.selectedRange}',
+                '${widget.selectedOperation.toString().split('.').last} - ${_getRangeDisplayName(widget.selectedRange)}', // Updated to Range
           );
         }
       } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
@@ -302,14 +297,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
             correct: true);
       }
 
-      // Play confetti for correct answers (EXACTLY AS YOU HAD IT)
       if (isCorrect) {
         confettiManager.correctConfettiController.play();
       }
 
-      // ONLY CHANGE: Modified WAQ sequencing logic
       if (_wrongQuestionsToShowThisSession.isNotEmpty) {
-        // Find next unshown WAQ
         String? nextWAQ = _wrongQuestionsToShowThisSession.firstWhere(
           (q) => !_shownWrongQuestionsThisSession.contains(q),
           orElse: () => '',
@@ -322,19 +314,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
           answerOptions = generateAnswerOptions(correctAnswer);
           _shownWrongQuestionsThisSession.add(nextWAQ);
         } else {
-          // No more WAQs - proceed normally
           regenerateNumbers();
         }
       } else {
-        // No WAQs - proceed normally
         regenerateNumbers();
       }
 
-      // Track all answered questions (EXACTLY AS YOU HAD IT)
       _answeredQuestionsThisSession.add(currentQuestion);
     });
 
-    // Trigger TTS for the new question (EXACTLY AS YOU HAD IT)
     _triggerTTSSpeech();
   }
 
@@ -383,7 +371,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   String _formatQuestionText() {
     if (widget.selectedOperation == Operation.lcm) {
-      if (widget.selectedRange.contains('3 numbers')) {
+      if (widget.selectedRange.toString().contains('3Numbers')) { // Check Range enum for 3 numbers
         return 'LCM of ${numbers[0]}, ${numbers[1]}, ${numbers[2]}';
       } else {
         return 'LCM of ${numbers[0]}, ${numbers[1]}';
@@ -396,7 +384,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _triggerTTSSpeech() {
-    // Use the current numbers after ensuring they're updated
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ttsHelper.playSpeech(widget.selectedOperation, numbers);
       setState(() {
@@ -412,7 +399,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       answeredCorrectly,
       _quizTimer.secondsPassed,
       widget.selectedOperation,
-      widget.selectedRange,
+      widget.selectedRange, // Updated to Range
       widget.sessionTimeLimit,
     );
   }
@@ -462,6 +449,116 @@ class _PracticeScreenState extends State<PracticeScreen> {
         );
       },
     );
+  }
+
+  // Helper method to convert Range enum to display string
+  String _getRangeDisplayName(Range range) {
+    switch (range) {
+      // Addition Beginner
+      case Range.additionBeginner1to5:
+        return '1-5';
+      case Range.additionBeginner6to10:
+        return '6-10';
+      // Addition Intermediate
+      case Range.additionIntermediate10to20:
+        return '10-20';
+      case Range.additionIntermediate20to50:
+        return '20-50';
+      // Addition Advanced
+      case Range.additionAdvanced50to100:
+        return '50-100';
+      case Range.additionAdvanced100to200:
+        return '100-200';
+      // Subtraction Beginner
+      case Range.subtractionBeginner1to10:
+        return '1-10';
+      case Range.subtractionBeginner10to20:
+        return '10-20';
+      // Subtraction Intermediate
+      case Range.subtractionIntermediate20to50:
+        return '20-50';
+      case Range.subtractionIntermediate50to100:
+        return '50-100';
+      // Multiplication Tables
+      case Range.multiplicationTables2to5:
+        return '2-5';
+      case Range.multiplicationTables6to10:
+        return '6-10';
+      // Division Basic
+      case Range.divisionBasicBy2:
+        return 'Divided by 2';
+      case Range.divisionBasicBy3:
+        return 'Divided by 3';
+      case Range.divisionBasicBy4:
+        return 'Divided by 4';
+      case Range.divisionBasicBy5:
+        return 'Divided by 5';
+      case Range.divisionBasicBy6:
+        return 'Divided by 6';
+      case Range.divisionBasicBy7:
+        return 'Divided by 7';
+      case Range.divisionBasicBy8:
+        return 'Divided by 8';
+      case Range.divisionBasicBy9:
+        return 'Divided by 9';
+      case Range.divisionBasicBy10:
+        return 'Divided by 10';
+      // Division Mixed
+      case Range.divisionMixed:
+        return 'Mixed Division';
+      // LCM
+      case Range.lcmUpto10:
+        return 'upto 10';
+      case Range.lcmUpto20:
+        return 'upto 20';
+      case Range.lcmUpto30:
+        return 'upto 30';
+      case Range.lcmUpto40:
+        return 'upto 40';
+      case Range.lcmUpto50:
+        return 'upto 50';
+      case Range.lcmUpto60:
+        return 'upto 60';
+      case Range.lcmUpto70:
+        return 'upto 70';
+      case Range.lcmUpto80:
+        return 'upto 80';
+      case Range.lcmUpto90:
+        return 'upto 90';
+      case Range.lcmUpto100:
+        return 'upto 100';
+      case Range.lcm3NumbersUpto10:
+        return '3 numbers upto 10';
+      case Range.lcm3NumbersUpto20:
+        return '3 numbers upto 20';
+      case Range.lcm3NumbersUpto30:
+        return '3 numbers upto 30';
+      case Range.lcm3NumbersUpto40:
+        return '3 numbers upto 40';
+      case Range.lcm3NumbersUpto50:
+        return '3 numbers upto 50';
+      // GCF
+      case Range.gcfUpto10:
+        return 'upto 10';
+      case Range.gcfUpto20:
+        return 'upto 20';
+      case Range.gcfUpto30:
+        return 'upto 30';
+      case Range.gcfUpto40:
+        return 'upto 40';
+      case Range.gcfUpto50:
+        return 'upto 50';
+      case Range.gcfUpto60:
+        return 'upto 60';
+      case Range.gcfUpto70:
+        return 'upto 70';
+      case Range.gcfUpto80:
+        return 'upto 80';
+      case Range.gcfUpto90:
+        return 'upto 90';
+      case Range.gcfUpto100:
+        return 'upto 100';
+    }
   }
 
   @override

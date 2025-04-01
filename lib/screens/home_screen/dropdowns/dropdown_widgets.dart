@@ -91,9 +91,9 @@ class OperationDropdown extends StatelessWidget {
 }
 
 class RangeDropdown extends StatelessWidget {
-  final String selectedRange;
-  final List<DropdownMenuItem<String>> items;
-  final ValueChanged<String?> onChanged;
+  final Range selectedRange;
+  final List<DropdownMenuItem<Range>> items;
+  final ValueChanged<Range?> onChanged;
 
   const RangeDropdown({
     required this.selectedRange,
@@ -111,23 +111,9 @@ class RangeDropdown extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
       child: SizedBox(
         height: isTablet ? 60 : 50,
-        child: DropdownButtonFormField<String>(
+        child: DropdownButtonFormField<Range>(
           value: selectedRange,
-          items: items.map((DropdownMenuItem<String> item) {
-            return DropdownMenuItem<String>(
-              value: item.value,
-              child: Text(
-                item.value ?? '',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.brightness == Brightness.dark
-                      ? theme.colorScheme.onSurface
-                      : theme.colorScheme.onBackground,
-                ),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-              ),
-            );
-          }).toList(),
+          items: items,
           onChanged: onChanged,
           isExpanded: true,
           style: theme.textTheme.bodyLarge?.copyWith(

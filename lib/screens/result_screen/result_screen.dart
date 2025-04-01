@@ -11,7 +11,7 @@ class ResultScreen extends StatefulWidget {
   final List<bool> answeredCorrectly;
   final int totalTime;
   final Operation? operation;
-  final String? range;
+  final Range? range;
   final int? timeLimit;
   final Function switchToStartScreen;
   final bool isFromHistory;
@@ -165,6 +165,30 @@ class _ResultScreenState extends State<ResultScreen>
     }
   }
 
+  // Helper method to extract the correct answer from the question string
+  String _extractCorrectAnswer(String question) {
+    final parts = question.split('The correct answer is ');
+    if (parts.length > 1) {
+      return parts[1].replaceAll(')', '');
+    }
+    return '';
+  }
+
+  // Helper method to compute the user's answer based on the correct answer and correctness
+  String _computeUserAnswer(String question, bool isCorrect) {
+    final correctAnswer = _extractCorrectAnswer(question);
+    if (isCorrect) {
+      return correctAnswer;
+    }
+    // Extract the user's answer from the question string (e.g., "1 + 4 = 2")
+    final parts = question.split(' = ');
+    if (parts.length > 1) {
+      final userAnswer = parts[1].split(' (')[0];
+      return userAnswer;
+    }
+    return 'N/A';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -179,10 +203,11 @@ class _ResultScreenState extends State<ResultScreen>
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-        'Quiz Results',
-        textAlign: TextAlign.center,
-      )),
+        title: const Text(
+          'Quiz Results',
+          textAlign: TextAlign.center,
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -193,8 +218,7 @@ class _ResultScreenState extends State<ResultScreen>
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Card(
-                  color: Colors
-                      .white60, // Set card background color based on theme
+                  color: Colors.white60,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -255,17 +279,42 @@ class _ResultScreenState extends State<ResultScreen>
                         separatorBuilder: (context, index) =>
                             const Divider(height: 1),
                         itemBuilder: (context, index) {
+                          final question = widget.answeredQuestions[index];
+                          final isCorrect = widget.answeredCorrectly[index];
+                          final userAnswer =
+                              _computeUserAnswer(question, isCorrect);
+                          final correctAnswer = _extractCorrectAnswer(question);
+
                           return ListTile(
                             leading: Icon(
-                              widget.answeredCorrectly[index]
-                                  ? Icons.check_circle
-                                  : Icons.cancel,
-                              color: widget.answeredCorrectly[index]
-                                  ? Colors.green
-                                  : Colors
-                                      .red, // Keep these specific colors for correctness
+                              isCorrect ? Icons.check_circle : Icons.cancel,
+                              color: isCorrect ? Colors.green : Colors.red,
                             ),
-                            title: Text(widget.answeredQuestions[index]),
+                            title: Text(
+                              question.split(' (')[0], // Show only the question part
+                              style: theme.textTheme.bodyLarge,
+                            ),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Your Answer: $userAnswer',
+                                  style: theme.textTheme.bodyMedium?.copyWith(
+                                    color: isCorrect
+                                        ? Colors.green
+                                        : Colors.red,
+                                  ),
+                                ),
+                                if (!isCorrect)
+                                  Text(
+                                    'Correct Answer: $correctAnswer',
+                                    style:
+                                        theme.textTheme.bodyMedium?.copyWith(
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                              ],
+                            ),
                           );
                         },
                       ),
