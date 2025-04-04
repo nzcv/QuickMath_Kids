@@ -6,6 +6,7 @@ import 'package:QuickMath_Kids/screens/home_screen/drawer.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   final Function(Operation, Range, int?) switchToPracticeScreen;
@@ -38,6 +39,51 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     _isDarkMode = widget.isDarkMode;
     _selectedTimeLimit = null;
     _selectedIndex = 0; // Default to "No Limit"
+    _loadPreferences(); // Load saved preferences
+  }
+
+  // Load saved preferences
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      // Load operation
+      final savedOperationIndex = prefs.getInt('selectedOperation');
+      if (savedOperationIndex != null &&
+          savedOperationIndex >= 0 &&
+          savedOperationIndex < Operation.values.length) {
+        _selectedOperation = Operation.values[savedOperationIndex];
+      }
+
+      // Load range
+      final savedRangeIndex = prefs.getInt('selectedRange');
+      if (savedRangeIndex != null &&
+          savedRangeIndex >= 0 &&
+          savedRangeIndex < Range.values.length) {
+        Range loadedRange = Range.values[savedRangeIndex];
+        // Ensure the loaded range is valid for the selected operation
+        if (getDropdownItems(_selectedOperation)
+            .any((item) => item.value == loadedRange)) {
+          _selectedRange = loadedRange;
+        } else {
+          _selectedRange = getDefaultRange(_selectedOperation);
+        }
+      }
+
+      // Load time limit
+      final savedTimeLimit = prefs.getInt('selectedTimeLimit');
+      if (savedTimeLimit != null) {
+        _selectedTimeLimit = savedTimeLimit;
+        _selectedIndex = savedTimeLimit == 0 ? 0 : savedTimeLimit ~/ 60;
+      }
+    });
+  }
+
+  // Save preferences
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt('selectedOperation', Operation.values.indexOf(_selectedOperation));
+    await prefs.setInt('selectedRange', Range.values.indexOf(_selectedRange));
+    await prefs.setInt('selectedTimeLimit', _selectedTimeLimit ?? 0);
   }
 
   @override
@@ -132,6 +178,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           _selectedTimeLimit =
                               _selectedIndex * 60; // Convert minutes to seconds
                         }
+                        _savePreferences(); // Save when time limit changes
                       });
                       Navigator.pop(context);
                     },
@@ -218,6 +265,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                         .first
                                         .value!;
                               }
+                              _savePreferences(); // Save when operation changes
                             });
                           }
                         },
@@ -230,6 +278,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           if (newValue != null) {
                             setState(() {
                               _selectedRange = newValue;
+                              _savePreferences(); // Save when range changes
                             });
                           }
                         },
