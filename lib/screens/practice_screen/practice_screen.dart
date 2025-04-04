@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
-import 'package:QuickMath_Kids/question_logic/enum_values.dart'; // Ensure this includes Range enum
+import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/pause_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/timer_helper.dart';
@@ -17,13 +17,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int, Operation, Range,
-          int?) // Updated to Range
+  final Function(List<String>, List<bool>, int, Operation, Range, int?)
       switchToResultScreen;
   final VoidCallback switchToStartScreen;
   final Function(String) triggerTTS;
   final Operation selectedOperation;
-  final Range selectedRange; // Updated to Range
+  final Range selectedRange;
   final int? sessionTimeLimit;
   final bool isDarkMode;
 
@@ -53,6 +52,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   List<String> _answeredQuestionsThisSession = [];
   List<String> _wrongQuestionsThisSession = [];
   bool _isInitialized = false;
+  bool _isWrongAnswerQuestion = false; // New flag to track WAQ
 
   int correctAnswer = 0;
   String currentHintMessage = '';
@@ -233,19 +233,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
     answerOptions = generateAnswerOptions(correctAnswer);
     _answeredQuestionsThisSession.add(questionText);
+    _isWrongAnswerQuestion = false; // Reset flag for random question
   }
 
   void _setInitialQuestion() {
     if (_wrongQuestionsToShowThisSession.isNotEmpty) {
       _useWrongQuestion();
+      _isWrongAnswerQuestion = true; // Set flag for WAQ
     } else {
       regenerateNumbers();
+      _isWrongAnswerQuestion = false; // Random question
     }
   }
 
   void _useWrongQuestion() {
     if (_wrongQuestionsToShowThisSession.isEmpty) {
       regenerateNumbers();
+      _isWrongAnswerQuestion = false; // Random question
       return;
     }
 
@@ -262,9 +266,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
         answerOptions = generateAnswerOptions(correctAnswer);
         _shownWrongQuestionsThisSession.add(nextQuestionText);
         _answeredQuestionsThisSession.add(nextQuestionText);
+        _isWrongAnswerQuestion = true; // Set flag for WAQ
       });
     } else {
       regenerateNumbers();
+      _isWrongAnswerQuestion = false; // Random question
     }
   }
 
@@ -303,7 +309,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             userAnswer: selectedAnswer,
             correctAnswer: correctAnswer,
             category:
-                '${widget.selectedOperation.toString().split('.').last} - ${getRangeDisplayName(widget.selectedRange)}', // Updated to Range
+                '${widget.selectedOperation.toString().split('.').last} - ${getRangeDisplayName(widget.selectedRange)}',
           );
         }
       } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
@@ -327,11 +333,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
               _calculateCorrectAnswer(numbers, widget.selectedOperation);
           answerOptions = generateAnswerOptions(correctAnswer);
           _shownWrongQuestionsThisSession.add(nextWAQ);
+          _isWrongAnswerQuestion = true; // Next question is a WAQ
         } else {
           regenerateNumbers();
+          _isWrongAnswerQuestion = false; // Next question is random
         }
       } else {
         regenerateNumbers();
+        _isWrongAnswerQuestion = false; // Next question is random
       }
 
       _answeredQuestionsThisSession.add(currentQuestion);
@@ -425,7 +434,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       answeredCorrectly,
       _quizTimer.secondsPassed,
       widget.selectedOperation,
-      widget.selectedRange, // Updated to Range
+      widget.selectedRange,
       widget.sessionTimeLimit,
     );
   }
@@ -543,10 +552,34 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   fit: StackFit.expand,
                   children: [
                     confettiManager.buildCorrectConfetti(),
+                    if (_isWrongAnswerQuestion) // Moved WAQ indicator here
+                      Positioned(
+                        top: 8.0 * adjustedScale,
+                        right: 8.0 * adjustedScale,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 8.0 * adjustedScale,
+                            vertical: 4.0 * adjustedScale,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.redAccent,
+                            borderRadius:
+                                BorderRadius.circular(5 * adjustedScale),
+                          ),
+                          child: Text(
+                            'Previous Wrong Answer',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 12 * adjustedScale,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(height: 16 * adjustedScale),
+                        SizedBox(height: 80 * adjustedScale),
                         buildTimerCard(
                             formatTime(_quizTimer.secondsPassed), context),
                         Expanded(
@@ -606,8 +639,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                           Radius.circular(20 * adjustedScale)),
                                       boxShadow: [
                                         BoxShadow(
-                                          color: theme.brightness ==
-                                                  Brightness.dark
+                                          color: widget.isDarkMode
                                               ? Colors.black.withOpacity(0.3)
                                               : Colors.grey.withOpacity(0.3),
                                           spreadRadius: 2,
