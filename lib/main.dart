@@ -3,7 +3,7 @@ import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/practice_screen.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
-import 'package:QuickMath_Kids/question_logic/enum_values.dart'; 
+import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
@@ -13,14 +13,17 @@ import 'app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final container = ProviderContainer();
-  final billingFuture = container.read(billingServiceProvider).initialize();
-  runApp(UncontrolledProviderScope(container: container, child: MyApp(billingFuture: billingFuture)));
+  final billingService = container.read(billingServiceProvider); // Get the BillingService instance
+  runApp(UncontrolledProviderScope(
+    container: container,
+    child: MyApp(billingService: billingService), // Pass the service instead of the future
+  ));
 }
 
 class MyApp extends StatefulWidget {
-  final Future<void> billingFuture;
+  final BillingService billingService; // Changed from Future to BillingService instance
 
-  const MyApp({super.key, required this.billingFuture});
+  const MyApp({super.key, required this.billingService});
 
   @override
   State<StatefulWidget> createState() {
@@ -34,7 +37,7 @@ class _MyAppState extends State<MyApp> {
   List<bool> answeredCorrectly = [];
   int totalTimeInSeconds = 0;
   Operation _selectedOperation = Operation.additionBeginner;
-  Range _selectedRange = Range.additionBeginner1to5; // Updated to Range enum
+  Range _selectedRange = Range.additionBeginner1to5;
   int? _selectedTimeLimit;
   bool _isDarkMode = false;
 
@@ -42,9 +45,15 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadDarkModePreference();
-    widget.billingFuture.then((_) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        FlutterNativeSplash.remove();
+    // Remove splash screen as soon as the UI is ready
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterNativeSplash.remove();
+    });
+    // Handle billing initialization and premium status loading in the background
+    widget.billingService.initialize().then((_) {
+      debugPrint("Billing initialized: ${DateTime.now()}");
+      widget.billingService.restorePurchase().then((_) { // Use restorePurchase since _loadPremiumStatus is private
+        debugPrint("Premium status restored in background: ${DateTime.now()}");
       });
     });
   }
@@ -53,7 +62,7 @@ class _MyAppState extends State<MyApp> {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _isDarkMode = prefs.getBool('isDarkMode') ?? false;
-      _selectedRange = getDefaultRange(_selectedOperation); // Ensure default range matches operation
+      _selectedRange = getDefaultRange(_selectedOperation);
     });
   }
 
@@ -85,7 +94,7 @@ class _MyAppState extends State<MyApp> {
     List<bool> correctAnswers,
     int time,
     Operation operation,
-    Range range, // Updated to Range
+    Range range,
     int? timeLimit,
   ) {
     setState(() {
