@@ -13,7 +13,8 @@ multiplication - c
          Single digit into single digit, double digit into single digit(11-50, 51-99)
 
 division - c, d
-    c - divided by 2,3,4,5,6,7,8,9, double digit by single digit.
+    c - divided by 2,3,4,5,6,7,8,9,
+    d - Mixed
 
 lcm - upto 10, upto 20, upto 30, 40, 50, 60, 70, 80, 90, 100 3 numbers upto 10, 20, 30, 40, 50
 gcf - upto 10, 20, 30, 40, 50, 60, 70, 80, 90, 100

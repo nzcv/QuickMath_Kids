@@ -12,29 +12,45 @@ class OperationDropdown extends StatelessWidget {
   });
 
   String _getDisplayName(Operation operation) {
-    switch (operation) {
-      case Operation.additionBeginner:
-        return 'Addition: Beginner';
-      case Operation.additionIntermediate:
-        return 'Addition: Intermediate';
-      case Operation.additionAdvanced:
-        return 'Addition: Advanced';
-      case Operation.subtractionBeginner:
-        return 'Subtraction: Beginner';
-      case Operation.subtractionIntermediate:
-        return 'Subtraction: Intermediate';
-      case Operation.multiplicationTables:
-        return 'Multiplication Tables';
-      case Operation.divisionBasic:
-        return 'Division: Basic';
-      case Operation.divisionMixed:
-        return 'Division: Mixed';
-      case Operation.lcm:
-        return 'LCM';
-      case Operation.gcf:
-        return 'GCF';
-    }
+  switch (operation) {
+    case Operation.additionBeginner:
+      return 'Addition: Beginner';
+    case Operation.additionIntermediate:
+      return 'Addition: Intermediate';
+    case Operation.additionAdvanced:
+      return 'Addition: Advanced';
+    case Operation.subtractionBeginner:
+      return 'Subtraction: Beginner';
+    case Operation.subtractionIntermediate:
+      return 'Subtraction: Intermediate';
+    case Operation.subtractionAdvanced:
+      return 'Subtraction: Advanced';
+    case Operation.multiplicationBeginner:
+      return 'Multiplication: Beginner';
+    case Operation.multiplicationIntermediate:
+      return 'Multiplication: Intermediate';
+    case Operation.multiplicationAdvanced:
+      return 'Multiplication: Advanced';
+    case Operation.divisionBeginner:
+      return 'Division: Beginner';
+    case Operation.divisionIntermediate:
+      return 'Division: Intermediate';
+    case Operation.divisionAdvanced:
+      return 'Division: Advanced';
+    case Operation.lcmBeginner:
+      return 'LCM: Beginner';
+    case Operation.lcmIntermediate:
+      return 'LCM: Intermediate';
+    case Operation.lcmAdvanced:
+      return 'LCM: Advanced';
+    case Operation.gcfBeginner:
+      return 'GCF: Beginner';
+    case Operation.gcfIntermediate:
+      return 'GCF: Intermediate';
+    case Operation.gcfAdvanced:
+      return 'GCF: Advanced';
   }
+}
 
   @override
   Widget build(BuildContext context) {

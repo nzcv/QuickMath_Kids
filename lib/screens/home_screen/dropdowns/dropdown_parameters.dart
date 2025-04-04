@@ -5,88 +5,157 @@ List<DropdownMenuItem<Range>> getDropdownItems(Operation selectedOperation) {
   List<Range> ranges;
   switch (selectedOperation) {
     case Operation.additionBeginner:
-      ranges = [Range.additionBeginner1to5, Range.additionBeginner6to10];
+      ranges = [
+        Range.additionBeginner1to5,
+        Range.additionBeginner6to10,
+        Range.additionBeginnerMixed1to10,
+      ];
       break;
     case Operation.additionIntermediate:
       ranges = [
         Range.additionIntermediate10to20,
-        Range.additionIntermediate20to50
+        Range.additionIntermediate20to30,
+        Range.additionIntermediate30to40,
+        Range.additionIntermediate40to50,
+        Range.additionIntermediateMixed10to50,
       ];
       break;
     case Operation.additionAdvanced:
-      ranges = [Range.additionAdvanced50to100, Range.additionAdvanced100to200];
+      ranges = [
+        Range.additionAdvanced50to100,
+        Range.additionAdvanced100to150,
+        Range.additionAdvanced150to200,
+        Range.additionAdvanced100to200,
+        Range.additionAdvancedMixed50to200,
+        Range.additionAdvancedMixed1to200,
+      ];
       break;
     case Operation.subtractionBeginner:
       ranges = [
         Range.subtractionBeginner1to10,
-        Range.subtractionBeginner10to20
+        Range.subtractionBeginner10to20,
+        Range.subtractionBeginnerMixed1to20,
       ];
       break;
     case Operation.subtractionIntermediate:
       ranges = [
-        Range.subtractionIntermediate20to50,
-        Range.subtractionIntermediate50to100
+        Range.subtractionIntermediate20to30,
+        Range.subtractionIntermediate30to40,
+        Range.subtractionIntermediate40to50,
+        Range.subtractionIntermediateMixed20to50,
       ];
       break;
-    case Operation.multiplicationTables:
+    case Operation.subtractionAdvanced:
       ranges = [
-        Range.multiplicationTable2,
-        Range.multiplicationTable3,
-        Range.multiplicationTable4,
-        Range.multiplicationTable5,
-        Range.multiplicationTable6,
-        Range.multiplicationTable7,
-        Range.multiplicationTable8,
-        Range.multiplicationTable9,
+        Range.subtractionAdvanced50to100,
+        Range.subtractionAdvanced100to150,
+        Range.subtractionAdvanced150to200,
+        Range.subtractionAdvancedMixed50to200,
+        Range.subtractionAdvancedMixed1to200,
       ];
       break;
-    case Operation.divisionBasic:
+    case Operation.multiplicationBeginner:
       ranges = [
-        Range.divisionBasicBy2,
-        Range.divisionBasicBy3,
-        Range.divisionBasicBy4,
-        Range.divisionBasicBy5,
-        Range.divisionBasicBy6,
-        Range.divisionBasicBy7,
-        Range.divisionBasicBy8,
-        Range.divisionBasicBy9,
-        Range.divisionBasicBy10,
+        Range.multiplicationBeginnerX2,
+        Range.multiplicationBeginnerX3,
+        Range.multiplicationBeginnerX4,
+        Range.multiplicationBeginnerX5,
+        Range.multiplicationBeginnerMixedX2toX5,
       ];
       break;
-    case Operation.divisionMixed:
-      ranges = [Range.divisionMixed];
-      break;
-    case Operation.lcm:
+    case Operation.multiplicationIntermediate:
       ranges = [
-        Range.lcmUpto10,
-        Range.lcmUpto20,
-        Range.lcmUpto30,
-        Range.lcmUpto40,
-        Range.lcmUpto50,
-        Range.lcmUpto60,
-        Range.lcmUpto70,
-        Range.lcmUpto80,
-        Range.lcmUpto90,
-        Range.lcmUpto100,
-        Range.lcm3NumbersUpto10,
-        Range.lcm3NumbersUpto20,
-        Range.lcm3NumbersUpto30,
-        Range.lcm3NumbersUpto40,
-        Range.lcm3NumbersUpto50,
+        Range.multiplicationIntermediateX6,
+        Range.multiplicationIntermediateX7,
+        Range.multiplicationIntermediateX8,
+        Range.multiplicationIntermediateX9,
+        Range.multiplicationIntermediateMixedX6toX9,
       ];
       break;
-    case Operation.gcf:
+    case Operation.multiplicationAdvanced:
       ranges = [
-        Range.gcfUpto10,
-        Range.gcfUpto20,
-        Range.gcfUpto30,
-        Range.gcfUpto40,
-        Range.gcfUpto50,
-        Range.gcfUpto60,
-        Range.gcfUpto70,
-        Range.gcfUpto80,
-        Range.gcfUpto90,
-        Range.gcfUpto100,
+        Range.multiplicationAdvancedX10,
+        Range.multiplicationAdvancedX11,
+        Range.multiplicationAdvancedX12,
+        Range.multiplicationAdvancedMixedX10toX12,
+        Range.multiplicationAdvancedMixedX2toX12,
+      ];
+      break;
+    case Operation.divisionBeginner:
+      ranges = [
+        Range.divisionBeginnerBy2,
+        Range.divisionBeginnerBy3,
+        Range.divisionBeginnerBy4,
+        Range.divisionBeginnerBy5,
+        Range.divisionBeginnerMixedBy2to5,
+      ];
+      break;
+    case Operation.divisionIntermediate:
+      ranges = [
+        Range.divisionIntermediateBy6,
+        Range.divisionIntermediateBy7,
+        Range.divisionIntermediateBy8,
+        Range.divisionIntermediateBy9,
+        Range.divisionIntermediateMixedBy6to9,
+      ];
+      break;
+    case Operation.divisionAdvanced:
+      ranges = [Range.divisionAdvancedMixedBy2to10];
+      break;
+    case Operation.lcmBeginner:
+      ranges = [
+        Range.lcmBeginnerUpto10,
+        Range.lcmBeginnerUpto20,
+        Range.lcmBeginnerMixedUpto20,
+      ];
+      break;
+    case Operation.lcmIntermediate:
+      ranges = [
+        Range.lcmIntermediateUpto30,
+        Range.lcmIntermediateUpto40,
+        Range.lcmIntermediateUpto50,
+        Range.lcmIntermediateUpto60,
+        Range.lcmIntermediateMixedUpto60,
+      ];
+      break;
+    case Operation.lcmAdvanced:
+      ranges = [
+        Range.lcmAdvancedUpto70,
+        Range.lcmAdvancedUpto80,
+        Range.lcmAdvancedUpto90,
+        Range.lcmAdvancedUpto100,
+        Range.lcmAdvanced3NumbersUpto10,
+        Range.lcmAdvanced3NumbersUpto20,
+        Range.lcmAdvanced3NumbersUpto30,
+        Range.lcmAdvanced3NumbersUpto40,
+        Range.lcmAdvanced3NumbersUpto50,
+        Range.lcmAdvancedMixedUpto100,
+        Range.lcmAdvancedMixed3NumbersUpto50,
+      ];
+      break;
+    case Operation.gcfBeginner:
+      ranges = [
+        Range.gcfBeginnerUpto10,
+        Range.gcfBeginnerUpto20,
+        Range.gcfBeginnerMixedUpto20,
+      ];
+      break;
+    case Operation.gcfIntermediate:
+      ranges = [
+        Range.gcfIntermediateUpto30,
+        Range.gcfIntermediateUpto40,
+        Range.gcfIntermediateUpto50,
+        Range.gcfIntermediateUpto60,
+        Range.gcfIntermediateMixedUpto60,
+      ];
+      break;
+    case Operation.gcfAdvanced:
+      ranges = [
+        Range.gcfAdvancedUpto70,
+        Range.gcfAdvancedUpto80,
+        Range.gcfAdvancedUpto90,
+        Range.gcfAdvancedUpto100,
+        Range.gcfAdvancedMixedUpto100,
       ];
       break;
   }

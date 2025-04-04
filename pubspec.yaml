@@ -40,11 +40,7 @@ flutter:
 
 flutter_native_splash:
   color: "#FFFFFF" # White background for light mode
-  image: assets/QuickMath_Kids_logo.png
+  image: assests/QuickMath_Kids_Logo.png
   color_dark: "#000000" # Black background for dark mode
-  image_dark: assets/QuickMath_Kids_logo.png
-  android_12:
-    image: assets/QuickMath_Kids_logo.png
-    color: "#FFFFFF"
+  image_dark: assets/QuickMath_Kids_Logo.png
   fullscreen: true
-  # Ensure the splash screen stays until we remove it manually

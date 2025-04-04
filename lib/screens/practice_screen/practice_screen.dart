@@ -138,8 +138,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
       numbers = QuestionGenerator().generateTwoRandomNumbers(
           widget.selectedOperation, widget.selectedRange);
 
-      if (widget.selectedOperation == Operation.lcm ||
-          widget.selectedOperation == Operation.gcf) {
+      if (widget.selectedOperation == Operation.lcmBeginner ||
+          widget.selectedOperation == Operation.lcmIntermediate ||
+          widget.selectedOperation == Operation.lcmAdvanced ||
+          widget.selectedOperation == Operation.gcfBeginner ||
+          widget.selectedOperation == Operation.gcfIntermediate ||
+          widget.selectedOperation == Operation.gcfAdvanced) {
         correctAnswer = numbers.last;
         numbers = numbers.sublist(0, numbers.length - 1);
       } else {
@@ -152,13 +156,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
               break;
             case Operation.subtractionBeginner:
             case Operation.subtractionIntermediate:
+            case Operation.subtractionAdvanced:
               correctAnswer = numbers[0] - numbers[1];
               break;
-            case Operation.multiplicationTables:
+            case Operation.multiplicationBeginner:
+            case Operation.multiplicationIntermediate:
+            case Operation.multiplicationAdvanced:
               correctAnswer = numbers[0] * numbers[1];
               break;
-            case Operation.divisionBasic:
-            case Operation.divisionMixed:
+            case Operation.divisionBeginner:
+            case Operation.divisionIntermediate:
+            case Operation.divisionAdvanced:
               correctAnswer = numbers[0] ~/ numbers[1];
               break;
             default:
@@ -181,37 +189,42 @@ class _PracticeScreenState extends State<PracticeScreen> {
         num2 = (DateTime.now().millisecondsSinceEpoch % 10) + 1;
         numbers = [num1, num2];
 
-        if (widget.selectedOperation == Operation.lcm ||
-            widget.selectedOperation == Operation.gcf) {
-          correctAnswer = widget.selectedOperation == Operation.lcm
-              ? _lcm(num1, num2)
-              : _gcd(num1, num2);
-        } else {
-          switch (widget.selectedOperation) {
-            case Operation.additionBeginner:
-            case Operation.additionIntermediate:
-            case Operation.additionAdvanced:
-              correctAnswer = num1 + num2;
-              break;
-            case Operation.subtractionBeginner:
-            case Operation.subtractionIntermediate:
-              correctAnswer = num1 - num2;
-              break;
-            case Operation.multiplicationTables:
-              correctAnswer = num1 * num2;
-              break;
-            case Operation.divisionBasic:
-            case Operation.divisionMixed:
-              if (num2 != 0) {
-                correctAnswer = num1 ~/ num2;
-              } else {
-                num2 = 1;
-                correctAnswer = num1 ~/ num2;
-              }
-              break;
-            default:
-              correctAnswer = 0;
-          }
+        switch (widget.selectedOperation) {
+          case Operation.additionBeginner:
+          case Operation.additionIntermediate:
+          case Operation.additionAdvanced:
+            correctAnswer = num1 + num2;
+            break;
+          case Operation.subtractionBeginner:
+          case Operation.subtractionIntermediate:
+          case Operation.subtractionAdvanced:
+            correctAnswer = num1 - num2;
+            break;
+          case Operation.multiplicationBeginner:
+          case Operation.multiplicationIntermediate:
+          case Operation.multiplicationAdvanced:
+            correctAnswer = num1 * num2;
+            break;
+          case Operation.divisionBeginner:
+          case Operation.divisionIntermediate:
+          case Operation.divisionAdvanced:
+            if (num2 != 0) {
+              correctAnswer = num1 ~/ num2;
+            } else {
+              num2 = 1;
+              correctAnswer = num1 ~/ num2;
+            }
+            break;
+          case Operation.lcmBeginner:
+          case Operation.lcmIntermediate:
+          case Operation.lcmAdvanced:
+            correctAnswer = _lcm(num1, num2);
+            break;
+          case Operation.gcfBeginner:
+          case Operation.gcfIntermediate:
+          case Operation.gcfAdvanced:
+            correctAnswer = _gcd(num1, num2);
+            break;
         }
 
         questionText = _formatQuestionText();
@@ -336,15 +349,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
         return numbers[0] + numbers[1];
       case Operation.subtractionBeginner:
       case Operation.subtractionIntermediate:
+      case Operation.subtractionAdvanced:
         return numbers[0] - numbers[1];
-      case Operation.multiplicationTables:
+      case Operation.multiplicationBeginner:
+      case Operation.multiplicationIntermediate:
+      case Operation.multiplicationAdvanced:
         return numbers[0] * numbers[1];
-      case Operation.divisionBasic:
-      case Operation.divisionMixed:
+      case Operation.divisionBeginner:
+      case Operation.divisionIntermediate:
+      case Operation.divisionAdvanced:
         return numbers[0] ~/ numbers[1];
-      case Operation.lcm:
+      case Operation.lcmBeginner:
+      case Operation.lcmIntermediate:
+      case Operation.lcmAdvanced:
         return _lcm(numbers[0], numbers[1]);
-      case Operation.gcf:
+      case Operation.gcfBeginner:
+      case Operation.gcfIntermediate:
+      case Operation.gcfAdvanced:
         return _gcd(numbers[0], numbers[1]);
     }
   }
@@ -371,14 +392,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   String _formatQuestionText() {
-    if (widget.selectedOperation == Operation.lcm) {
+    if (widget.selectedOperation == Operation.lcmBeginner ||
+        widget.selectedOperation == Operation.lcmIntermediate ||
+        widget.selectedOperation == Operation.lcmAdvanced) {
       if (widget.selectedRange.toString().contains('3Numbers')) {
-        // Check Range enum for 3 numbers
         return 'LCM of ${numbers[0]}, ${numbers[1]}, ${numbers[2]}';
       } else {
         return 'LCM of ${numbers[0]}, ${numbers[1]}';
       }
-    } else if (widget.selectedOperation == Operation.gcf) {
+    } else if (widget.selectedOperation == Operation.gcfBeginner ||
+        widget.selectedOperation == Operation.gcfIntermediate ||
+        widget.selectedOperation == Operation.gcfAdvanced) {
       return 'GCF of ${numbers[0]}, ${numbers[1]}';
     } else {
       return '${numbers[0]} ${OperatorHelper.getOperatorSymbol(widget.selectedOperation)} ${numbers[1]}';
