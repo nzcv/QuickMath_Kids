@@ -4,6 +4,7 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/pause_modal.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/modals/inactivity_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/timer_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/tts_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/hint_helper.dart';
@@ -16,43 +17,6 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
-
-// NoActivityModal widget
-class NoActivityModal extends StatelessWidget {
-  final VoidCallback onResume;
-
-  const NoActivityModal({required this.onResume, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return AlertDialog(
-      title: Text(
-        'No Activity Detected',
-        style: theme.textTheme.titleLarge?.copyWith(
-          color: theme.colorScheme.onSurface,
-        ),
-      ),
-      content: Text(
-        'You have been inactive for a while.',
-        style: theme.textTheme.bodyLarge?.copyWith(
-          color: theme.colorScheme.onSurface,
-        ),
-      ),
-      backgroundColor: theme.colorScheme.surface,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      actions: [
-        TextButton(
-          onPressed: onResume,
-          child: Text(
-            'Resume Quiz',
-            style: TextStyle(color: theme.colorScheme.primary),
-          ),
-        ),
-      ],
-    );
-  }
-}
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, Range, int?)
@@ -156,7 +120,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return NoActivityModal(
+        return InActivityModal(
           onResume: () {
             Navigator.pop(context); // Close the modal
             resumeTimer(); // Resume the quiz timer
