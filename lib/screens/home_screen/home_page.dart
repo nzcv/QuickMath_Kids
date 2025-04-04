@@ -239,10 +239,13 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       const SizedBox(height: 20),
-                      Image.asset(
-                        'assets/QuickMath_Kids_logo.png',
-                        width: isTablet ? 250 : 200,
-                        height: isTablet ? 250 : 200,
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: Image.asset(
+                          'assets/QuickMath_Kids_logo.png',
+                          width: isTablet ? 250 : 200,
+                          height: isTablet ? 250 : 200,
+                        ),
                       ),
                       const SizedBox(height: 15),
                       Text(

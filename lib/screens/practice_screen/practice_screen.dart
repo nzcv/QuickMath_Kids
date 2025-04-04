@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
@@ -15,6 +16,43 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
+
+// NoActivityModal widget
+class NoActivityModal extends StatelessWidget {
+  final VoidCallback onResume;
+
+  const NoActivityModal({required this.onResume, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    return AlertDialog(
+      title: Text(
+        'No Activity Detected',
+        style: theme.textTheme.titleLarge?.copyWith(
+          color: theme.colorScheme.onSurface,
+        ),
+      ),
+      content: Text(
+        'You have been inactive for a while.',
+        style: theme.textTheme.bodyLarge?.copyWith(
+          color: theme.colorScheme.onSurface,
+        ),
+      ),
+      backgroundColor: theme.colorScheme.surface,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      actions: [
+        TextButton(
+          onPressed: onResume,
+          child: Text(
+            'Resume Quiz',
+            style: TextStyle(color: theme.colorScheme.primary),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, Range, int?)
@@ -52,7 +90,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   List<String> _answeredQuestionsThisSession = [];
   List<String> _wrongQuestionsThisSession = [];
   bool _isInitialized = false;
-  bool _isWrongAnswerQuestion = false; // New flag to track WAQ
+  bool _isWrongAnswerQuestion = false;
 
   int correctAnswer = 0;
   String currentHintMessage = '';
@@ -62,6 +100,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   final QuizTimer _quizTimer = QuizTimer();
   late ConfettiManager confettiManager;
   late TTSHelper _ttsHelper;
+  Timer? _inactivityTimer;
 
   @override
   void initState() {
@@ -77,6 +116,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         }
       });
     });
+    _startInactivityTimer();
   }
 
   Future<void> _initializeScreen() async {
@@ -91,6 +131,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   @override
   void dispose() {
     _quizTimer.stopTimer();
+    _inactivityTimer?.cancel();
     confettiManager.dispose();
     super.dispose();
   }
@@ -98,6 +139,33 @@ class _PracticeScreenState extends State<PracticeScreen> {
   void stopTimer() => _quizTimer.stopTimer();
   void pauseTimer() => _quizTimer.pauseTimer();
   void resumeTimer() => _quizTimer.resumeTimer();
+
+  void _startInactivityTimer() {
+    _inactivityTimer?.cancel();
+    _inactivityTimer = Timer(const Duration(seconds: 20), () {
+      if (mounted) {
+        pauseTimer(); // Pause the quiz timer
+        _inactivityTimer?.cancel(); // Cancel the timer to prevent stacking
+        _showNoActivityModal(); // Show the modal
+      }
+    });
+  }
+
+  void _showNoActivityModal() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return NoActivityModal(
+          onResume: () {
+            Navigator.pop(context); // Close the modal
+            resumeTimer(); // Resume the quiz timer
+            _startInactivityTimer(); // Restart the inactivity timer
+          },
+        );
+      },
+    );
+  }
 
   Future<void> _loadWrongQuestions() async {
     List<Map<String, dynamic>> allWrongQuestions =
@@ -233,23 +301,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
     answerOptions = generateAnswerOptions(correctAnswer);
     _answeredQuestionsThisSession.add(questionText);
-    _isWrongAnswerQuestion = false; // Reset flag for random question
+    _isWrongAnswerQuestion = false;
   }
 
   void _setInitialQuestion() {
     if (_wrongQuestionsToShowThisSession.isNotEmpty) {
       _useWrongQuestion();
-      _isWrongAnswerQuestion = true; // Set flag for WAQ
+      _isWrongAnswerQuestion = true;
     } else {
       regenerateNumbers();
-      _isWrongAnswerQuestion = false; // Random question
+      _isWrongAnswerQuestion = false;
     }
   }
 
   void _useWrongQuestion() {
     if (_wrongQuestionsToShowThisSession.isEmpty) {
       regenerateNumbers();
-      _isWrongAnswerQuestion = false; // Random question
+      _isWrongAnswerQuestion = false;
       return;
     }
 
@@ -266,11 +334,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
         answerOptions = generateAnswerOptions(correctAnswer);
         _shownWrongQuestionsThisSession.add(nextQuestionText);
         _answeredQuestionsThisSession.add(nextQuestionText);
-        _isWrongAnswerQuestion = true; // Set flag for WAQ
+        _isWrongAnswerQuestion = true;
       });
     } else {
       regenerateNumbers();
-      _isWrongAnswerQuestion = false; // Random question
+      _isWrongAnswerQuestion = false;
     }
   }
 
@@ -293,6 +361,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void checkAnswer(int selectedAnswer) {
+    _startInactivityTimer();
     bool isCorrect = selectedAnswer == correctAnswer;
     String currentQuestion = _formatQuestionText();
 
@@ -333,14 +402,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
               _calculateCorrectAnswer(numbers, widget.selectedOperation);
           answerOptions = generateAnswerOptions(correctAnswer);
           _shownWrongQuestionsThisSession.add(nextWAQ);
-          _isWrongAnswerQuestion = true; // Next question is a WAQ
+          _isWrongAnswerQuestion = true;
         } else {
           regenerateNumbers();
-          _isWrongAnswerQuestion = false; // Next question is random
+          _isWrongAnswerQuestion = false;
         }
       } else {
         regenerateNumbers();
-        _isWrongAnswerQuestion = false; // Next question is random
+        _isWrongAnswerQuestion = false;
       }
 
       _answeredQuestionsThisSession.add(currentQuestion);
@@ -419,6 +488,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _triggerTTSSpeech() {
+    _startInactivityTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _ttsHelper.playSpeech(widget.selectedOperation, numbers);
       setState(() {
@@ -428,6 +498,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void endQuiz() {
+    _startInactivityTimer();
     stopTimer();
     widget.switchToResultScreen(
       answeredQuestions,
@@ -440,6 +511,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _showQuitDialog() {
+    _startInactivityTimer();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -449,17 +521,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void _showPauseDialog() {
+    _startInactivityTimer();
     pauseTimer();
     showDialog(
       context: context,
       barrierDismissible: false,
       builder: (BuildContext context) {
-        return PauseDialog(onResume: resumeTimer);
+        return PauseDialog(onResume: () {
+          resumeTimer();
+          _startInactivityTimer();
+        });
       },
     );
   }
 
   void _showHintDialog() {
+    _startInactivityTimer();
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -476,7 +553,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           actions: [
             TextButton(
-              onPressed: () => Navigator.pop(context),
+              onPressed: () {
+                Navigator.pop(context);
+                _startInactivityTimer();
+              },
               child: Text('Close',
                   style: TextStyle(color: theme.colorScheme.primary)),
             ),
@@ -552,7 +632,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   fit: StackFit.expand,
                   children: [
                     confettiManager.buildCorrectConfetti(),
-                    if (_isWrongAnswerQuestion) // Moved WAQ indicator here
+                    if (_isWrongAnswerQuestion)
                       Positioned(
                         top: 8.0 * adjustedScale,
                         right: 8.0 * adjustedScale,
