@@ -28,6 +28,7 @@ dependencies:
   flutter_secure_storage: ^9.2.4
   consumer: ^2.3.1
   flutter_native_splash: ^2.4.1 # For runtime use
+  url_launcher: ^6.3.1
 
 dev_dependencies:
   flutter_test:

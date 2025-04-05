@@ -1,3 +1,4 @@
+import 'package:QuickMath_Kids/screens/support_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
@@ -61,6 +62,18 @@ class AppDrawer extends StatelessWidget {
               Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => HowToUseScreen()),
+              );
+            },
+          ),
+          _buildDrawerItem(
+            context: context,
+            icon: Icons.support_agent,
+            title: 'Get Support',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => SupportScreen()),
               );
             },
           ),
