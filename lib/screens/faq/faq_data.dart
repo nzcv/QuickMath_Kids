@@ -24,7 +24,7 @@ final List<FAQItem> allFAQs = [
     FAQItem(
       question: "Is QuickMath Kids free?",
       answer:
-          "The app requires a one-time purchase from the Google Play Store. There are no subscriptions, in-app purchases, or ads.",
+          "This app is free from Google Play, but a one time payment of 300 rupees is required to unlock all features. The app is ad-free and does not collect personal data.",
     ),
     FAQItem(
       question: "How do I install the app?",
@@ -59,7 +59,7 @@ final List<FAQItem> allFAQs = [
     FAQItem(
       question: "Does the app work offline?",
       answer:
-          "Yes, QuickMath Kids functions fully offline once installed—no internet required.",
+          "Yes, QuickMath Kids functions offline once installed—no internet required.",
     ),
     FAQItem(
       question: "What devices does it support?",
@@ -124,7 +124,7 @@ final List<FAQItem> allFAQs = [
     FAQItem(
       question: "Can I use the app on multiple devices?",
       answer:
-          "Yes, but progress (like wrong answers) is stored locally and won’t sync across devices without reinstalling and manually transferring data.",
+          "Yes, but progress (like wrong answers) is stored locally and won’t sync across devices.",
     ),
     FAQItem(
       question: "What happens when I master a wrong answer?",
