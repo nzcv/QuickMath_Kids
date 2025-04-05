@@ -8,7 +8,7 @@ class SupportScreen extends StatelessWidget {
   Future<void> _launchGmail(BuildContext context) async {
     const String email = 'master.guru.raghav@gmail.com';
     const String subject = 'Support Request - QuickMath Kids';
-    const String body = 'Please describe your issue or question below:\n\n';
+    const String body = 'Make sure to attach clear screenshots to make the support process faster.\n\n Please describe your issue or question below:\n\n ';
 
     final String gmailUrl = 'googlegmail:///mail/?to=$email&su=${Uri.encodeComponent(subject)}&body=${Uri.encodeComponent(body)}';
 
@@ -65,13 +65,6 @@ class SupportScreen extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              Text(
-                'Reach out to us via email for any questions or issues.',
-                style: theme.textTheme.bodyLarge?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.7),
-                ),
-                textAlign: TextAlign.center,
-              ),
               const SizedBox(height: 24),
               // Working Hours Section
               Card(
@@ -114,7 +107,7 @@ class SupportScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 12),
               // Email Support Section
               Card(
                 elevation: 4,
@@ -144,7 +137,7 @@ class SupportScreen extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Send us an email and we’ll get back to you within 24-48 hours during support hours.',
+                        'Send us an email and we’ll get back to you within 2-4 hours during support hours.',
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: theme.colorScheme.onSurface.withOpacity(0.8),
                         ),
@@ -203,15 +196,74 @@ class SupportScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
-              // Tips Section
-              Text(
-                'Tip: Include your app version and a detailed description of your issue for faster assistance.',
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurface.withOpacity(0.6),
-                  fontStyle: FontStyle.italic,
+              const SizedBox(height: 16),
+              // Tips Section with Enhanced Visibility
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.secondary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: theme.colorScheme.secondary.withOpacity(0.5),
+                    width: 1,
+                  ),
                 ),
-                textAlign: TextAlign.center,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.lightbulb_outline,
+                      size: 20,
+                      color: theme.colorScheme.secondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Tip: Include a detailed description of your issue and clear screenshots for faster assistance.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                          fontSize: isTablet ? 16 : 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 8),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.secondary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: theme.colorScheme.secondary.withOpacity(0.5),
+                    width: 1,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      size: 20,
+                      color: theme.colorScheme.secondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Make sure to go through the FAQ section in the app before reaching out.',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                          fontSize: isTablet ? 16 : 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
