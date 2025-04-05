@@ -1,5 +1,5 @@
-import 'package:QuickMath_Kids/screens/support_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:QuickMath_Kids/screens/support_screen.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
@@ -25,149 +25,146 @@ class AppDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isPremium = billingService.isPremium;
 
     return Drawer(
-      width: MediaQuery.of(context).size.width * 0.7,
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.primary,
-            ),
-            child: Text(
-              'QuickMath Kids',
-              style: theme.textTheme.headlineMedium
-                  ?.copyWith(color: theme.colorScheme.onPrimary),
-            ),
-          ),
-          _buildDrawerItem(
-            context: context,
-            icon: Icons.help_outline,
-            title: 'FAQ',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => FAQScreen()),
-              );
-            },
-          ),
-          _buildDrawerItem(
-            context: context,
-            icon: Icons.help_outline,
-            title: 'How to use?',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HowToUseScreen()),
-              );
-            },
-          ),
-          _buildDrawerItem(
-            context: context,
-            icon: Icons.support_agent,
-            title: 'Get Support',
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => SupportScreen()),
-              );
-            },
-          ),
-          _buildDrawerItem(
-            context: context,
-            icon: Icons.settings,
-            title: 'Settings',
-            isPremiumRequired: !billingService.isPremium,
-            onTap: () {
-              Navigator.pop(context);
-              if (billingService.isPremium) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              }
-            },
-          ),
-          _buildDrawerItem(
-            context: context,
-            icon: Icons.history,
-            title: 'Wrong Answers History',
-            isPremiumRequired: !billingService.isPremium,
-            onTap: () {
-              Navigator.pop(context);
-              if (billingService.isPremium) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => WrongAnswersScreen(),
+      width: MediaQuery.of(context).size.width * 0.75,
+      child: Container(
+        color: theme.scaffoldBackgroundColor,
+        child: ListView(
+          padding: EdgeInsets.zero,
+          children: [
+            DrawerHeader(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    theme.colorScheme.primary,
+                    theme.colorScheme.secondary,
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Icons.calculate,
+                    size: 50,
+                    color: theme.colorScheme.onPrimary,
                   ),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              }
-            },
-          ),
-          _buildDrawerItem(
-            context: context,
-            icon: Icons.history_toggle_off,
-            title: 'Quiz History',
-            isPremiumRequired: !billingService.isPremium,
-            onTap: () {
-              Navigator.pop(context);
-              if (billingService.isPremium) {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => QuizHistoryScreen(switchToStartScreen),
+                  const SizedBox(height: 10),
+                  Text(
+                    'QuickMath Kids',
+                    style: theme.textTheme.headlineMedium?.copyWith(
+                      color: theme.colorScheme.onPrimary,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
-                );
-              } else {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-                );
-              }
-            },
-          ),
-          _buildDrawerItem(
-            context: context,
-            icon: Icons.star,
-            title: 'Purchase Premium',
-            iconColor: Colors.amber,
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-              );
-            },
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-            child: SwitchListTile(
-              title: const Text("Dark Mode"),
-              value: isDarkMode,
-              onChanged: (bool value) {
-                toggleDarkMode(value);
-              },
-              activeColor: theme.colorScheme.primary,
+                ],
+              ),
             ),
-          ),
-        ],
+            _buildDrawerItem(
+              context: context,
+              icon: Icons.help_outline,
+              title: 'FAQ',
+              onTap: () => _navigateTo(context, FAQScreen()),
+              backgroundColor: theme.colorScheme.surface,
+            ),
+            _buildDrawerItem(
+              context: context,
+              icon: Icons.info_outline,
+              title: 'How to use?',
+              onTap: () => _navigateTo(context, HowToUseScreen()),
+              backgroundColor: theme.colorScheme.surface,
+            ),
+            _buildDrawerItem(
+              context: context,
+              icon: Icons.settings,
+              title: 'Settings',
+              isPremiumRequired: !isPremium,
+              onTap: () => _navigateTo(context,
+                  isPremium ? const SettingsScreen() : const PurchaseScreen()),
+              backgroundColor: theme.colorScheme.surface,
+            ),
+            _buildDrawerItem(
+              context: context,
+              icon: Icons.history,
+              title: 'Wrong Answers History',
+              isPremiumRequired: !isPremium,
+              onTap: () => _navigateTo(context,
+                  isPremium ? WrongAnswersScreen() : const PurchaseScreen()),
+              backgroundColor: theme.colorScheme.surface,
+            ),
+            _buildDrawerItem(
+              context: context,
+              icon: Icons.history_toggle_off,
+              title: 'Quiz History',
+              isPremiumRequired: !isPremium,
+              onTap: () => _navigateTo(
+                  context,
+                  isPremium
+                      ? QuizHistoryScreen(switchToStartScreen)
+                      : const PurchaseScreen()),
+              backgroundColor: theme.colorScheme.surface,
+            ),
+            _buildDrawerItem(
+              context: context,
+              icon: Icons.support_agent,
+              title: 'Get Support',
+              onTap: () => _navigateTo(context, SupportScreen()),
+              backgroundColor: theme.colorScheme.error.withOpacity(0.2),
+              iconColor: theme.colorScheme.error,
+              textStyle: const TextStyle(fontWeight: FontWeight.bold),
+              borderColor: theme.colorScheme.error,
+            ),
+            _buildDrawerItem(
+              context: context,
+              icon: Icons.star,
+              title: 'Purchase Premium',
+              onTap: () => _navigateTo(context, const PurchaseScreen()),
+              backgroundColor: Colors.amber.withOpacity(0.2),
+              iconColor: Colors.amber[800],
+              textStyle: const TextStyle(fontWeight: FontWeight.bold),
+              borderColor: Colors.amber[800],
+              gradient: LinearGradient(
+                colors: [
+                  Colors.amber.withOpacity(0.3),
+                  Colors.amber.withOpacity(0.1),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              child: SwitchListTile(
+                title: Text(
+                  "Dark Mode",
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                value: isDarkMode,
+                onChanged: toggleDarkMode,
+                activeColor: theme.colorScheme.primary,
+                thumbColor:
+                    WidgetStateProperty.all(theme.colorScheme.onPrimary),
+                trackColor: WidgetStateProperty.resolveWith((states) =>
+                    states.contains(WidgetState.selected)
+                        ? theme.colorScheme.primary.withOpacity(0.5)
+                        : theme.colorScheme.surface),
+              ),
+            ),
+          ],
+        ),
       ),
     );
+  }
+
+  void _navigateTo(BuildContext context, Widget screen) {
+    Navigator.pop(context);
+    Navigator.push(context, MaterialPageRoute(builder: (context) => screen));
   }
 
   Widget _buildDrawerItem({
@@ -176,51 +173,83 @@ class AppDrawer extends StatelessWidget {
     required String title,
     required VoidCallback onTap,
     bool isPremiumRequired = false,
+    Color? backgroundColor,
     Color? iconColor,
+    Color? borderColor,
+    TextStyle? textStyle,
+    Gradient? gradient,
   }) {
     final theme = Theme.of(context);
-    
+    final defaultIconColor =
+        isPremiumRequired ? Colors.grey : theme.iconTheme.color;
+
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
       decoration: BoxDecoration(
-        color: theme.brightness == Brightness.dark 
-            ? Colors.grey[800]
-            : Colors.grey[900],
-        borderRadius: BorderRadius.circular(8),
-        border: isPremiumRequired
-            ? Border.all(color: theme.colorScheme.error, width: 1.5)
-            : null,
+        gradient: gradient,
+        color:
+            gradient == null ? backgroundColor ?? theme.cardTheme.color : null,
+        borderRadius: BorderRadius.circular(12),
+        border: borderColor != null
+            ? Border.all(color: borderColor, width: 1.5)
+            : isPremiumRequired
+                ? Border.all(
+                    color: theme.colorScheme.error.withOpacity(0.5), width: 1.5)
+                : Border.all(color: theme.dividerColor.withOpacity(0.5)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDarkMode ? 0.3 : 0.1),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(8),
-        splashColor: theme.colorScheme.primary.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+        splashColor: theme.colorScheme.primary.withOpacity(0.3),
         highlightColor: theme.colorScheme.primary.withOpacity(0.1),
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
           child: Row(
             children: [
-              Icon(
-                icon,
-                color: iconColor ?? theme.colorScheme.primary,
-                size: 24,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: (iconColor ??
+                          defaultIconColor ??
+                          theme.colorScheme.primary)
+                      .withOpacity(0.1),
+                ),
+                child: Icon(
+                  icon,
+                  color: iconColor ?? defaultIconColor,
+                  size: 26,
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
                   title,
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    color: theme.brightness == Brightness.dark 
-                        ? Colors.white 
-                        : Colors.white,
-                  ),
+                  style: theme.textTheme.bodyLarge?.merge(textStyle).copyWith(
+                        color: theme.colorScheme.onSurface,
+                        fontSize: 16,
+                      ),
                 ),
               ),
               if (isPremiumRequired)
-                Icon(
-                  Icons.lock,
-                  size: 20,
-                  color: theme.colorScheme.error,
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.error.withOpacity(0.2),
+                  ),
+                  child: Icon(
+                    Icons.lock,
+                    size: 20,
+                    color: theme.colorScheme.error,
+                  ),
                 ),
             ],
           ),
