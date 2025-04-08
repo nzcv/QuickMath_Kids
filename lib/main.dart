@@ -45,12 +45,19 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadDarkModePreference();
-    // Remove splash screen immediately after basic UI setup
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FlutterNativeSplash.remove();
-      // Defer billing initialization to avoid blocking UI
       _initializeBillingInBackground();
     });
+    // Listen to billing service changes
+    widget.billingService.addListener(_onBillingServiceChanged);
+  }
+
+  void _onBillingServiceChanged() {
+    setState(() {
+      // Force rebuild when billing service changes (e.g., isPremium updates)
+    });
+    debugPrint('BillingService changed, isPremium: ${widget.billingService.isPremium}');
   }
 
   Future<void> _initializeBillingInBackground() async {
@@ -119,12 +126,19 @@ class _MyAppState extends State<MyApp> {
   }
 
   @override
+  void dispose() {
+    widget.billingService.removeListener(_onBillingServiceChanged);
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Consumer(
       builder: (context, ref, child) {
+        final theme = AppTheme.getTheme(ref, _isDarkMode, context);
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          theme: AppTheme.getTheme(ref, _isDarkMode, context),
+          theme: theme,
           home: Scaffold(
             body: activeScreen == 'start_screen'
                 ? StartScreen(

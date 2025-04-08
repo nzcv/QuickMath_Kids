@@ -38,7 +38,7 @@ class BillingService extends ChangeNotifier {
       debugPrint('BillingService: This app only supports Android billing.');
       _isPremium = false;
       _isInitialized = true;
-      notifyListeners(); // Notify initial state
+      notifyListeners();
       return;
     }
 
@@ -74,7 +74,7 @@ class BillingService extends ChangeNotifier {
 
     await _loadPremiumStatus();
     _isInitialized = true;
-    notifyListeners(); // Notify after initialization
+    notifyListeners();
   }
 
   Future<void> _loadPremiumStatus() async {
@@ -85,7 +85,7 @@ class BillingService extends ChangeNotifier {
     if (_isReset) {
       _isPremium = false;
       await _storage.write(key: _premiumKey, value: 'false');
-      await _storage.write(key: _resetKey, value: 'false'); // Clear reset after applying
+      await _storage.write(key: _resetKey, value: 'false');
       debugPrint('BillingService: Reset applied, premium revoked');
       notifyListeners();
       return;
@@ -159,7 +159,7 @@ class BillingService extends ChangeNotifier {
       await _storage.write(key: _resetKey, value: 'false');
       debugPrint('BillingService: No premium purchase found');
     }
-    notifyListeners(); // Notify after loading status
+    notifyListeners();
   }
 
   Future<bool> purchasePremium(BuildContext context) async {
@@ -199,8 +199,15 @@ class BillingService extends ChangeNotifier {
     } catch (e) {
       debugPrint('BillingService: Purchase error: $e');
       if (e.toString().contains('itemAlreadyOwned')) {
-        _showSnackBar(context, 'You already own this item. Reset to purchase again.');
-        return false;
+        // Grant premium access if the user already owns the item
+        _isPremium = true;
+        _isReset = false;
+        await _storage.write(key: _premiumKey, value: 'true');
+        await _storage.write(key: _resetKey, value: 'false');
+        debugPrint('BillingService: Item already owned, premium status granted');
+        notifyListeners();
+        _showSnackBar(context, 'You already own Premium! Access granted.');
+        return true;
       }
       _showSnackBar(context, 'Failed to initiate purchase. Please try again.');
       return false;
@@ -208,19 +215,19 @@ class BillingService extends ChangeNotifier {
   }
 
   Future<void> restorePurchase() async {
-    _isReset = false; // Clear reset flag before checking
+    _isReset = false;
     await _storage.write(key: _resetKey, value: 'false');
-    await _loadPremiumStatus(); // Check current status and notify
-    notifyListeners(); // Ensure UI updates after restore
+    await _loadPremiumStatus();
+    notifyListeners();
   }
 
   Future<void> resetPremium() async {
     _isPremium = false;
-    _isReset = true; // Set reset flag
+    _isReset = true;
     await _storage.write(key: _premiumKey, value: 'false');
     await _storage.write(key: _resetKey, value: 'true');
     debugPrint('BillingService: Premium access reset locally');
-    notifyListeners(); // Notify UI of reset
+    notifyListeners();
   }
 
   void _handlePurchaseUpdates(List<PurchaseDetails> purchaseDetailsList) {
@@ -235,7 +242,7 @@ class BillingService extends ChangeNotifier {
             _storage.write(key: _resetKey, value: 'false');
             _iap.completePurchase(purchase);
             debugPrint('BillingService: Premium purchased/restored successfully');
-            notifyListeners(); // Notify UI of purchase/restore
+            notifyListeners();
             break;
           case PurchaseStatus.pending:
             debugPrint('BillingService: Purchase pending');
@@ -255,5 +262,10 @@ class BillingService extends ChangeNotifier {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
+  }
+
+  void dispose() {
+    _subscription?.cancel();
+    super.dispose();
   }
 }

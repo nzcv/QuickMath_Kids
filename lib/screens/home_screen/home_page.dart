@@ -232,11 +232,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               title: const Text('QuickMath Kids'),
               actions: [],
             ),
-            drawer: AppDrawer(
-              billingService: billingService,
-              switchToStartScreen: widget.switchToStartScreen,
-              isDarkMode: _isDarkMode,
-              toggleDarkMode: widget.toggleDarkMode,
+            drawer: Consumer(
+              builder: (context, ref, child) {
+                final billingService = ref.watch(billingServiceProvider);
+                return AppDrawer(
+                  billingService: billingService,
+                  switchToStartScreen: widget.switchToStartScreen,
+                  isDarkMode: _isDarkMode,
+                  toggleDarkMode: widget.toggleDarkMode,
+                );
+              },
             ),
             body: Center(
               child: ConstrainedBox(
