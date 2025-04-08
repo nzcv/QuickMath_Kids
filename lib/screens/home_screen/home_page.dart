@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart'; // Add this for kDebugMode
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
@@ -60,7 +61,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           savedRangeIndex >= 0 &&
           savedRangeIndex < Range.values.length) {
         Range loadedRange = Range.values[savedRangeIndex];
-        // Ensure the loaded range is valid for the selected operation
         if (getDropdownItems(_selectedOperation)
             .any((item) => item.value == loadedRange)) {
           _selectedRange = loadedRange;
@@ -72,8 +72,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
       // Load time limit
       final savedTimeLimit = prefs.getInt('selectedTimeLimit');
       if (savedTimeLimit != null) {
-        _selectedTimeLimit = savedTimeLimit;
-        _selectedIndex = savedTimeLimit == 0 ? 0 : savedTimeLimit ~/ 60;
+        if (savedTimeLimit == 0) {
+          _selectedTimeLimit = null; // "No Limit"
+          _selectedIndex = 0;
+        } else {
+          _selectedTimeLimit = savedTimeLimit; // Time in seconds
+          _selectedIndex = savedTimeLimit ~/ 60; // Convert to minutes for wheel
+        }
+      } else {
+        _selectedTimeLimit = null; // Default to "No Limit" if no saved value
+        _selectedIndex = 0;
       }
     });
   }
@@ -81,7 +89,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   // Save preferences
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt('selectedOperation', Operation.values.indexOf(_selectedOperation));
+    await prefs.setInt(
+        'selectedOperation', Operation.values.indexOf(_selectedOperation));
     await prefs.setInt('selectedRange', Range.values.indexOf(_selectedRange));
     await prefs.setInt('selectedTimeLimit', _selectedTimeLimit ?? 0);
   }
@@ -315,9 +324,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               ),
                             ),
                             child: Text(
-                              _selectedTimeLimit != null
-                                  ? '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}'
-                                  : 'No time limit',
+                              _selectedTimeLimit == null
+                                  ? 'No time limit'
+                                  : '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}',
                               style: theme.textTheme.bodyLarge,
                             ),
                           ),
@@ -340,6 +349,31 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
+                      if (kDebugMode) ...[
+                        const SizedBox(height: 20),
+                        ElevatedButton.icon(
+                          iconAlignment: IconAlignment.end,
+                          icon: const Icon(Icons.refresh, color: Colors.white),
+                          onPressed: () async {
+                            await billingService.resetPremium();
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: const Text(
+                                    'Premium status reset to unpaid.'),
+                                backgroundColor: theme.colorScheme.error,
+                              ),
+                            );
+                          },
+                          label: const Text('Reset Premium (Debug)'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.redAccent,
+                            padding: EdgeInsets.symmetric(
+                              vertical: 12,
+                              horizontal: isTablet ? 24 : 18,
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),

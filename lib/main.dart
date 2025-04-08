@@ -13,15 +13,15 @@ import 'app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final container = ProviderContainer();
-  final billingService = container.read(billingServiceProvider); // Get the BillingService instance
+  final billingService = container.read(billingServiceProvider);
   runApp(UncontrolledProviderScope(
     container: container,
-    child: MyApp(billingService: billingService), // Pass the service instead of the future
+    child: MyApp(billingService: billingService),
   ));
 }
 
 class MyApp extends StatefulWidget {
-  final BillingService billingService; // Changed from Future to BillingService instance
+  final BillingService billingService;
 
   const MyApp({super.key, required this.billingService});
 
@@ -45,17 +45,23 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _loadDarkModePreference();
-    // Remove splash screen as soon as the UI is ready
+    // Remove splash screen immediately after basic UI setup
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FlutterNativeSplash.remove();
+      // Defer billing initialization to avoid blocking UI
+      _initializeBillingInBackground();
     });
-    // Handle billing initialization and premium status loading in the background
-    widget.billingService.initialize().then((_) {
+  }
+
+  Future<void> _initializeBillingInBackground() async {
+    try {
+      await widget.billingService.initialize();
       debugPrint("Billing initialized: ${DateTime.now()}");
-      widget.billingService.restorePurchase().then((_) { // Use restorePurchase since _loadPremiumStatus is private
-        debugPrint("Premium status restored in background: ${DateTime.now()}");
-      });
-    });
+      await widget.billingService.restorePurchase();
+      debugPrint("Premium status restored: ${DateTime.now()}");
+    } catch (e) {
+      debugPrint("Error during billing initialization: $e");
+    }
   }
 
   Future<void> _loadDarkModePreference() async {

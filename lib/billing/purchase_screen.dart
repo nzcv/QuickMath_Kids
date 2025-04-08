@@ -160,7 +160,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                                 Navigator.pop(context);
                               }
                             },
-                            icon: const Icon(Icons.lock_open),
+                            icon: const Icon(Icons.lock_open, color: Colors.white,),
                             label: const Text('Unlock for ₹300'),
                             style: ElevatedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(
