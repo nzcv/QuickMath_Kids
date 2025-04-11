@@ -75,8 +75,8 @@ class AppDrawer extends StatelessWidget {
             _buildDrawerItem(
               context: context,
               icon: Icons.info_outline,
-              title: 'How to use?',
               iconColor: Colors.grey,
+              title: 'How to use?',
               onTap: () => _navigateTo(context, HowToUseScreen()),
               backgroundColor: theme.colorScheme.surface,
             ),
