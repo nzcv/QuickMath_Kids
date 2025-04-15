@@ -74,6 +74,7 @@ This is an active work in progress. Contributions, bug reports, and feature requ
 ---
 
 **QuickMath Kids** is more than just a math app—it's a tool to make learning interactive, accessible, and enjoyable for kids while supporting their educational growth.
+
 ![WhatsApp Image 2025-04-07 at 14 17 41](https://github.com/user-attachments/assets/423d0db4-3b93-4563-a6bc-3eac3175bf2a)
 ![WhatsApp Image 2025-04-07 at 14 17 41 (2)](https://github.com/user-attachments/assets/f7c17a13-6ba2-4466-88a7-ce80c0cd4763)
 ![WhatsApp Image 2025-04-07 at 14 17 41 (1)](https://github.com/user-attachments/assets/e50027b2-77b5-4ba4-adc1-bcf1b51209fd)
