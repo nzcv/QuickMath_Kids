@@ -31,7 +31,7 @@ An interactive math practice app designed to make learning fun and engaging for 
     * Swipe to delete entries or clear all with confirmation.
 
   ### Quiz History Storage
-    * Save and Track Quizzes: Automatically save completed quizzes with details like title, timestamp, operation type, range, time limit, total time     taken, questions, and correctness.
+    * Save and Track Quizzes: Automatically save completed quizzes with details like title, timestamp, operation type, range, time limit, total time taken, questions, and correctness.
     * Persistent Storage: Utilizes shared_preferences to store quiz data locally, ensuring your history is available across app sessions.
     * View and Manage: Access your quiz history from the dedicated Quiz History screen, where quizzes are sorted by timestamp. Rename or delete individual quizzes, or clear all history with confirmation.
     * Unique Titles: Generates unique quiz titles to avoid duplicates, appending suffixes (e.g., "Quiz-2") when needed.
