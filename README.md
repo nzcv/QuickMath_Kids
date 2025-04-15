@@ -34,14 +34,14 @@ An interactive math practice app designed to make learning fun and engaging for 
     * Post-session stats: time taken, questions attempted, correct answers.
     * Lists each question with correctness indicators.
     * PDF Report Sharing: Export results as a PDF (summary + question list), shareable via messaging or social apps.
+
+  ### User Guide & FAQ:
+    * "How to Use" screen with step-by-step instructions.
+    * Searchable FAQ section.
     
   Dark Mode: Toggle between light and dark themes.
   
   Offline Functionality: Works fully without internet.
-  
-  ### User Guide & FAQ:
-    * "How to Use" screen with step-by-step instructions.
-    * Searchable FAQ section.
 
 ## Target Audience
 
