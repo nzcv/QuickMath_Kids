@@ -13,24 +13,24 @@ An interactive math practice app designed to make learning fun and engaging for 
   
   Range Customization: Select difficulty ranges (e.g., "Up to +5", "Up to +10") to suit the child’s level.
   
-  Flexible Time Limits:
+  ### Flexible Time Limits:
     * Set a specific time limit (1-60 minutes) via a scroll wheel.
     * Option for no time limit, with the timer counting up until stopped.
     
-  Text-to-Speech:
+  ### Text-to-Speech:
     * Questions read aloud with a voice button tap.
     * Supports repeated playback for comprehension.
     
-  Practice Mode:
+  ### Practice Mode:
     * Unlimited questions based on selected parameters.
     * Pause or quit sessions anytime.
     * Tracks wrong answers for review.
     
-  Wrong Answers History:
+  ### Wrong Answers History:
     * View incorrect answers with details (question, user answer, correct answer, times corrected).
     * Swipe to delete entries or clear all with confirmation.
     
-  Detailed Results:
+  ### Detailed Results:
     * Post-session stats: time taken, questions attempted, correct answers.
     * Lists each question with correctness indicators.
     * PDF Report Sharing: Export results as a PDF (summary + question list), shareable via messaging or social apps.
