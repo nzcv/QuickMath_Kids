@@ -29,6 +29,13 @@ An interactive math practice app designed to make learning fun and engaging for 
   ### Wrong Answers History:
     * View incorrect answers with details (question, user answer, correct answer, times corrected).
     * Swipe to delete entries or clear all with confirmation.
+
+  ### Quiz History Storage
+    * Save and Track Quizzes: Automatically save completed quizzes with details like title, timestamp, operation type, range, time limit, total time     taken, questions, and correctness.
+    * Persistent Storage: Utilizes shared_preferences to store quiz data locally, ensuring your history is available across app sessions.
+    * View and Manage: Access your quiz history from the dedicated Quiz History screen, where quizzes are sorted by timestamp. Rename or delete individual quizzes, or clear all history with confirmation.
+    * Unique Titles: Generates unique quiz titles to avoid duplicates, appending suffixes (e.g., "Quiz-2") when needed.
+    * Review Results: Tap any saved quiz to revisit detailed results, including questions answered and performance metrics, seamlessly integrated with the Result Screen.
     
   ### Detailed Results:
     * Post-session stats: time taken, questions attempted, correct answers.
