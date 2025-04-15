@@ -39,7 +39,7 @@ An interactive math practice app designed to make learning fun and engaging for 
   
   Offline Functionality: Works fully without internet.
   
-  User Guide & FAQ:
+  ### User Guide & FAQ:
     * "How to Use" screen with step-by-step instructions.
     * Searchable FAQ section.
 
