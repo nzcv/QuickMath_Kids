@@ -62,6 +62,18 @@ class OperationDropdown extends ConsumerWidget {
     );
   }
 
+  void _showPremiumSnackBar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('You need premium access for this'),
+        action: SnackBarAction(
+          label: 'Unlock',
+          onPressed: () => _navigateToPurchaseScreen(context),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -79,9 +91,6 @@ class OperationDropdown extends ConsumerWidget {
             child: DropdownButtonFormField<Operation>(
               value: selectedOperation,
               items: Operation.values.map((operation) {
-                final isLocked =
-                    operation == Operation.additionBeginner && !isPremium;
-
                 return DropdownMenuItem<Operation>(
                   value: operation,
                   child: Row(
@@ -90,46 +99,22 @@ class OperationDropdown extends ConsumerWidget {
                         child: Text(
                           _getDisplayName(operation),
                           style: theme.textTheme.bodyLarge?.copyWith(
-                            color: isLocked
-                                ? theme.colorScheme.onSurface.withOpacity(0.5)
-                                : theme.brightness == Brightness.dark
-                                    ? theme.colorScheme.onSurface
-                                    : theme.colorScheme.onBackground,
+                            color: theme.brightness == Brightness.dark
+                                ? theme.colorScheme.onSurface
+                                : theme.colorScheme.onBackground,
                           ),
                           overflow: TextOverflow.ellipsis,
                           maxLines: 1,
                         ),
                       ),
-                      if (isLocked)
-                        Container(
-                          padding: const EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: theme.colorScheme.error.withOpacity(0.2),
-                          ),
-                          child: Icon(
-                            Icons.lock,
-                            size: 16,
-                            color: theme.colorScheme.error,
-                          ),
-                        ),
                     ],
                   ),
                 );
               }).toList(),
               onChanged: (Operation? newValue) {
+                if (newValue == null) return;
                 if (newValue == Operation.additionBeginner && !isPremium) {
-                  // Prevent selection and prompt to purchase
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: const Text(
-                          'Addition: Beginner is a Premium feature!'),
-                      action: SnackBarAction(
-                        label: 'Unlock',
-                        onPressed: () => _navigateToPurchaseScreen(context),
-                      ),
-                    ),
-                  );
+                  _showPremiumSnackBar(context);
                   return;
                 }
                 onChanged(newValue);
@@ -163,7 +148,7 @@ class OperationDropdown extends ConsumerWidget {
   }
 }
 
-class RangeDropdown extends StatelessWidget {
+class RangeDropdown extends ConsumerWidget {
   final Range selectedRange;
   final List<DropdownMenuItem<Range>> items;
   final ValueChanged<Range?> onChanged;
@@ -175,10 +160,72 @@ class RangeDropdown extends StatelessWidget {
     super.key,
   });
 
+  static const Set<Range> _paidRanges = {
+    // Addition
+    Range.additionBeginnerMixed1to10,
+    Range.additionIntermediateMixed10to50,
+    Range.additionAdvancedMixed1to200,
+    // Subtraction
+    Range.subtractionBeginnerMixed1to20,
+    Range.subtractionIntermediate40to50,
+    Range.subtractionIntermediateMixed20to50,
+    Range.subtractionAdvancedMixed50to200,
+    Range.subtractionAdvancedMixed1to200,
+    // Multiplication
+    Range.multiplicationBeginnerX5,
+    Range.multiplicationBeginnerMixedX2toX5,
+    Range.multiplicationIntermediateX9,
+    Range.multiplicationIntermediateMixedX6toX9,
+    Range.multiplicationAdvancedX12,
+    Range.multiplicationAdvancedMixedX10toX12,
+    Range.multiplicationAdvancedMixedX2toX12,
+    // Division
+    Range.divisionBeginnerBy5,
+    Range.divisionBeginnerMixedBy2to5,
+    Range.divisionIntermediateBy9,
+    Range.divisionIntermediateMixedBy6to9,
+    Range.divisionAdvancedMixedBy2to10,
+    // LCM
+    Range.lcmBeginnerUpto20,
+    Range.lcmBeginnerMixedUpto20,
+    Range.lcmIntermediateUpto60,
+    Range.lcmIntermediateMixedUpto60,
+    Range.lcmAdvanced3NumbersUpto50,
+    Range.lcmAdvancedMixedUpto100,
+    Range.lcmAdvancedMixed3NumbersUpto50,
+    // GCF
+    Range.gcfBeginnerMixedUpto20,
+    Range.gcfIntermediateUpto60,
+    Range.gcfIntermediateMixedUpto60,
+    Range.gcfAdvancedUpto100,
+    Range.gcfAdvancedMixedUpto100,
+  };
+
+  void _navigateToPurchaseScreen(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const PurchaseScreen()),
+    );
+  }
+
+  void _showPremiumSnackBar(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('You need premium access for this'),
+        action: SnackBarAction(
+          label: 'Unlock',
+          onPressed: () => _navigateToPurchaseScreen(context),
+        ),
+      ),
+    );
+  }
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final isTablet = MediaQuery.of(context).size.width > 600;
+    final billingService = ref.watch(billingServiceProvider);
+    final isPremium = billingService.isPremium;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 40.0),
@@ -186,8 +233,54 @@ class RangeDropdown extends StatelessWidget {
         height: isTablet ? 60 : 50,
         child: DropdownButtonFormField<Range>(
           value: selectedRange,
-          items: items,
-          onChanged: onChanged,
+          items: items.map((item) {
+            final range = item.value!;
+            final isLocked = _paidRanges.contains(range) && !isPremium;
+
+            return DropdownMenuItem<Range>(
+              value: range,
+              enabled: !isLocked, // Disable item if locked
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      getRangeDisplayName(range),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: isLocked
+                            ? theme.colorScheme.onSurface.withOpacity(0.5)
+                            : theme.brightness == Brightness.dark
+                                ? theme.colorScheme.onSurface
+                                : theme.colorScheme.onBackground,
+                      ),
+                      overflow: TextOverflow.ellipsis,
+                      maxLines: 1,
+                    ),
+                  ),
+                  if (isLocked)
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.colorScheme.error.withOpacity(0.2),
+                      ),
+                      child: Icon(
+                        Icons.lock,
+                        size: 16,
+                        color: theme.colorScheme.error,
+                      ),
+                    ),
+                ],
+              ),
+            );
+          }).toList(),
+          onChanged: (Range? newValue) {
+            if (newValue == null) return;
+            if (_paidRanges.contains(newValue) && !isPremium) {
+              _showPremiumSnackBar(context);
+              return;
+            }
+            onChanged(newValue);
+          },
           isExpanded: true,
           style: theme.textTheme.bodyLarge?.copyWith(
             color: theme.brightness == Brightness.dark
