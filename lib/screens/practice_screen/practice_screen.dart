@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
-import 'package:QuickMath_Kids/screens/practice_screen/modals/pause_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/inactivity_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/timer_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/tts_helper.dart';
@@ -13,7 +12,6 @@ import 'package:QuickMath_Kids/screens/practice_screen/helpers/answer_option_hel
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/operation_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
-import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
@@ -110,9 +108,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _inactivityTimer?.cancel();
     _inactivityTimer = Timer(const Duration(seconds: 20), () {
       if (mounted) {
-        pauseTimer(); // Pause the quiz timer
-        _inactivityTimer?.cancel(); // Cancel the timer to prevent stacking
-        _showNoActivityModal(); // Show the modal
+        pauseTimer();
+        _inactivityTimer?.cancel();
+        _showNoActivityModal();
       }
     });
   }
@@ -124,9 +122,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
       builder: (BuildContext context) {
         return InActivityModal(
           onResume: () {
-            Navigator.pop(context); // Close the modal
-            resumeTimer(); // Resume the quiz timer
-            _startInactivityTimer(); // Restart the inactivity timer
+            Navigator.pop(context);
+            resumeTimer();
+            _startInactivityTimer();
           },
         );
       },
@@ -337,64 +335,82 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void checkAnswer(int selectedAnswer) async {
     if (_isProcessingAnswer) return;
-    _isProcessingAnswer = true;
+    try {
+      setState(() {
+        _isProcessingAnswer = true;
+      });
 
-    _startInactivityTimer();
-    bool isCorrect = selectedAnswer == correctAnswer;
-    String currentQuestion = _formatQuestionText();
+      _startInactivityTimer();
+      bool isCorrect = selectedAnswer == correctAnswer;
+      String currentQuestion = _formatQuestionText();
 
-    setState(() {
-      answeredQuestions.add('$currentQuestion = $selectedAnswer '
-          '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
-      answeredCorrectly.add(isCorrect);
-      // Check if confetti is not playing before starting a new animation
-      if (isCorrect && confettiManager.correctConfettiController.state != confettiManager.correctConfettiController.state) {
-        confettiManager.correctConfettiController.play();
-      }
-      if (_wrongQuestionsToShowThisSession.isNotEmpty) {
-        String? nextWAQ = _wrongQuestionsToShowThisSession.firstWhere(
-          (q) => !_shownWrongQuestionsThisSession.contains(q),
-          orElse: () => '',
-        );
-        if (nextWAQ.isNotEmpty) {
-          numbers = _parseQuestion(nextWAQ);
-          correctAnswer = _calculateCorrectAnswer(numbers, widget.selectedOperation);
-          answerOptions = generateAnswerOptions(correctAnswer);
-          _shownWrongQuestionsThisSession.add(nextWAQ);
-          _isWrongAnswerQuestion = true;
+      setState(() {
+        answeredQuestions.add('$currentQuestion = $selectedAnswer '
+            '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
+        answeredCorrectly.add(isCorrect);
+        // Play confetti only if not already playing
+        if (isCorrect) {
+          print("Playing confetti for correct answer");
+          confettiManager.correctConfettiController.play();
+        }
+        if (_wrongQuestionsToShowThisSession.isNotEmpty) {
+          String? nextWAQ = _wrongQuestionsToShowThisSession.firstWhere(
+            (q) => !_shownWrongQuestionsThisSession.contains(q),
+            orElse: () => '',
+          );
+          if (nextWAQ.isNotEmpty) {
+            numbers = _parseQuestion(nextWAQ);
+            correctAnswer =
+                _calculateCorrectAnswer(numbers, widget.selectedOperation);
+            answerOptions = generateAnswerOptions(correctAnswer);
+            _shownWrongQuestionsThisSession.add(nextWAQ);
+            _isWrongAnswerQuestion = true;
+          } else {
+            regenerateNumbers();
+            _isWrongAnswerQuestion = false;
+          }
         } else {
           regenerateNumbers();
           _isWrongAnswerQuestion = false;
         }
-      } else {
-        regenerateNumbers();
-        _isWrongAnswerQuestion = false;
-      }
-      _answeredQuestionsThisSession.add(currentQuestion);
-    });
+        _answeredQuestionsThisSession.add(currentQuestion);
+      });
 
-    // Offload storage operations to compute
-    Future.microtask(() {
-      if (!isCorrect) {
-        if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
-          _wrongQuestionsThisSession.add(currentQuestion);
-          compute(_saveWrongQuestion, {
-            'question': currentQuestion,
-            'userAnswer': selectedAnswer,
-            'correctAnswer': correctAnswer,
-            'category':
-                '${widget.selectedOperation.toString().split('.').last} - ${getRangeDisplayName(widget.selectedRange)}',
-          });
+      Future.microtask(() {
+        if (!isCorrect) {
+          if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
+            _wrongQuestionsThisSession.add(currentQuestion);
+            compute(_saveWrongQuestion, {
+              'question': currentQuestion,
+              'userAnswer': selectedAnswer,
+              'correctAnswer': correctAnswer,
+              'category':
+                  '${widget.selectedOperation.toString().split('.').last} - ${getRangeDisplayName(widget.selectedRange)}',
+            });
+          }
+        } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
+          WrongQuestionsService.updateWrongQuestion(currentQuestion,
+              correct: true);
         }
-      } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
-        WrongQuestionsService.updateWrongQuestion(currentQuestion, correct: true);
+      });
+
+      _triggerTTSSpeech();
+
+      await Future.delayed(const Duration(milliseconds: 500));
+      if (mounted) {
+        setState(() {
+          _isProcessingAnswer = false;
+        });
       }
-    });
-
-    _triggerTTSSpeech();
-
-    await Future.delayed(const Duration(milliseconds: 500));
-    _isProcessingAnswer = false;
+    } catch (e, stackTrace) {
+      print("Error in checkAnswer: $e");
+      print(stackTrace);
+      if (mounted) {
+        setState(() {
+          _isProcessingAnswer = false;
+        });
+      }
+    }
   }
 
   int _calculateCorrectAnswer(List<int> numbers, Operation operation) {
@@ -499,21 +515,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
   }
 
-  void _showPauseDialog() {
-    _startInactivityTimer();
-    pauseTimer();
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext context) {
-        return PauseDialog(onResume: () {
-          resumeTimer();
-          _startInactivityTimer();
-        });
-      },
-    );
-  }
-
   void _showHintDialog() {
     _startInactivityTimer();
     showDialog(
@@ -610,7 +611,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    confettiManager.buildCorrectConfetti(),
                     if (_isWrongAnswerQuestion)
                       Positioned(
                         top: 8.0 * adjustedScale,
@@ -751,11 +751,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         ),
                       ],
                     ),
-                    Positioned(
-                      bottom: 24 * adjustedScale,
-                      right: 16 * adjustedScale,
-                      child: buildPauseButton(_showPauseDialog, context),
-                    ),
+                    confettiManager.buildCorrectConfetti(),
                   ],
                 ),
               ),

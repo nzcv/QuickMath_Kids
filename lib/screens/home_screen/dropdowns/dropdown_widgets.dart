@@ -55,25 +55,6 @@ class OperationDropdown extends ConsumerWidget {
     }
   }
 
-  void _navigateToPurchaseScreen(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => const PurchaseScreen()),
-    );
-  }
-
-  void _showPremiumSnackBar(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('You need premium access for this'),
-        action: SnackBarAction(
-          label: 'Unlock',
-          onPressed: () => _navigateToPurchaseScreen(context),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
@@ -81,8 +62,6 @@ class OperationDropdown extends ConsumerWidget {
 
     return Consumer(
       builder: (context, ref, child) {
-        final billingService = ref.watch(billingServiceProvider);
-        final isPremium = billingService.isPremium;
 
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
@@ -113,10 +92,6 @@ class OperationDropdown extends ConsumerWidget {
               }).toList(),
               onChanged: (Operation? newValue) {
                 if (newValue == null) return;
-                if (newValue == Operation.additionBeginner && !isPremium) {
-                  _showPremiumSnackBar(context);
-                  return;
-                }
                 onChanged(newValue);
               },
               isExpanded: true,
