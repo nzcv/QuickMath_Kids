@@ -17,6 +17,7 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/pause_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
+import 'package:flutter/foundation.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, Range, int?)
@@ -55,6 +56,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   List<String> _wrongQuestionsThisSession = [];
   bool _isInitialized = false;
   bool _isWrongAnswerQuestion = false;
+  bool _isProcessingAnswer = false;
 
   int correctAnswer = 0;
   String currentHintMessage = '';
@@ -324,7 +326,19 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
   }
 
-  void checkAnswer(int selectedAnswer) {
+  static Future<void> _saveWrongQuestion(Map<String, dynamic> data) async {
+    await WrongQuestionsService.saveWrongQuestion(
+      question: data['question'],
+      userAnswer: data['userAnswer'],
+      correctAnswer: data['correctAnswer'],
+      category: data['category'],
+    );
+  }
+
+  void checkAnswer(int selectedAnswer) async {
+    if (_isProcessingAnswer) return;
+    _isProcessingAnswer = true;
+
     _startInactivityTimer();
     bool isCorrect = selectedAnswer == correctAnswer;
     String currentQuestion = _formatQuestionText();
@@ -333,37 +347,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
       answeredQuestions.add('$currentQuestion = $selectedAnswer '
           '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
       answeredCorrectly.add(isCorrect);
-
-      if (!isCorrect) {
-        if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
-          _wrongQuestionsThisSession.add(currentQuestion);
-          WrongQuestionsService.saveWrongQuestion(
-            question: currentQuestion,
-            userAnswer: selectedAnswer,
-            correctAnswer: correctAnswer,
-            category:
-                '${widget.selectedOperation.toString().split('.').last} - ${getRangeDisplayName(widget.selectedRange)}',
-          );
-        }
-      } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
-        WrongQuestionsService.updateWrongQuestion(currentQuestion,
-            correct: true);
-      }
-
-      if (isCorrect) {
+      // Check if confetti is not playing before starting a new animation
+      if (isCorrect && confettiManager.correctConfettiController.state != confettiManager.correctConfettiController.state) {
         confettiManager.correctConfettiController.play();
       }
-
       if (_wrongQuestionsToShowThisSession.isNotEmpty) {
         String? nextWAQ = _wrongQuestionsToShowThisSession.firstWhere(
           (q) => !_shownWrongQuestionsThisSession.contains(q),
           orElse: () => '',
         );
-
         if (nextWAQ.isNotEmpty) {
           numbers = _parseQuestion(nextWAQ);
-          correctAnswer =
-              _calculateCorrectAnswer(numbers, widget.selectedOperation);
+          correctAnswer = _calculateCorrectAnswer(numbers, widget.selectedOperation);
           answerOptions = generateAnswerOptions(correctAnswer);
           _shownWrongQuestionsThisSession.add(nextWAQ);
           _isWrongAnswerQuestion = true;
@@ -375,11 +370,31 @@ class _PracticeScreenState extends State<PracticeScreen> {
         regenerateNumbers();
         _isWrongAnswerQuestion = false;
       }
-
       _answeredQuestionsThisSession.add(currentQuestion);
     });
 
+    // Offload storage operations to compute
+    Future.microtask(() {
+      if (!isCorrect) {
+        if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
+          _wrongQuestionsThisSession.add(currentQuestion);
+          compute(_saveWrongQuestion, {
+            'question': currentQuestion,
+            'userAnswer': selectedAnswer,
+            'correctAnswer': correctAnswer,
+            'category':
+                '${widget.selectedOperation.toString().split('.').last} - ${getRangeDisplayName(widget.selectedRange)}',
+          });
+        }
+      } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
+        WrongQuestionsService.updateWrongQuestion(currentQuestion, correct: true);
+      }
+    });
+
     _triggerTTSSpeech();
+
+    await Future.delayed(const Duration(milliseconds: 500));
+    _isProcessingAnswer = false;
   }
 
   int _calculateCorrectAnswer(List<int> numbers, Operation operation) {

@@ -20,7 +20,7 @@ class ConfettiManager {
       confettiController: correctConfettiController,
       blastDirectionality: BlastDirectionality.explosive,
       blastDirection: -3.14159 / 2,
-      numberOfParticles: 100,
+      numberOfParticles: 30,
       gravity: 1,
       shouldLoop: false,
       emissionFrequency: 0.1,
