@@ -254,7 +254,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      const SizedBox(height: 20),
                       ClipRRect(
                         borderRadius: BorderRadius.circular(20),
                         child: Image.asset(
@@ -268,37 +267,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         "Choose an Operation and Start Practicing",
                         style: theme.textTheme.headlineMedium,
                         textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      FutureBuilder<int>(
-                        future: ref.read(billingServiceProvider).isPremium
-                            ? Future.value(-1) // Unlimited for premium
-                            : _getRemainingQuizzes(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final remaining = snapshot.data!;
-                            if (remaining == -1) {
-                              return Text(
-                                'Premium: Unlimited quizzes',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: Colors.green,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            } else {
-                              return Text(
-                                'Quizzes today: $remaining/$_freeUserDailyLimit remaining',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: remaining == 0
-                                      ? theme.colorScheme.error
-                                      : theme.colorScheme.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              );
-                            }
-                          }
-                          return const SizedBox.shrink();
-                        },
                       ),
                       const SizedBox(height: 20),
                       OperationDropdown(
@@ -370,7 +338,111 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: 20),
+                      FutureBuilder<int>(
+                        future: ref.read(billingServiceProvider).isPremium
+                            ? Future.value(-1) // Unlimited for premium
+                            : _getRemainingQuizzes(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final remaining = snapshot.data!;
+                            Color statusColor;
+                            IconData statusIcon;
+                            if (remaining == -1) {
+                              statusColor = Colors.green;
+                              statusIcon = Icons.star;
+                            } else if (remaining == 0) {
+                              statusColor = theme.colorScheme.error;
+                              statusIcon = Icons.lock;
+                            } else if (remaining <= 1) {
+                              statusColor = Colors.orange;
+                              statusIcon = Icons.warning;
+                            } else {
+                              statusColor = theme.colorScheme.primary;
+                              statusIcon = Icons.check_circle;
+                            }
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 40),
+                              child: Card(
+                                elevation: 4,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(
+                                    color: theme.colorScheme.primary
+                                        .withOpacity(0.2),
+                                    width: 1,
+                                  ),
+                                ),
+                                color: theme.colorScheme.surfaceVariant,
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      vertical: 12, horizontal: 16),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        remaining == -1
+                                            ? Icons.star_rounded
+                                            : remaining <= 1
+                                                ? Icons.warning_rounded
+                                                : Icons.check_circle_rounded,
+                                        color: statusColor,
+                                        size: 28,
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            remaining == -1
+                                                ? 'Premium Member'
+                                                : 'Daily Quizzes',
+                                            style: theme.textTheme.labelLarge
+                                                ?.copyWith(
+                                              color: theme
+                                                  .colorScheme.onSurfaceVariant,
+                                            ),
+                                          ),
+                                          Text(
+                                            remaining == -1
+                                                ? 'Unlimited Access'
+                                                : '$remaining/$_freeUserDailyLimit remaining',
+                                            style: theme.textTheme.titleMedium
+                                                ?.copyWith(
+                                              color: statusColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (remaining != -1 && remaining <= 1) ...[
+                                        const Spacer(),
+                                        IconButton(
+                                          icon: Icon(Icons.arrow_forward_rounded,
+                                              color: theme.colorScheme.primary),
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const PurchaseScreen(),
+                                              ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      const SizedBox(height: 20),
                       ElevatedButton.icon(
                         iconAlignment: IconAlignment.end,
                         icon: const Icon(Icons.arrow_forward,
@@ -384,14 +456,37 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           if (!isPremium && remaining <= 0) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(
-                                  'Daily quiz limit reached ($_freeUserDailyLimit quizzes). Upgrade to Premium for unlimited access.',
+                                content: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.info,
+                                      color: theme.colorScheme.onError,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        'You’ve reached your daily limit of $_freeUserDailyLimit quizzes. Upgrade to Premium for unlimited access!',
+                                        style: TextStyle(
+                                          color: theme.colorScheme.onError,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                                 backgroundColor: theme.colorScheme.error,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                margin: const EdgeInsets.all(16),
+                                elevation: 6,
+                                duration: const Duration(seconds: 5),
                                 action: SnackBarAction(
-                                  backgroundColor: Colors.white,
                                   label: 'Upgrade',
-                                  textColor: Colors.red,
+                                  textColor: Colors.white,
+                                  backgroundColor: theme.colorScheme.primary,
                                   onPressed: () {
                                     Navigator.push(
                                       context,
@@ -418,7 +513,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
-                      if (kDebugMode) ...[
+                      /*if (kDebugMode) ...[
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
                           iconAlignment: IconAlignment.end,
@@ -432,6 +527,13 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 content: const Text(
                                     'Premium status reset to unpaid.'),
                                 backgroundColor: theme.colorScheme.error,
+                                behavior: SnackBarBehavior.floating,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                margin: const EdgeInsets.all(16),
+                                elevation: 6,
+                                duration: const Duration(seconds: 3),
                               ),
                             );
                           },
@@ -444,7 +546,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             ),
                           ),
                         ),
-                      ],
+                      ],*/
                     ],
                   ),
                 ),
