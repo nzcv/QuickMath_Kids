@@ -493,17 +493,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void endQuiz() {
-    _startInactivityTimer();
-    stopTimer();
-    widget.switchToResultScreen(
-      answeredQuestions,
-      answeredCorrectly,
-      _quizTimer.secondsPassed,
-      widget.selectedOperation,
-      widget.selectedRange,
-      widget.sessionTimeLimit,
-    );
-  }
+  _startInactivityTimer();
+  stopTimer();
+  
+  widget.switchToResultScreen(
+    answeredQuestions,
+    answeredCorrectly,
+    _quizTimer.secondsPassed,
+    widget.selectedOperation,
+    widget.selectedRange,
+    widget.sessionTimeLimit,
+  );
+} 
 
   void _showQuitDialog() {
     _startInactivityTimer();

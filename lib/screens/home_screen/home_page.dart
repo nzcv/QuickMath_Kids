@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart'; // Add this for kDebugMode
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
@@ -8,6 +8,8 @@ import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
+import 'package:QuickMath_Kids/billing/purchase_screen.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   final Function(Operation, Range, int?) switchToPracticeScreen;
@@ -31,23 +33,22 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   Operation _selectedOperation = Operation.additionBeginner;
   Range _selectedRange = Range.additionBeginner1to5;
   int? _selectedTimeLimit;
-  int _selectedIndex = 0; // 0 for "No Limit", 1-60 for minutes
+  int _selectedIndex = 0;
   bool _isDarkMode = false;
+  final int _freeUserDailyLimit = 3; // Daily quiz limit for free users
 
   @override
   void initState() {
     super.initState();
     _isDarkMode = widget.isDarkMode;
     _selectedTimeLimit = null;
-    _selectedIndex = 0; // Default to "No Limit"
-    _loadPreferences(); // Load saved preferences
+    _selectedIndex = 0;
+    _loadPreferences();
   }
 
-  // Load saved preferences
   Future<void> _loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      // Load operation
       final savedOperationIndex = prefs.getInt('selectedOperation');
       if (savedOperationIndex != null &&
           savedOperationIndex >= 0 &&
@@ -55,7 +56,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         _selectedOperation = Operation.values[savedOperationIndex];
       }
 
-      // Load range
       final savedRangeIndex = prefs.getInt('selectedRange');
       if (savedRangeIndex != null &&
           savedRangeIndex >= 0 &&
@@ -69,24 +69,22 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         }
       }
 
-      // Load time limit
       final savedTimeLimit = prefs.getInt('selectedTimeLimit');
       if (savedTimeLimit != null) {
         if (savedTimeLimit == 0) {
-          _selectedTimeLimit = null; // "No Limit"
+          _selectedTimeLimit = null;
           _selectedIndex = 0;
         } else {
-          _selectedTimeLimit = savedTimeLimit; // Time in seconds
-          _selectedIndex = savedTimeLimit ~/ 60; // Convert to minutes for wheel
+          _selectedTimeLimit = savedTimeLimit;
+          _selectedIndex = savedTimeLimit ~/ 60;
         }
       } else {
-        _selectedTimeLimit = null; // Default to "No Limit" if no saved value
+        _selectedTimeLimit = null;
         _selectedIndex = 0;
       }
     });
   }
 
-  // Save preferences
   Future<void> _savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt(
@@ -121,73 +119,77 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   Text('Set Time Limit', style: theme.textTheme.titleLarge),
                   const SizedBox(height: 16),
                   SizedBox(
-                    height: 150,
-                    child: ListWheelScrollView.useDelegate(
-                      itemExtent: 50,
-                      diameterRatio: 1.5,
-                      physics: const FixedExtentScrollPhysics(),
-                      onSelectedItemChanged: (index) {
-                        setModalState(() {
-                          _selectedIndex = index;
-                        });
-                      },
-                      childDelegate: ListWheelChildBuilderDelegate(
-                        builder: (context, index) {
-                          final isSelected = index == _selectedIndex;
-                          String displayText;
-                          if (index == 0) {
-                            displayText = 'No Limit';
-                          } else {
-                            final minute = index; // 1 to 60
-                            displayText =
-                                '$minute minute${minute == 1 ? '' : 's'}';
-                          }
-                          return Center(
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                  vertical: 8, horizontal: 16),
-                              decoration: BoxDecoration(
-                                color: isSelected
-                                    ? theme.colorScheme.primary.withOpacity(0.2)
-                                    : Colors.transparent,
-                                border: isSelected
-                                    ? Border.all(
-                                        color: theme.colorScheme.primary,
-                                        width: 2)
-                                    : null,
-                                borderRadius:
-                                    const BorderRadius.all(Radius.circular(8)),
-                              ),
-                              child: Text(
-                                displayText,
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontSize: 20,
-                                  color: isSelected
-                                      ? theme.colorScheme.primary
-                                      : theme.colorScheme.onSurface,
-                                  fontWeight: isSelected
-                                      ? FontWeight.bold
-                                      : FontWeight.normal,
-                                ),
-                              ),
-                            ),
-                          );
+                      height: 150,
+                      child: ListWheelScrollView.useDelegate(
+                        itemExtent: 50,
+                        diameterRatio: 1.5,
+                        physics: const FixedExtentScrollPhysics(),
+                        onSelectedItemChanged: (index) {
+                          setModalState(() {
+                            _selectedIndex = index;
+                          });
                         },
-                        childCount: 61, // 0 for "No Limit", 1-60 for minutes
-                      ),
-                    ),
-                  ),
+                        childDelegate: ListWheelChildListDelegate(
+                          children: List.generate(
+                            61,
+                            (index) {
+                              final isSelected = index == _selectedIndex;
+                              String displayText;
+                              if (index == 0) {
+                                displayText = 'No Limit';
+                              } else {
+                                final minute = index;
+                                displayText =
+                                    '$minute minute${minute == 1 ? '' : 's'}';
+                              }
+                              return Center(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 8,
+                                    horizontal: 16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: isSelected
+                                        ? theme.colorScheme.primary
+                                            .withOpacity(0.2)
+                                        : Colors.transparent,
+                                    border: isSelected
+                                        ? Border.all(
+                                            color: theme.colorScheme.primary,
+                                            width: 2,
+                                          )
+                                        : null,
+                                    borderRadius: const BorderRadius.all(
+                                        Radius.circular(8)),
+                                  ),
+                                  child: Text(
+                                    displayText,
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      fontSize: 20,
+                                      color: isSelected
+                                          ? theme.colorScheme.primary
+                                          : theme.colorScheme.onSurface,
+                                      fontWeight: isSelected
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      )),
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () {
                       setState(() {
                         if (_selectedIndex == 0) {
-                          _selectedTimeLimit = null; // "No Limit"
+                          _selectedTimeLimit = null;
                         } else {
-                          _selectedTimeLimit =
-                              _selectedIndex * 60; // Convert minutes to seconds
+                          _selectedTimeLimit = _selectedIndex * 60;
                         }
-                        _savePreferences(); // Save when time limit changes
+                        _savePreferences();
                       });
                       Navigator.pop(context);
                     },
@@ -268,6 +270,37 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 20),
+                      FutureBuilder<int>(
+                        future: ref.read(billingServiceProvider).isPremium
+                            ? Future.value(-1) // Unlimited for premium
+                            : _getRemainingQuizzes(),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData) {
+                            final remaining = snapshot.data!;
+                            if (remaining == -1) {
+                              return Text(
+                                'Premium: Unlimited quizzes',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: Colors.green,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            } else {
+                              return Text(
+                                'Quizzes today: $remaining/$_freeUserDailyLimit remaining',
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  color: remaining == 0
+                                      ? theme.colorScheme.error
+                                      : theme.colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              );
+                            }
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                      const SizedBox(height: 20),
                       OperationDropdown(
                         selectedOperation: _selectedOperation,
                         onChanged: (Operation? newValue) {
@@ -282,7 +315,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                         .first
                                         .value!;
                               }
-                              _savePreferences(); // Save when operation changes
+                              _savePreferences();
                             });
                           }
                         },
@@ -295,7 +328,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           if (newValue != null) {
                             setState(() {
                               _selectedRange = newValue;
-                              _savePreferences(); // Save when range changes
+                              _savePreferences();
                             });
                           }
                         },
@@ -342,7 +375,38 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         iconAlignment: IconAlignment.end,
                         icon: const Icon(Icons.arrow_forward,
                             color: Colors.white),
-                        onPressed: () {
+                        onPressed: () async {
+                          final isPremium =
+                              ref.read(billingServiceProvider).isPremium;
+                          final remaining =
+                              isPremium ? -1 : await _getRemainingQuizzes();
+
+                          if (!isPremium && remaining <= 0) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Daily quiz limit reached ($_freeUserDailyLimit quizzes). Upgrade to Premium for unlimited access.',
+                                ),
+                                backgroundColor: theme.colorScheme.error,
+                                action: SnackBarAction(
+                                  backgroundColor: Colors.white,
+                                  label: 'Upgrade',
+                                  textColor: Colors.red,
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const PurchaseScreen(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
                           widget.switchToPracticeScreen(_selectedOperation,
                               _selectedRange, _selectedTimeLimit);
                         },
@@ -360,7 +424,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           iconAlignment: IconAlignment.end,
                           icon: const Icon(Icons.refresh, color: Colors.white),
                           onPressed: () async {
-                            await billingService.resetPremium();
+                            await ref
+                                .read(billingServiceProvider)
+                                .resetPremium();
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text(
@@ -388,5 +454,20 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         );
       },
     );
+  }
+
+  Future<int> _getRemainingQuizzes() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final lastQuizDate = prefs.getString('last_quiz_date');
+
+    if (lastQuizDate != today) {
+      await prefs.setString('last_quiz_date', today);
+      await prefs.setInt('daily_quizzes', 0);
+      return _freeUserDailyLimit;
+    }
+
+    final quizzesTaken = prefs.getInt('daily_quizzes') ?? 0;
+    return _freeUserDailyLimit - quizzesTaken;
   }
 }

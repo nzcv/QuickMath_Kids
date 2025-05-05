@@ -4,6 +4,8 @@ import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_service.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:intl/intl.dart';
 
 class ResultScreen extends StatefulWidget {
   final String? title;
@@ -114,33 +116,46 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Future<void> _saveQuiz() async {
-    if (_quizTitle == null || widget.operation == null || widget.range == null)
-      return;
+  if (_quizTitle == null || widget.operation == null || widget.range == null)
+    return;
 
-    try {
-      await QuizHistoryService.saveQuiz(
-        title: _quizTitle!,
-        timestamp: DateTime.now().toIso8601String(),
-        operation: widget.operation!,
-        range: widget.range!,
-        timeLimit: widget.timeLimit,
-        totalTime: widget.totalTime,
-        answeredQuestions: widget.answeredQuestions,
-        answeredCorrectly: widget.answeredCorrectly,
-      );
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Quiz saved successfully')),
-        );
-      }
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save quiz: $e')),
-        );
-      }
+  try {
+    await QuizHistoryService.saveQuiz(
+      title: _quizTitle!,
+      timestamp: DateTime.now().toIso8601String(),
+      operation: widget.operation!,
+      range: widget.range!,
+      timeLimit: widget.timeLimit,
+      totalTime: widget.totalTime,
+      answeredQuestions: widget.answeredQuestions,
+      answeredCorrectly: widget.answeredCorrectly,
+    );
+
+    // Increment daily quiz count
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final lastQuizDate = prefs.getString('last_quiz_date');
+    int quizzesTaken = prefs.getInt('daily_quizzes') ?? 0;
+
+    if (lastQuizDate == today) {
+      quizzesTaken++;
+    } else {
+      quizzesTaken = 1;
+      await prefs.setString('last_quiz_date', today);
     }
-  }
+    await prefs.setInt('daily_quizzes', quizzesTaken);
+
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Quiz saved successfully')),
+      );
+    }
+  } catch (e) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to save quiz: $e')),
+    );
+  }}}
 
   Future<void> _sharePDFReport() async {
     try {
