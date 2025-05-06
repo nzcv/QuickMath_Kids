@@ -132,13 +132,13 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                   ),
                   const SizedBox(height: 24),
                   Center(
-                    child: _isPurchasing || billingService.isPremium
-                        ? _isPurchasing
-                            ? CircularProgressIndicator(
-                                strokeWidth: 4,
-                                valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary),
-                              )
-                            : Row(
+                    child: _isPurchasing
+                        ? CircularProgressIndicator(
+                            strokeWidth: 4,
+                            valueColor: AlwaysStoppedAnimation(theme.colorScheme.primary),
+                          )
+                        : billingService.isPremium
+                            ? Row(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   const Icon(Icons.check_circle, color: Colors.green),
@@ -153,37 +153,39 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                                   ),
                                 ],
                               )
-                        : ElevatedButton.icon(
-                            onPressed: () async {
-                              setState(() {
-                                _isPurchasing = true;
-                              });
-                              final success = await billingService.purchasePremium(context);
-                              setState(() {
-                                _isPurchasing = false;
-                              });
-                              if (success) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: const Text('Welcome to Premium!'),
-                                    backgroundColor: theme.colorScheme.primary,
+                            : ElevatedButton.icon(
+                                onPressed: () async {
+                                  setState(() {
+                                    _isPurchasing = true;
+                                  });
+                                  // Restore purchases to ensure premium status is up-to-date before attempting purchase
+                                  await ref.read(billingServiceProvider).restorePurchase();
+                                  final success = await billingService.purchasePremium(context);
+                                  setState(() {
+                                    _isPurchasing = false;
+                                  });
+                                  if (success) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: const Text('Welcome to Premium!'),
+                                        backgroundColor: theme.colorScheme.primary,
+                                      ),
+                                    );
+                                    Navigator.pop(context);
+                                  }
+                                },
+                                icon: const Icon(Icons.lock_open, color: Colors.white),
+                                label: const Text('Unlock for ₹300'),
+                                style: ElevatedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
                                   ),
-                                );
-                                Navigator.pop(context);
-                              }
-                            },
-                            icon: const Icon(Icons.lock_open, color: Colors.white,),
-                            label: const Text('Unlock for ₹300'),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 12,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                ),
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                            ),
-                          ),
                   ),
                   const SizedBox(height: 16),
                   Center(

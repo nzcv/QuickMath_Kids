@@ -339,110 +339,112 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      FutureBuilder<int>(
-                        future: ref.read(billingServiceProvider).isPremium
-                            ? Future.value(-1) // Unlimited for premium
-                            : _getRemainingQuizzes(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData) {
-                            final remaining = snapshot.data!;
-                            Color statusColor;
-                            IconData _statusIcon;
-                            if (remaining == -1) {
-                              statusColor = Colors.green;
-                              _statusIcon = Icons.star;
-                            } else if (remaining == 0) {
-                              statusColor = theme.colorScheme.error;
-                              _statusIcon = Icons.lock;
-                            } else if (remaining <= 1) {
-                              statusColor = Colors.orange;
-                              _statusIcon = Icons.warning;
-                            } else {
-                              statusColor = theme.colorScheme.primary;
-                              _statusIcon = Icons.check_circle;
-                            }
+                      Consumer(
+                        builder: (context, ref, child) {
+                          final billingService = ref.watch(billingServiceProvider);
+                          return FutureBuilder<int>(
+                            future: billingService.isPremium
+                                ? Future.value(-1) // Unlimited for premium
+                                : _getRemainingQuizzes(),
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                final remaining = snapshot.data!;
+                                Color statusColor;
+                                IconData _statusIcon;
+                                if (remaining == -1) {
+                                  statusColor = Colors.green;
+                                  _statusIcon = Icons.star;
+                                } else if (remaining == 0) {
+                                  statusColor = theme.colorScheme.error;
+                                  _statusIcon = Icons.lock;
+                                } else if (remaining <= 1) {
+                                  statusColor = Colors.orange;
+                                  _statusIcon = Icons.warning;
+                                } else {
+                                  statusColor = theme.colorScheme.primary;
+                                  _statusIcon = Icons.check_circle;
+                                }
 
-                            return Padding(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 40),
-                              child: Card(
-                                elevation: 4,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                  side: BorderSide(
-                                    color: theme.colorScheme.primary
-                                        .withOpacity(0.2),
-                                    width: 1,
-                                  ),
-                                ),
-                                color: theme.colorScheme.surfaceVariant,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 12, horizontal: 16),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        remaining == -1
-                                            ? Icons.star_rounded
-                                            : remaining <= 1
-                                                ? Icons.warning_rounded
-                                                : Icons.check_circle_rounded,
-                                        color: statusColor,
-                                        size: 28,
+                                return Padding(
+                                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                                  child: Card(
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                      side: BorderSide(
+                                        color: theme.colorScheme.primary
+                                            .withOpacity(0.2),
+                                        width: 1,
                                       ),
-                                      const SizedBox(width: 12),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                    ),
+                                    color: theme.colorScheme.surfaceVariant,
+                                    child: Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                          vertical: 12, horizontal: 16),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
-                                          Text(
+                                          Icon(
                                             remaining == -1
-                                                ? 'Premium Member'
-                                                : 'Daily Quizzes',
-                                            style: theme.textTheme.labelLarge
-                                                ?.copyWith(
-                                              color: theme
-                                                  .colorScheme.onSurfaceVariant,
-                                            ),
+                                                ? Icons.star_rounded
+                                                : remaining <= 1
+                                                    ? Icons.warning_rounded
+                                                    : Icons.check_circle_rounded,
+                                            color: statusColor,
+                                            size: 28,
                                           ),
-                                          Text(
-                                            remaining == -1
-                                                ? 'Unlimited Access'
-                                                : '$remaining/$_freeUserDailyLimit remaining',
-                                            style: theme.textTheme.titleMedium
-                                                ?.copyWith(
-                                              color: statusColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                          const SizedBox(width: 12),
+                                          Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                remaining == -1
+                                                    ? 'Premium Member'
+                                                    : 'Daily Quizzes',
+                                                style: theme.textTheme.labelLarge
+                                                    ?.copyWith(
+                                                  color: theme
+                                                      .colorScheme.onSurfaceVariant,
+                                                ),
+                                              ),
+                                              Text(
+                                                remaining == -1
+                                                    ? 'Unlimited Access'
+                                                    : '$remaining/$_freeUserDailyLimit remaining',
+                                                style: theme.textTheme.titleMedium
+                                                    ?.copyWith(
+                                                  color: statusColor,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
                                           ),
+                                          if (remaining != -1 && remaining <= 1) ...[
+                                            const Spacer(),
+                                            IconButton(
+                                              icon: Icon(Icons.arrow_forward_rounded,
+                                                  color: theme.colorScheme.primary),
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const PurchaseScreen(),
+                                                  ),
+                                                );
+                                              },
+                                            ),
+                                          ],
                                         ],
                                       ),
-                                      if (remaining != -1 &&
-                                          remaining <= 1) ...[
-                                        const Spacer(),
-                                        IconButton(
-                                          icon: Icon(
-                                              Icons.arrow_forward_rounded,
-                                              color: theme.colorScheme.primary),
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    const PurchaseScreen(),
-                                              ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ],
+                                    ),
                                   ),
-                                ),
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          );
                         },
                       ),
                       const SizedBox(height: 20),
@@ -522,23 +524,18 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           iconAlignment: IconAlignment.end,
                           icon: const Icon(Icons.refresh, color: Colors.white),
                           onPressed: () async {
-                            // Reset premium status
                             await ref
                                 .read(billingServiceProvider)
                                 .resetPremium();
-
                             // Reset quiz counter in SharedPreferences
                             final prefs = await SharedPreferences.getInstance();
-                            final today =
-                                DateFormat('yyyy-MM-dd').format(DateTime.now());
+                            final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
                             await prefs.setString('last_quiz_date', today);
                             await prefs.setInt('daily_quizzes', 0);
 
-                            // Show confirmation
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text(
-                                    'Premium status and quiz counter reset.'),
+                                content: const Text('Premium status and quiz counter reset.'),
                                 backgroundColor: theme.colorScheme.error,
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(
@@ -549,8 +546,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 duration: const Duration(seconds: 3),
                               ),
                             );
-
-                            // Force rebuild to update the quiz counter UI
                             setState(() {});
                           },
                           label: const Text('Reset Premium (Debug)'),
