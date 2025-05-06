@@ -363,7 +363,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             }
 
                             return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 40),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 40),
                               child: Card(
                                 elevation: 4,
                                 shape: RoundedRectangleBorder(
@@ -417,10 +418,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                           ),
                                         ],
                                       ),
-                                      if (remaining != -1 && remaining <= 1) ...[
+                                      if (remaining != -1 &&
+                                          remaining <= 1) ...[
                                         const Spacer(),
                                         IconButton(
-                                          icon: Icon(Icons.arrow_forward_rounded,
+                                          icon: Icon(
+                                              Icons.arrow_forward_rounded,
                                               color: theme.colorScheme.primary),
                                           onPressed: () {
                                             Navigator.push(
@@ -513,19 +516,29 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
-                      /*if (kDebugMode) ...[
+                      if (kDebugMode) ...[
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
                           iconAlignment: IconAlignment.end,
                           icon: const Icon(Icons.refresh, color: Colors.white),
                           onPressed: () async {
+                            // Reset premium status
                             await ref
                                 .read(billingServiceProvider)
                                 .resetPremium();
+
+                            // Reset quiz counter in SharedPreferences
+                            final prefs = await SharedPreferences.getInstance();
+                            final today =
+                                DateFormat('yyyy-MM-dd').format(DateTime.now());
+                            await prefs.setString('last_quiz_date', today);
+                            await prefs.setInt('daily_quizzes', 0);
+
+                            // Show confirmation
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: const Text(
-                                    'Premium status reset to unpaid.'),
+                                    'Premium status and quiz counter reset.'),
                                 backgroundColor: theme.colorScheme.error,
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(
@@ -536,6 +549,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 duration: const Duration(seconds: 3),
                               ),
                             );
+
+                            // Force rebuild to update the quiz counter UI
+                            setState(() {});
                           },
                           label: const Text('Reset Premium (Debug)'),
                           style: ElevatedButton.styleFrom(
@@ -546,7 +562,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             ),
                           ),
                         ),
-                      ],*/
+                      ],
                     ],
                   ),
                 ),
