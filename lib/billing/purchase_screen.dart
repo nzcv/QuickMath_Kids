@@ -84,13 +84,25 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                             context,
                             icon: Icons.history,
                             title: 'Wrong Answers History',
-                            description: 'Review and practice questions you got wrong.',
+                            description: 'Review and practice questions you got wrong to improve your skills.',
                           ),
                           _buildFeatureTile(
                             context,
                             icon: Icons.history_toggle_off,
                             title: 'Quiz History',
-                            description: 'Track your past quiz performances.',
+                            description: 'Track your past quiz performances to monitor progress.',
+                          ),
+                          _buildFeatureTile(
+                            context,
+                            icon: Icons.settings,
+                            title: 'Advanced Settings',
+                            description: 'Customize your learning experience with premium settings options.',
+                          ),
+                          _buildFeatureTile(
+                            context,
+                            icon: Icons.lock_open,
+                            title: 'Exclusive Practice Ranges',
+                            description: 'Access advanced and mixed number ranges for all operations.',
                           ),
                           const SizedBox(height: 24),
                           Row(

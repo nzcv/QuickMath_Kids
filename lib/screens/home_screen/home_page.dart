@@ -347,19 +347,19 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           if (snapshot.hasData) {
                             final remaining = snapshot.data!;
                             Color statusColor;
-                            IconData statusIcon;
+                            IconData _statusIcon;
                             if (remaining == -1) {
                               statusColor = Colors.green;
-                              statusIcon = Icons.star;
+                              _statusIcon = Icons.star;
                             } else if (remaining == 0) {
                               statusColor = theme.colorScheme.error;
-                              statusIcon = Icons.lock;
+                              _statusIcon = Icons.lock;
                             } else if (remaining <= 1) {
                               statusColor = Colors.orange;
-                              statusIcon = Icons.warning;
+                              _statusIcon = Icons.warning;
                             } else {
                               statusColor = theme.colorScheme.primary;
-                              statusIcon = Icons.check_circle;
+                              _statusIcon = Icons.check_circle;
                             }
 
                             return Padding(
