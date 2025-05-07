@@ -1,19 +1,19 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/billing/purchase_screen.dart';
 
-// In timer_wheel_picker.dart, modify the TimeWheelPicker class:
 class TimeWheelPicker extends StatefulWidget {
   final int initialIndex;
   final bool isPremium;
   final Function(int) onConfirm;
-  final VoidCallback? onPremiumStatusChanged; // Add this line
+  final VoidCallback? onPremiumStatusChanged;
 
   const TimeWheelPicker({
     super.key,
     required this.initialIndex,
     required this.isPremium,
     required this.onConfirm,
-    this.onPremiumStatusChanged, // Add this line
+    this.onPremiumStatusChanged,
   });
 
   @override
@@ -22,11 +22,29 @@ class TimeWheelPicker extends StatefulWidget {
 
 class _TimeWheelPickerState extends State<TimeWheelPicker> {
   late int _selectedIndex;
+  Timer? _inactivityTimer;
 
   @override
   void initState() {
     super.initState();
     _selectedIndex = widget.initialIndex;
+    _startInactivityTimer();
+  }
+
+  @override
+  void dispose() {
+    _inactivityTimer?.cancel();
+    super.dispose();
+  }
+
+  // Start or reset the inactivity timer
+  void _startInactivityTimer() {
+    _inactivityTimer?.cancel();
+    _inactivityTimer = Timer(const Duration(seconds: 5), () {
+      if (mounted) {
+        Navigator.pop(context);
+      }
+    });
   }
 
   @override
@@ -43,19 +61,32 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
     }
   }
 
-  // In timer_wheel_picker.dart, update the build method:
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final freeTierDefaultIndex =
-        2; // 2 minutes is now index 2 (since index 1 is 1 minute)
+    final freeTierDefaultIndex = 2; // 2 minutes is index 2
 
     return Container(
-      height: 300,
+      height: 340,
       padding: const EdgeInsets.all(16),
       child: Column(
         children: [
-          Text('Set Time Limit', style: theme.textTheme.titleLarge),
+          Text(
+            'Set Time Limit',
+            style: theme.textTheme.titleLarge,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            widget.isPremium
+                ? 'Choose any time limit'
+                : 'Free users are limited to 2 minutes. Upgrade to Premium for more options!',
+            style: TextStyle(
+              fontSize: 14,
+              color: widget.isPremium ? Colors.black : Colors.red,
+              fontStyle: widget.isPremium ? FontStyle.normal : FontStyle.italic,
+            ),
+            textAlign: TextAlign.center,
+          ),
           const SizedBox(height: 16),
           SizedBox(
             height: 150,
@@ -68,7 +99,7 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                     _selectedIndex = index;
                   });
                 }
-                // For free users, do not allow selection change
+                _startInactivityTimer(); // Reset timer on scroll
               },
               controller:
                   FixedExtentScrollController(initialItem: _selectedIndex),
@@ -77,61 +108,55 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                   61,
                   (index) {
                     final isSelected = index == _selectedIndex;
-                    final isLocked = !widget.isPremium &&
-                        index !=
-                            freeTierDefaultIndex; // Lock all except 2 minutes for free users
-                    String displayText;
-                    if (index == 0) {
-                      displayText = 'No Limit';
-                    } else {
-                      final minute = index;
-                      displayText = '$minute minute${minute == 1 ? '' : 's'}';
-                    }
+                    final isLocked =
+                        !widget.isPremium && index != freeTierDefaultIndex;
+                    final displayText = index == 0
+                        ? 'No Limit'
+                        : '$index minute${index == 1 ? '' : 's'}';
+
                     return Center(
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 16,
-                        ),
-                        decoration: BoxDecoration(
-                          color: isSelected
-                              ? theme.colorScheme.primary.withOpacity(0.2)
-                              : Colors.transparent,
-                          border: isSelected
-                              ? Border.all(
-                                  color: theme.colorScheme.primary,
-                                  width: 2,
-                                )
-                              : null,
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(8)),
-                        ),
+                            vertical: 8, horizontal: 16),
+                        color: isSelected ? Colors.blue.withOpacity(0.2) : null,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (isLocked)
-                              Icon(
-                                Icons.lock,
-                                size: 16,
-                                color: theme.colorScheme.onSurface
-                                    .withOpacity(0.5),
-                              ),
-                            if (isLocked) const SizedBox(width: 8),
+                            if (isLocked) ...[
+                              const Icon(Icons.lock,
+                                  size: 16, color: Colors.grey),
+                              const SizedBox(width: 8),
+                            ],
                             Text(
                               displayText,
-                              style: theme.textTheme.bodyLarge?.copyWith(
+                              style: TextStyle(
                                 fontSize: 20,
                                 color: isLocked
-                                    ? theme.colorScheme.onSurface
-                                        .withOpacity(0.5)
+                                    ? Colors.grey
                                     : isSelected
-                                        ? theme.colorScheme.primary
-                                        : theme.colorScheme.onSurface,
+                                        ? Colors.blue
+                                        : Colors.black,
                                 fontWeight: isSelected
                                     ? FontWeight.bold
                                     : FontWeight.normal,
                               ),
                             ),
+                            if (isLocked) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 4, vertical: 2),
+                                color: Colors.amber,
+                                child: const Text(
+                                  'Premium',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -144,6 +169,7 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
           const Spacer(),
           ElevatedButton(
             onPressed: () {
+              _startInactivityTimer(); // Reset timer on button press
               if (!widget.isPremium && _selectedIndex != freeTierDefaultIndex) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -179,6 +205,7 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                       textColor: Colors.white,
                       backgroundColor: theme.colorScheme.primary,
                       onPressed: () {
+                        _startInactivityTimer(); // Reset timer on action press
                         Navigator.push(
                           context,
                           MaterialPageRoute(

@@ -13,7 +13,7 @@ import 'app_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final container = ProviderContainer();
-  final billingService = container.read(billingServiceProvider); // Get the BillingService instance
+  final billingService = container.read(billingServiceProvider); // Get the BillingService instance..
   runApp(UncontrolledProviderScope(
     container: container,
     child: MyApp(billingService: billingService), // Pass the service instead of the future
