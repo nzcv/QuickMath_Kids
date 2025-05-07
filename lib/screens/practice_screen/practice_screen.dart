@@ -18,6 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart'; // Import for volumeProvider
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, Range, int?)
@@ -768,40 +769,135 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             ),
                           ),
                         ),
+                        // Volume bar positioned in a row next to the floating action button
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: isTablet
+                                ? 40.0 * adjustedScale
+                                : 24.0 * adjustedScale,
+                            vertical: 8.0 * adjustedScale,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              Container(
+                                width: 200 * adjustedScale, // Adjustable width
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.surface
+                                      .withOpacity(0.7),
+                                  borderRadius:
+                                      BorderRadius.circular(30 * adjustedScale),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: widget.isDarkMode
+                                          ? Colors.black.withOpacity(0.2)
+                                          : Colors.grey.withOpacity(0.2),
+                                      spreadRadius: 1,
+                                      blurRadius: 3,
+                                      offset: const Offset(0, 2),
+                                    ),
+                                  ],
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12.0 * adjustedScale,
+                                  vertical: 8.0 * adjustedScale,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      ref.watch(volumeProvider) > 0.66
+                                          ? Icons.volume_up
+                                          : ref.watch(volumeProvider) > 0.33
+                                              ? Icons.volume_down
+                                              : Icons.volume_mute,
+                                      color: theme.colorScheme.primary,
+                                      size: isTablet
+                                          ? 28 * adjustedScale
+                                          : 20 * adjustedScale,
+                                    ),
+                                    SizedBox(width: 8 * adjustedScale),
+                                    Expanded(
+                                      child: SliderTheme(
+                                        data: SliderTheme.of(context).copyWith(
+                                          activeTrackColor:
+                                              theme.colorScheme.primary,
+                                          inactiveTrackColor: theme
+                                              .colorScheme.onSurface
+                                              .withOpacity(0.1),
+                                          thumbColor: theme.colorScheme.primary,
+                                          overlayColor: theme
+                                              .colorScheme.primary
+                                              .withOpacity(0.2),
+                                          trackHeight: isTablet
+                                              ? 6 * adjustedScale
+                                              : 4 * adjustedScale,
+                                          thumbShape: RoundSliderThumbShape(
+                                            enabledThumbRadius: isTablet
+                                                ? 12 * adjustedScale
+                                                : 8 * adjustedScale,
+                                          ),
+                                          overlayShape: RoundSliderOverlayShape(
+                                            overlayRadius: isTablet
+                                                ? 16 * adjustedScale
+                                                : 12 * adjustedScale,
+                                          ),
+                                        ),
+                                        child: Slider(
+                                          value: ref.watch(volumeProvider),
+                                          min: 0.0,
+                                          max: 1.0,
+                                          divisions: 10,
+                                          onChanged: (value) {
+                                            ref
+                                                .read(volumeProvider.notifier)
+                                                .state = value;
+                                          },
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(width: 16 * adjustedScale),
+                              Consumer(
+                                builder: (context, ref, child) {
+                                  final billingService =
+                                      ref.watch(billingServiceProvider);
+                                  return FloatingActionButton(
+                                    onPressed: billingService.isPremium
+                                        ? _showPauseDialog
+                                        : () {
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    'Pause feature is available for premium users'),
+                                                duration: Duration(seconds: 2),
+                                              ),
+                                            );
+                                          },
+                                    backgroundColor: billingService.isPremium
+                                        ? theme.colorScheme.primary
+                                        : Colors.grey,
+                                    child: Icon(
+                                      Icons.pause,
+                                      color: theme.colorScheme.onPrimary,
+                                    ),
+                                    tooltip: billingService.isPremium
+                                        ? 'Pause Quiz'
+                                        : 'Premium feature',
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
-                    confettiManager.buildCorrectConfetti(),
                   ],
                 ),
               ),
-            ),
-            floatingActionButton: Consumer(
-              builder: (context, ref, child) {
-                final billingService = ref.watch(billingServiceProvider);
-                return FloatingActionButton(
-                  onPressed: billingService.isPremium
-                      ? _showPauseDialog
-                      : () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                  'Pause feature is available for premium users'),
-                              duration: Duration(seconds: 2),
-                            ),
-                          );
-                        },
-                  backgroundColor: billingService.isPremium
-                      ? theme.colorScheme.primary
-                      : Colors.grey,
-                  child: Icon(
-                    Icons.pause,
-                    color: theme.colorScheme.onPrimary,
-                  ),
-                  tooltip: billingService.isPremium
-                      ? 'Pause Quiz'
-                      : 'Premium feature',
-                );
-              },
             ),
           ),
         );
