@@ -1,15 +1,16 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 import 'package:QuickMath_Kids/screens/home_screen/drawer.dart';
+import 'package:QuickMath_Kids/screens/home_screen/timer_wheel_picker.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:QuickMath_Kids/billing/purchase_screen.dart';
+import 'package:flutter/foundation.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
   final Function(Operation, Range, int?) switchToPracticeScreen;
@@ -104,170 +105,31 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   }
 
   void _showTimeWheelPicker(BuildContext context) {
-    final theme = Theme.of(context);
     final billingService = ref.read(billingServiceProvider);
     final bool isPremium = billingService.isPremium;
 
-    // For free users, force the initial selection to 5 minutes (index 5)
+    // For free users, force the initial selection to 5 minutes (index 2)
     if (!isPremium && _selectedIndex != 2) {
       _selectedIndex = 2;
     }
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       builder: (context) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Container(
-              height: 300,
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                children: [
-                  Text('Set Time Limit', style: theme.textTheme.titleLarge),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    height: 150,
-                    child: ListWheelScrollView.useDelegate(
-                      itemExtent: 50,
-                      diameterRatio: 1.5,
-                      onSelectedItemChanged: (index) {
-                        if (isPremium) {
-                          setModalState(() {
-                            _selectedIndex = index;
-                          });
-                        }
-                        // For free users, do not allow selection change
-                      },
-                      controller: FixedExtentScrollController(initialItem: _selectedIndex),
-                      childDelegate: ListWheelChildListDelegate(
-                        children: List.generate(
-                          61,
-                          (index) {
-                            final isSelected = index == _selectedIndex;
-                            final isLocked = !isPremium && index != 2; // Lock all except 5 minutes for free users
-                            String displayText;
-                            if (index == 0) {
-                              displayText = 'No Limit';
-                            } else {
-                              final minute = index;
-                              displayText = '$minute minute${minute == 1 ? '' : 's'}';
-                            }
-                            return Center(
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                  horizontal: 16,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? theme.colorScheme.primary.withOpacity(0.2)
-                                      : Colors.transparent,
-                                  border: isSelected
-                                      ? Border.all(
-                                          color: theme.colorScheme.primary,
-                                          width: 2,
-                                        )
-                                      : null,
-                                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    if (isLocked)
-                                      Icon(
-                                        Icons.lock,
-                                        size: 16,
-                                        color: theme.colorScheme.onSurface.withOpacity(0.5),
-                                      ),
-                                    if (isLocked) const SizedBox(width: 8),
-                                    Text(
-                                      displayText,
-                                      style: theme.textTheme.bodyLarge?.copyWith(
-                                        fontSize: 20,
-                                        color: isLocked
-                                            ? theme.colorScheme.onSurface.withOpacity(0.5)
-                                            : isSelected
-                                                ? theme.colorScheme.primary
-                                                : theme.colorScheme.onSurface,
-                                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                  const Spacer(),
-                  ElevatedButton(
-                    onPressed: () {
-                      if (!isPremium && _selectedIndex != 2) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Row(
-                              children: [
-                                Icon(
-                                  Icons.info,
-                                  color: theme.colorScheme.onError,
-                                  size: 24,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    'Custom time limits are a Premium feature. Upgrade to unlock!',
-                                    style: TextStyle(
-                                      color: theme.colorScheme.onError,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            backgroundColor: theme.colorScheme.error,
-                            behavior: SnackBarBehavior.floating,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            margin: const EdgeInsets.all(16),
-                            elevation: 6,
-                            duration: const Duration(seconds: 5),
-                            action: SnackBarAction(
-                              label: 'Upgrade',
-                              textColor: Colors.white,
-                              backgroundColor: theme.colorScheme.primary,
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const PurchaseScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                        );
-                        return;
-                      }
-
-                      setState(() {
-                        if (_selectedIndex == 0) {
-                          _selectedTimeLimit = null;
-                        } else {
-                          _selectedTimeLimit = _selectedIndex * 60;
-                        }
-                        _savePreferences();
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: const Text('Confirm'),
-                  ),
-                ],
-              ),
-            );
+        return TimeWheelPicker(
+          initialIndex: _selectedIndex,
+          isPremium: isPremium,
+          onConfirm: (index) {
+            setState(() {
+              _selectedIndex = index;
+              if (_selectedIndex == 0) {
+                _selectedTimeLimit = null;
+              } else {
+                _selectedTimeLimit = _selectedIndex * 60;
+              }
+              _savePreferences();
+            });
           },
         );
       },
@@ -411,7 +273,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       const SizedBox(height: 20),
                       Consumer(
                         builder: (context, ref, child) {
-                          final billingService = ref.watch(billingServiceProvider);
+                          final billingService =
+                              ref.watch(billingServiceProvider);
                           return FutureBuilder<int>(
                             future: billingService.isPremium
                                 ? Future.value(-1) // Unlimited for premium
@@ -436,7 +299,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 }
 
                                 return Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 40),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 40),
                                   child: Card(
                                     elevation: 4,
                                     shape: RoundedRectangleBorder(
@@ -452,14 +316,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                       padding: const EdgeInsets.symmetric(
                                           vertical: 12, horizontal: 16),
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
                                         children: [
                                           Icon(
                                             remaining == -1
                                                 ? Icons.star_rounded
                                                 : remaining <= 1
                                                     ? Icons.warning_rounded
-                                                    : Icons.check_circle_rounded,
+                                                    : Icons
+                                                        .check_circle_rounded,
                                             color: statusColor,
                                             size: 28,
                                           ),
@@ -472,17 +338,19 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                                 remaining == -1
                                                     ? 'Premium Member'
                                                     : 'Daily Quizzes',
-                                                style: theme.textTheme.labelLarge
+                                                style: theme
+                                                    .textTheme.labelLarge
                                                     ?.copyWith(
-                                                  color: theme
-                                                      .colorScheme.onSurfaceVariant,
+                                                  color: theme.colorScheme
+                                                      .onSurfaceVariant,
                                                 ),
                                               ),
                                               Text(
                                                 remaining == -1
                                                     ? 'Unlimited Access'
                                                     : '$remaining/$_freeUserDailyLimit remaining',
-                                                style: theme.textTheme.titleMedium
+                                                style: theme
+                                                    .textTheme.titleMedium
                                                     ?.copyWith(
                                                   color: statusColor,
                                                   fontWeight: FontWeight.bold,
@@ -490,11 +358,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                               ),
                                             ],
                                           ),
-                                          if (remaining != -1 && remaining <= 1) ...[
+                                          if (remaining != -1 &&
+                                              remaining <= 1) ...[
                                             const Spacer(),
                                             IconButton(
-                                              icon: Icon(Icons.arrow_forward_rounded,
-                                                  color: theme.colorScheme.primary),
+                                              icon: Icon(
+                                                  Icons.arrow_forward_rounded,
+                                                  color: theme
+                                                      .colorScheme.primary),
                                               onPressed: () {
                                                 Navigator.push(
                                                   context,
@@ -588,7 +459,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
-                      /*if (kDebugMode) ...[
+                      if (kDebugMode) ...[
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
                           iconAlignment: IconAlignment.end,
@@ -627,7 +498,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             ),
                           ),
                         ),
-                      ],*/
+                      ],
                     ],
                   ),
                 ),
