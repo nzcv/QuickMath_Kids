@@ -109,8 +109,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     final bool isPremium = billingService.isPremium;
 
     // For free users, force the initial selection to 5 minutes (index 5)
-    if (!isPremium && _selectedIndex != 5) {
-      _selectedIndex = 5;
+    if (!isPremium && _selectedIndex != 2) {
+      _selectedIndex = 2;
     }
 
     showModalBottomSheet(
@@ -145,7 +145,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           61,
                           (index) {
                             final isSelected = index == _selectedIndex;
-                            final isLocked = !isPremium && index != 5; // Lock all except 5 minutes for free users
+                            final isLocked = !isPremium && index != 2; // Lock all except 5 minutes for free users
                             String displayText;
                             if (index == 0) {
                               displayText = 'No Limit';
@@ -205,7 +205,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                   const Spacer(),
                   ElevatedButton(
                     onPressed: () {
-                      if (!isPremium && _selectedIndex != 5) {
+                      if (!isPremium && _selectedIndex != 2) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                             content: Row(
@@ -588,7 +588,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
-                      if (kDebugMode) ...[
+                      /*if (kDebugMode) ...[
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
                           iconAlignment: IconAlignment.end,
@@ -627,7 +627,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             ),
                           ),
                         ),
-                      ],
+                      ],*/
                     ],
                   ),
                 ),

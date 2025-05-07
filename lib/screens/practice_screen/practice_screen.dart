@@ -106,7 +106,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   void _startInactivityTimer() {
     _inactivityTimer?.cancel();
-    _inactivityTimer = Timer(const Duration(seconds: 20), () {
+    _inactivityTimer = Timer(const Duration(seconds: 10), () {
       if (mounted) {
         pauseTimer();
         _inactivityTimer?.cancel();
