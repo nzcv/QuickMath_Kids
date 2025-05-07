@@ -36,14 +36,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   int? _selectedTimeLimit;
   int _selectedIndex = 0;
   bool _isDarkMode = false;
-  final int _freeUserDailyLimit = 3; 
-  int _refreshKey = 0; 
+  final int _freeUserDailyLimit = 3;
+  int _refreshKey = 0;
   @override
   void initState() {
     super.initState();
     _isDarkMode = widget.isDarkMode;
-    _selectedTimeLimit = 2 * 60; 
-    _selectedIndex = 2; 
+    _selectedTimeLimit = 2 * 60;
+    _selectedIndex = 2;
     _loadPreferences();
   }
 
@@ -146,6 +146,127 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         );
       },
     );
+  }
+
+  Widget _buildQuizzesStatusCard(BuildContext context, ThemeData theme) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final billingService = ref.watch(billingServiceProvider);
+        return FutureBuilder<int>(
+          key: ValueKey(_refreshKey),
+          future: billingService.isPremium
+              ? Future.value(-1)
+              : _getRemainingQuizzes(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              final remaining = snapshot.data!;
+              Color statusColor;
+              IconData _statusIcon;
+              if (remaining == -1) {
+                statusColor = Colors.green;
+                _statusIcon = Icons.star;
+              } else if (remaining == 0) {
+                statusColor = theme.colorScheme.error;
+                _statusIcon = Icons.lock;
+              } else if (remaining <= 1) {
+                statusColor = Colors.orange;
+                _statusIcon = Icons.warning;
+              } else {
+                statusColor = theme.colorScheme.primary;
+                _statusIcon = Icons.check_circle;
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: Card(
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                    side: BorderSide(
+                      color: theme.colorScheme.primary.withOpacity(0.2),
+                      width: 1,
+                    ),
+                  ),
+                  color: theme.colorScheme.surfaceVariant,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 12, horizontal: 16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          remaining == -1
+                              ? Icons.star_rounded
+                              : remaining <= 1
+                                  ? Icons.warning_rounded
+                                  : Icons.check_circle_rounded,
+                          color: statusColor,
+                          size: 28,
+                        ),
+                        const SizedBox(width: 12),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              remaining == -1
+                                  ? 'Premium Member'
+                                  : 'Daily Quizzes',
+                              style: theme.textTheme.labelLarge?.copyWith(
+                                color: theme.colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                            Text(
+                              remaining == -1
+                                  ? 'Unlimited Access'
+                                  : '$remaining/$_freeUserDailyLimit remaining',
+                              style: theme.textTheme.titleMedium?.copyWith(
+                                color: statusColor,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                        if (remaining != -1 && remaining <= 1) ...[
+                          const Spacer(),
+                          IconButton(
+                            icon: Icon(Icons.arrow_forward_rounded,
+                                color: theme.colorScheme.primary),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const PurchaseScreen(),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }
+            return const SizedBox.shrink();
+          },
+        );
+      },
+    );
+  }
+
+  Future<int> _getRemainingQuizzes() async {
+    final prefs = await SharedPreferences.getInstance();
+    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    final lastQuizDate = prefs.getString('last_quiz_date');
+
+    if (lastQuizDate != today) {
+      await prefs.setString('last_quiz_date', today);
+      await prefs.setInt('daily_quizzes', 0);
+      return _freeUserDailyLimit;
+    }
+
+    final quizzesTaken = prefs.getInt('daily_quizzes') ?? 0;
+    return _freeUserDailyLimit - quizzesTaken;
   }
 
   @override
@@ -283,125 +404,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         ),
                       ),
                       const SizedBox(height: 20),
-                      Consumer(
-                        builder: (context, ref, child) {
-                          final billingService =
-                              ref.watch(billingServiceProvider);
-                          return FutureBuilder<int>(
-                            key: ValueKey(
-                                _refreshKey), // Force rebuild on key change
-                            future: billingService.isPremium
-                                ? Future.value(-1) // Unlimited for premium
-                                : _getRemainingQuizzes(),
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData) {
-                                final remaining = snapshot.data!;
-                                Color statusColor;
-                                IconData _statusIcon;
-                                if (remaining == -1) {
-                                  statusColor = Colors.green;
-                                  _statusIcon = Icons.star;
-                                } else if (remaining == 0) {
-                                  statusColor = theme.colorScheme.error;
-                                  _statusIcon = Icons.lock;
-                                } else if (remaining <= 1) {
-                                  statusColor = Colors.orange;
-                                  _statusIcon = Icons.warning;
-                                } else {
-                                  statusColor = theme.colorScheme.primary;
-                                  _statusIcon = Icons.check_circle;
-                                }
-
-                                return Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 40),
-                                  child: Card(
-                                    elevation: 4,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(16),
-                                      side: BorderSide(
-                                        color: theme.colorScheme.primary
-                                            .withOpacity(0.2),
-                                        width: 1,
-                                      ),
-                                    ),
-                                    color: theme.colorScheme.surfaceVariant,
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12, horizontal: 16),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            remaining == -1
-                                                ? Icons.star_rounded
-                                                : remaining <= 1
-                                                    ? Icons.warning_rounded
-                                                    : Icons
-                                                        .check_circle_rounded,
-                                            color: statusColor,
-                                            size: 28,
-                                          ),
-                                          const SizedBox(width: 12),
-                                          Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                remaining == -1
-                                                    ? 'Premium Member'
-                                                    : 'Daily Quizzes',
-                                                style: theme
-                                                    .textTheme.labelLarge
-                                                    ?.copyWith(
-                                                  color: theme.colorScheme
-                                                      .onSurfaceVariant,
-                                                ),
-                                              ),
-                                              Text(
-                                                remaining == -1
-                                                    ? 'Unlimited Access'
-                                                    : '$remaining/$_freeUserDailyLimit remaining',
-                                                style: theme
-                                                    .textTheme.titleMedium
-                                                    ?.copyWith(
-                                                  color: statusColor,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          if (remaining != -1 &&
-                                              remaining <= 1) ...[
-                                            const Spacer(),
-                                            IconButton(
-                                              icon: Icon(
-                                                  Icons.arrow_forward_rounded,
-                                                  color: theme
-                                                      .colorScheme.primary),
-                                              onPressed: () {
-                                                Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                    builder: (context) =>
-                                                        const PurchaseScreen(),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          );
-                        },
-                      ),
+                      _buildQuizzesStatusCard(context, theme),
                       const SizedBox(height: 20),
                       ElevatedButton.icon(
                         iconAlignment: IconAlignment.end,
@@ -473,27 +476,22 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                         ),
                       ),
-                      if (kDebugMode) ...[
+                      /*if (kDebugMode) ...[
                         const SizedBox(height: 20),
                         ElevatedButton.icon(
                           iconAlignment: IconAlignment.end,
                           icon: const Icon(Icons.refresh, color: Colors.white),
-                          // Update the reset button's onPressed:
-                          // Update the reset button's onPressed:
                           onPressed: () async {
                             await ref
                                 .read(billingServiceProvider)
                                 .resetPremium();
-                            // Reset quiz counter in SharedPreferences
                             final prefs = await SharedPreferences.getInstance();
                             final today =
                                 DateFormat('yyyy-MM-dd').format(DateTime.now());
                             await prefs.setString('last_quiz_date', today);
                             await prefs.setInt('daily_quizzes', 0);
-
-                            // Reset timer selection to free-tier default (2 minutes)
                             setState(() {
-                              _selectedIndex = 2; // 2 minutes is index 2
+                              _selectedIndex = 2;
                               _selectedTimeLimit = 2 * 60;
                               _savePreferences();
                               _refreshKey++;
@@ -523,7 +521,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             ),
                           ),
                         ),
-                      ],
+                      ],*/
                     ],
                   ),
                 ),
@@ -533,20 +531,5 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         );
       },
     );
-  }
-
-  Future<int> _getRemainingQuizzes() async {
-    final prefs = await SharedPreferences.getInstance();
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final lastQuizDate = prefs.getString('last_quiz_date');
-
-    if (lastQuizDate != today) {
-      await prefs.setString('last_quiz_date', today);
-      await prefs.setInt('daily_quizzes', 0);
-      return _freeUserDailyLimit;
-    }
-
-    final quizzesTaken = prefs.getInt('daily_quizzes') ?? 0;
-    return _freeUserDailyLimit - quizzesTaken;
   }
 }
