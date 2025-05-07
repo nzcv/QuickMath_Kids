@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/billing/purchase_screen.dart';
 
+// In timer_wheel_picker.dart, modify the TimeWheelPicker class:
 class TimeWheelPicker extends StatefulWidget {
   final int initialIndex;
   final bool isPremium;
   final Function(int) onConfirm;
+  final VoidCallback? onPremiumStatusChanged; // Add this line
 
   const TimeWheelPicker({
     super.key,
     required this.initialIndex,
     required this.isPremium,
     required this.onConfirm,
+    this.onPremiumStatusChanged, // Add this line
   });
 
   @override
@@ -27,8 +30,25 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
   }
 
   @override
+  void didUpdateWidget(TimeWheelPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isPremium != widget.isPremium) {
+      // Premium status changed - reset to free default if needed
+      if (!widget.isPremium && _selectedIndex != 2) {
+        setState(() {
+          _selectedIndex = 2;
+        });
+      }
+      widget.onPremiumStatusChanged?.call();
+    }
+  }
+
+  // In timer_wheel_picker.dart, update the build method:
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final freeTierDefaultIndex =
+        2; // 2 minutes is now index 2 (since index 1 is 1 minute)
 
     return Container(
       height: 300,
@@ -50,13 +70,16 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                 }
                 // For free users, do not allow selection change
               },
-              controller: FixedExtentScrollController(initialItem: _selectedIndex),
+              controller:
+                  FixedExtentScrollController(initialItem: _selectedIndex),
               childDelegate: ListWheelChildListDelegate(
                 children: List.generate(
                   61,
                   (index) {
                     final isSelected = index == _selectedIndex;
-                    final isLocked = !widget.isPremium && index != 2; // Lock all except 5 minutes for free users
+                    final isLocked = !widget.isPremium &&
+                        index !=
+                            freeTierDefaultIndex; // Lock all except 2 minutes for free users
                     String displayText;
                     if (index == 0) {
                       displayText = 'No Limit';
@@ -80,7 +103,8 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                                   width: 2,
                                 )
                               : null,
-                          borderRadius: const BorderRadius.all(Radius.circular(8)),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(8)),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -89,7 +113,8 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                               Icon(
                                 Icons.lock,
                                 size: 16,
-                                color: theme.colorScheme.onSurface.withOpacity(0.5),
+                                color: theme.colorScheme.onSurface
+                                    .withOpacity(0.5),
                               ),
                             if (isLocked) const SizedBox(width: 8),
                             Text(
@@ -97,11 +122,14 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                               style: theme.textTheme.bodyLarge?.copyWith(
                                 fontSize: 20,
                                 color: isLocked
-                                    ? theme.colorScheme.onSurface.withOpacity(0.5)
+                                    ? theme.colorScheme.onSurface
+                                        .withOpacity(0.5)
                                     : isSelected
                                         ? theme.colorScheme.primary
                                         : theme.colorScheme.onSurface,
-                                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                fontWeight: isSelected
+                                    ? FontWeight.bold
+                                    : FontWeight.normal,
                               ),
                             ),
                           ],
@@ -116,7 +144,7 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
           const Spacer(),
           ElevatedButton(
             onPressed: () {
-              if (!widget.isPremium && _selectedIndex != 2) {
+              if (!widget.isPremium && _selectedIndex != freeTierDefaultIndex) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
                     content: Row(

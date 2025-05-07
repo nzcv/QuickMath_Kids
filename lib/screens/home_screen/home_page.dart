@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
-import 'package:QuickMath_Kids/screens/home_screen/drawer.dart';
 import 'package:QuickMath_Kids/screens/home_screen/timer_wheel_picker.dart';
+import 'package:QuickMath_Kids/screens/home_screen/drawer.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
@@ -36,14 +36,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   int? _selectedTimeLimit;
   int _selectedIndex = 0;
   bool _isDarkMode = false;
-  final int _freeUserDailyLimit = 3; // Daily quiz limit for free users
-
+  final int _freeUserDailyLimit = 3; 
+  int _refreshKey = 0; 
   @override
   void initState() {
     super.initState();
     _isDarkMode = widget.isDarkMode;
-    _selectedTimeLimit = null;
-    _selectedIndex = 0;
+    _selectedTimeLimit = 2 * 60; 
+    _selectedIndex = 2; 
     _loadPreferences();
   }
 
@@ -107,10 +107,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   void _showTimeWheelPicker(BuildContext context) {
     final billingService = ref.read(billingServiceProvider);
     final bool isPremium = billingService.isPremium;
+    final freeTierDefaultIndex = 2;
 
-    // For free users, force the initial selection to 5 minutes (index 2)
-    if (!isPremium && _selectedIndex != 2) {
-      _selectedIndex = 2;
+    if (!isPremium && _selectedIndex != freeTierDefaultIndex) {
+      _selectedIndex = freeTierDefaultIndex;
+      _selectedTimeLimit = freeTierDefaultIndex * 60;
+      _savePreferences();
     }
 
     showModalBottomSheet(
@@ -130,6 +132,16 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               }
               _savePreferences();
             });
+          },
+          onPremiumStatusChanged: () {
+            if (!billingService.isPremium &&
+                _selectedIndex != freeTierDefaultIndex) {
+              setState(() {
+                _selectedIndex = freeTierDefaultIndex;
+                _selectedTimeLimit = freeTierDefaultIndex * 60;
+                _savePreferences();
+              });
+            }
           },
         );
       },
@@ -276,6 +288,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           final billingService =
                               ref.watch(billingServiceProvider);
                           return FutureBuilder<int>(
+                            key: ValueKey(
+                                _refreshKey), // Force rebuild on key change
                             future: billingService.isPremium
                                 ? Future.value(-1) // Unlimited for premium
                                 : _getRemainingQuizzes(),
@@ -464,19 +478,31 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                         ElevatedButton.icon(
                           iconAlignment: IconAlignment.end,
                           icon: const Icon(Icons.refresh, color: Colors.white),
+                          // Update the reset button's onPressed:
+                          // Update the reset button's onPressed:
                           onPressed: () async {
                             await ref
                                 .read(billingServiceProvider)
                                 .resetPremium();
                             // Reset quiz counter in SharedPreferences
                             final prefs = await SharedPreferences.getInstance();
-                            final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+                            final today =
+                                DateFormat('yyyy-MM-dd').format(DateTime.now());
                             await prefs.setString('last_quiz_date', today);
                             await prefs.setInt('daily_quizzes', 0);
 
+                            // Reset timer selection to free-tier default (2 minutes)
+                            setState(() {
+                              _selectedIndex = 2; // 2 minutes is index 2
+                              _selectedTimeLimit = 2 * 60;
+                              _savePreferences();
+                              _refreshKey++;
+                            });
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: const Text('Premium status and quiz counter reset.'),
+                                content: const Text(
+                                    'Premium status and settings reset to free tier.'),
                                 backgroundColor: theme.colorScheme.error,
                                 behavior: SnackBarBehavior.floating,
                                 shape: RoundedRectangleBorder(
@@ -487,7 +513,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 duration: const Duration(seconds: 3),
                               ),
                             );
-                            setState(() {});
                           },
                           label: const Text('Reset Premium (Debug)'),
                           style: ElevatedButton.styleFrom(
