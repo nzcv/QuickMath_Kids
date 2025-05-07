@@ -4,6 +4,7 @@ import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/inactivity_modal.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/modals/pause_modal.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/timer_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/tts_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/hint_helper.dart';
@@ -16,6 +17,7 @@ import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:flutter/foundation.dart';
+import 'package:QuickMath_Kids/billing/billing_service.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, Range, int?)
@@ -123,6 +125,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
         return InActivityModal(
           onResume: () {
             Navigator.pop(context);
+            resumeTimer();
+            _startInactivityTimer();
+          },
+        );
+      },
+    );
+  }
+
+  void _showPauseDialog() {
+    pauseTimer();
+    _startInactivityTimer();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return PauseDialog(
+          onResume: () {
             resumeTimer();
             _startInactivityTimer();
           },
@@ -493,18 +511,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
   }
 
   void endQuiz() {
-  _startInactivityTimer();
-  stopTimer();
-  
-  widget.switchToResultScreen(
-    answeredQuestions,
-    answeredCorrectly,
-    _quizTimer.secondsPassed,
-    widget.selectedOperation,
-    widget.selectedRange,
-    widget.sessionTimeLimit,
-  );
-} 
+    _startInactivityTimer();
+    stopTimer();
+
+    widget.switchToResultScreen(
+      answeredQuestions,
+      answeredCorrectly,
+      _quizTimer.secondsPassed,
+      widget.selectedOperation,
+      widget.selectedRange,
+      widget.sessionTimeLimit,
+    );
+  }
 
   void _showQuitDialog() {
     _startInactivityTimer();
@@ -756,6 +774,34 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ],
                 ),
               ),
+            ),
+            floatingActionButton: Consumer(
+              builder: (context, ref, child) {
+                final billingService = ref.watch(billingServiceProvider);
+                return FloatingActionButton(
+                  onPressed: billingService.isPremium
+                      ? _showPauseDialog
+                      : () {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'Pause feature is available for premium users'),
+                              duration: Duration(seconds: 2),
+                            ),
+                          );
+                        },
+                  backgroundColor: billingService.isPremium
+                      ? theme.colorScheme.primary
+                      : Colors.grey,
+                  child: Icon(
+                    Icons.pause,
+                    color: theme.colorScheme.onPrimary,
+                  ),
+                  tooltip: billingService.isPremium
+                      ? 'Pause Quiz'
+                      : 'Premium feature',
+                );
+              },
             ),
           ),
         );
