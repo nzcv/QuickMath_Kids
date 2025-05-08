@@ -18,7 +18,7 @@ class WrongQuestionsService {
       'userAnswer': userAnswer,
       'correctAnswer': correctAnswer,
       'category': category,
-      'correctCount': 0, 
+      'correctCount': 0,
       'timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -34,7 +34,21 @@ class WrongQuestionsService {
         .toList();
   }
 
-  static Future<void> updateWrongQuestion(String question,
+  // Update the removeWrongQuestion method to remove by question text instead of index
+  static Future<void> removeWrongQuestion(String questionText) async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> storedQuestions = prefs.getStringList(_key) ?? [];
+
+    storedQuestions.removeWhere((q) {
+      final data = jsonDecode(q) as Map<String, dynamic>;
+      return data['question'] == questionText;
+    });
+
+    await prefs.setStringList(_key, storedQuestions);
+  }
+
+// Update updateWrongQuestion to better handle question matching
+  static Future<void> updateWrongQuestion(String questionText,
       {required bool correct}) async {
     final prefs = await SharedPreferences.getInstance();
     List<String> storedQuestions = prefs.getStringList(_key) ?? [];
@@ -42,7 +56,7 @@ class WrongQuestionsService {
 
     for (int i = 0; i < storedQuestions.length; i++) {
       Map<String, dynamic> questionData = jsonDecode(storedQuestions[i]);
-      if (questionData['question'] == question) {
+      if (questionData['question'].toString().trim() == questionText.trim()) {
         if (correct) {
           int correctCount = (questionData['correctCount'] ?? 0) + 1;
           questionData['correctCount'] = correctCount;
@@ -61,20 +75,7 @@ class WrongQuestionsService {
       }
     }
 
-    if (!updated && !correct) {
-      return;
-    }
-
     await prefs.setStringList(_key, storedQuestions);
-  }
-
-  static Future<void> removeWrongQuestion(int index) async {
-    final prefs = await SharedPreferences.getInstance();
-    List<String> storedQuestions = prefs.getStringList(_key) ?? [];
-    if (index >= 0 && index < storedQuestions.length) {
-      storedQuestions.removeAt(index);
-      await prefs.setStringList(_key, storedQuestions);
-    }
   }
 
   static Future<void> clearWrongQuestions() async {

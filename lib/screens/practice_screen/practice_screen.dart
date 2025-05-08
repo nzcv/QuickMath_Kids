@@ -331,24 +331,23 @@ class _PracticeScreenState extends State<PracticeScreen> {
         _answeredQuestionsThisSession.add(currentQuestion);
       });
 
-      Future.microtask(() {
+      Future.microtask(() async {
         if (!isCorrect) {
           if (!_wrongQuestionsThisSession.contains(currentQuestion)) {
             _wrongQuestionsThisSession.add(currentQuestion);
-            compute(_saveWrongQuestion, {
-              'question': currentQuestion,
-              'userAnswer': selectedAnswer,
-              'correctAnswer': correctAnswer,
-              'category':
+            await WrongQuestionsService.saveWrongQuestion(
+              question: currentQuestion,
+              userAnswer: selectedAnswer,
+              correctAnswer: correctAnswer,
+              category:
                   '${widget.selectedOperation.toString().split('.').last} - ${getRangeDisplayName(widget.selectedRange)}',
-            });
+            );
           }
         } else if (_wrongQuestionsToShowThisSession.contains(currentQuestion)) {
-          WrongQuestionsService.updateWrongQuestion(currentQuestion,
+          await WrongQuestionsService.updateWrongQuestion(currentQuestion,
               correct: true);
         }
       });
-
       _triggerTTSSpeech();
 
       await Future.delayed(const Duration(milliseconds: 500));
