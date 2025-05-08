@@ -18,7 +18,7 @@ class WrongQuestionsService {
       'userAnswer': userAnswer,
       'correctAnswer': correctAnswer,
       'category': category,
-      'correctCount': 0, // Initialize counter
+      'correctCount': 0, 
       'timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -44,19 +44,15 @@ class WrongQuestionsService {
       Map<String, dynamic> questionData = jsonDecode(storedQuestions[i]);
       if (questionData['question'] == question) {
         if (correct) {
-          // Increment the correct count
           int correctCount = (questionData['correctCount'] ?? 0) + 1;
           questionData['correctCount'] = correctCount;
 
           if (correctCount >= 3) {
-            // Remove the question if the counter reaches 3
             storedQuestions.removeAt(i);
           } else {
-            // Update the question with the new counter
             storedQuestions[i] = jsonEncode(questionData);
           }
         } else {
-          // Reset the counter if answered incorrectly
           questionData['correctCount'] = 0;
           storedQuestions[i] = jsonEncode(questionData);
         }

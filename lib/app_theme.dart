@@ -5,8 +5,7 @@ import 'package:QuickMath_Kids/billing/billing_service.dart';
 class AppTheme {
   static double _scaleFactor(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    final baseScale = screenWidth / 360; // Base scaling factor
-    // Cap the scaling factor for tablets to avoid excessive shrinking
+    final baseScale = screenWidth / 360; 
     return screenWidth > 600 ? baseScale.clamp(0.8, 1.2) : baseScale;
   }
 
@@ -16,16 +15,14 @@ class AppTheme {
     final scale = _scaleFactor(context);
     final isTablet = MediaQuery.of(context).size.width > 600;
 
-    // Core colors
-    final Color primaryColor = Colors.blue[600]!; // Always blue for primary elements
-    final Color secondaryColor = Colors.blue[300]!; // Lighter blue for secondary elements
-    final Color premiumAccentColor = isPremium ? Colors.amber[600]! : Colors.blue[400]!; // Gold for premium, blue for non-premium
-    final Color premiumIconColor = isPremium ? Colors.amber[600]! : Colors.white; // Gold for premium, blue for non-premium
+    final Color primaryColor = Colors.blue[600]!; 
+    final Color secondaryColor = Colors.blue[300]!; 
+    final Color premiumAccentColor = isPremium ? Colors.amber[600]! : Colors.blue[400]!; 
+    final Color premiumIconColor = isPremium ? Colors.amber[600]! : Colors.white; 
     final Color backgroundColor = isDarkMode ? Colors.black : Colors.white;
 
-    // Surface color: Closer to white/black, with a subtle tint of primaryColor
     final Color surfaceColor = isDarkMode
-        ? Color.alphaBlend(primaryColor.withOpacity(0.1), Colors.black) // Reduced opacity to 0.1
+        ? Color.alphaBlend(primaryColor.withOpacity(0.1), Colors.black) 
         : Color.alphaBlend(primaryColor.withOpacity(0.1), Colors.white);
 
     final Color onPrimaryColor = isDarkMode ? Colors.white : Colors.black;
@@ -58,18 +55,18 @@ class AppTheme {
           fontWeight: FontWeight.bold,
         ),
         iconTheme: IconThemeData(
-          color: Colors.white, // Gold icons for premium users
+          color: Colors.white, 
           size: 22 * scale,
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor.withOpacity(0.8), // Blue buttons
+          backgroundColor: primaryColor.withOpacity(0.8),
           foregroundColor: onPrimaryColor,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16 * scale),
             side: BorderSide(
-              color: premiumAccentColor, // Gold border for premium users
+              color: premiumAccentColor, 
               width: 2 * scale,
             ),
           ),
@@ -111,7 +108,7 @@ class AppTheme {
         ),
       ),
       iconTheme: IconThemeData(
-        color: premiumIconColor, // Gold icons for premium users
+        color: premiumIconColor, 
         size: 22 * scale,
       ),
       dividerColor: secondaryColor.withOpacity(0.3),
@@ -124,27 +121,27 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8 * scale)),
           borderSide: BorderSide(
-            color: premiumAccentColor, // Gold border for premium users
+            color: premiumAccentColor, 
             width: 2 * scale,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8 * scale)),
           borderSide: BorderSide(
-            color: premiumAccentColor, // Gold border for premium users
+            color: premiumAccentColor, 
             width: 2 * scale,
           ),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.all(Radius.circular(8 * scale)),
           borderSide: BorderSide(
-            color: secondaryColor, // Blue when focused
+            color: secondaryColor, 
             width: 2 * scale,
           ),
         ),
       ),
       progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: primaryColor, // Blue progress indicator
+        color: primaryColor, 
         linearTrackColor: secondaryColor.withOpacity(0.3),
         circularTrackColor: secondaryColor.withOpacity(0.3),
       ),

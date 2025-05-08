@@ -131,7 +131,6 @@ class _ResultScreenState extends State<ResultScreen>
       answeredCorrectly: widget.answeredCorrectly,
     );
 
-    // Increment daily quiz count
     final prefs = await SharedPreferences.getInstance();
     final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
     final lastQuizDate = prefs.getString('last_quiz_date');
@@ -188,7 +187,6 @@ class _ResultScreenState extends State<ResultScreen>
     int correctAnswers =
         widget.answeredCorrectly.where((correct) => correct).length;
 
-    // Determine the card background and text colors based on the theme
     final textColor =
         theme.brightness == Brightness.dark ? Colors.white : Colors.black;
 
@@ -209,7 +207,7 @@ class _ResultScreenState extends State<ResultScreen>
                 opacity: _fadeAnimation,
                 child: Card(
                   color: Colors
-                      .white60, // Set card background color based on theme
+                      .white60,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -278,7 +276,7 @@ class _ResultScreenState extends State<ResultScreen>
                               color: widget.answeredCorrectly[index]
                                   ? Colors.green
                                   : Colors
-                                      .red, // Keep these specific colors for correctness
+                                      .red,
                             ),
                             title: Text(widget.answeredQuestions[index]),
                           );

@@ -105,7 +105,7 @@ class _TimeWheelPickerState extends State<TimeWheelPicker> {
                   FixedExtentScrollController(initialItem: _selectedIndex),
               childDelegate: ListWheelChildListDelegate(
                 children: List.generate(
-                  61,
+                  11,
                   (index) {
                     final isSelected = index == _selectedIndex;
                     final isLocked =

@@ -118,8 +118,8 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
         await QuizHistoryService.renameQuiz(oldTitle, newTitle);
         setState(() {
           final quiz = _quizzes.firstWhere((q) => q['title'] == oldTitle);
-          quiz['title'] = newTitle; // Update locally
-          _quizzes.sort((a, b) => b['timestamp'].compareTo(a['timestamp'])); // Re-sort if needed
+          quiz['title'] = newTitle;
+          _quizzes.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
         });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Quiz renamed successfully')),

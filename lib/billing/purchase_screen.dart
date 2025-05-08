@@ -15,7 +15,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final billingService = ref.watch(billingServiceProvider); // Watch for changes
+    final billingService = ref.watch(billingServiceProvider);
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
 
@@ -158,7 +158,6 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                                   setState(() {
                                     _isPurchasing = true;
                                   });
-                                  // Restore purchases to ensure premium status is up-to-date before attempting purchase
                                   await ref.read(billingServiceProvider).restorePurchase();
                                   final success = await billingService.purchasePremium(context);
                                   setState(() {

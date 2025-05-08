@@ -5,7 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-// Create a ChangeNotifierProvider for BillingService
 final billingServiceProvider = ChangeNotifierProvider<BillingService>((ref) {
   final billingService = BillingService();
   ref.onDispose(() => billingService.dispose());
@@ -15,13 +14,13 @@ final billingServiceProvider = ChangeNotifierProvider<BillingService>((ref) {
 class BillingService extends ChangeNotifier {
   static const String _premiumProductId = 'premium_plan';
   static const String _premiumKey = 'is_premium';
-  static const String _resetKey = 'is_reset'; // Track reset state
+  static const String _resetKey = 'is_reset';
   static final BillingService _instance = BillingService._internal();
   final InAppPurchase _iap = InAppPurchase.instance;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
   bool _isPremium = false;
   bool _isInitialized = false;
-  bool _isReset = false; // Track if premium was manually reset
+  bool _isReset = false;
   StreamSubscription<List<PurchaseDetails>>? _subscription;
 
   factory BillingService() => _instance;
@@ -195,11 +194,10 @@ class BillingService extends ChangeNotifier {
 
     try {
       await _iap.buyNonConsumable(purchaseParam: purchaseParam);
-      return true; // Success will be handled by _handlePurchaseUpdates
+      return true;
     } catch (e) {
       debugPrint('BillingService: Purchase error: $e');
       if (e.toString().contains('itemAlreadyOwned')) {
-        // Grant premium access if the user already owns the item
         _isPremium = true;
         _isReset = false;
         await _storage.write(key: _premiumKey, value: 'true');

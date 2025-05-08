@@ -40,10 +40,9 @@ class QuizHistoryService {
     List<String> storedQuizzes = prefs.getStringList(_key) ?? [];
     return storedQuizzes.map((string) {
       final Map<String, dynamic> quizData = jsonDecode(string);
-      // Convert the range string back to a Range enum
       quizData['range'] = Range.values.firstWhere(
         (r) => r.toString().split('.').last == quizData['range'],
-        orElse: () => Range.additionBeginner1to5, // Default fallback
+        orElse: () => Range.additionBeginner1to5, 
       );
       return quizData;
     }).toList();
@@ -70,7 +69,7 @@ class QuizHistoryService {
     int suffix = 2;
 
     while (quizzes.any((quiz) => quiz['title'] == newTitle)) {
-      newTitle = '$baseTitle-$suffix'; // Append suffix with a hyphen
+      newTitle = '$baseTitle-$suffix';
       suffix++;
     }
     return newTitle;

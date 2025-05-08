@@ -48,7 +48,6 @@ class SupportScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Header Illustration or Icon
               Icon(
                 Icons.support_agent,
                 size: isTablet ? 80 : 60,
@@ -66,7 +65,6 @@ class SupportScreen extends StatelessWidget {
               ),
               const SizedBox(height: 8),
               const SizedBox(height: 24),
-              // Working Hours Section
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
@@ -108,7 +106,6 @@ class SupportScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 12),
-              // Email Support Section
               Card(
                 elevation: 4,
                 shape: RoundedRectangleBorder(
@@ -197,7 +194,6 @@ class SupportScreen extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              // Tips Section with Enhanced Visibility
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
