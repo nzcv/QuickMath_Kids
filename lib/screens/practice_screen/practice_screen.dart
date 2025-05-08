@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
-import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart'; 
+import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, Range, int?)
@@ -879,17 +879,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                           },
                                     backgroundColor: billingService.isPremium
                                         ? theme.colorScheme.primary
-                                        : Colors.grey,
+                                        : theme.colorScheme.onSurface
+                                            .withOpacity(0.3),
+                                    elevation: billingService.isPremium ? 6 : 2,
                                     child: Icon(
                                       Icons.pause,
-                                      color: theme.colorScheme.onPrimary,
+                                      color: billingService.isPremium
+                                          ? theme.colorScheme.onPrimary
+                                          : theme.colorScheme.onSurface
+                                              .withOpacity(0.5),
                                     ),
                                     tooltip: billingService.isPremium
                                         ? 'Pause Quiz'
                                         : 'Premium feature',
                                   );
                                 },
-                              ),
+                              )
                             ],
                           ),
                         ),
