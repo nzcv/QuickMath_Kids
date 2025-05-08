@@ -286,10 +286,11 @@ class QuestionGenerator {
           default:
             divisor = 2;
         }
-        correctAnswer = random.nextInt(10) + 1;
+        // Ensure we only generate problems with the selected divisor
+        correctAnswer = random.nextInt(10) + 1; // 1-10
         num1 = correctAnswer * divisor;
         num2 = divisor;
-        break;
+        return [num1, num2, correctAnswer];
 
       case Operation.divisionIntermediate:
         switch (range) {

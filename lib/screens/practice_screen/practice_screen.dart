@@ -180,52 +180,43 @@ class _PracticeScreenState extends State<PracticeScreen> {
     });
   }
 
-  void regenerateNumbers() {
-    int attempts = 0;
+  void _setInitialQuestion() {
+    if (_wrongQuestionsToShowThisSession.isNotEmpty) {
+      _useWrongQuestion();
+      _isWrongAnswerQuestion = true;
+    } else {
+      _generateNewQuestion();
+      _isWrongAnswerQuestion = false;
+    }
+  }
+
+  void _generateNewQuestion() {
     const maxAttempts = 100;
-    String questionText;
+    int attempts = 0;
+    String questionText = '';
+    List<int> generatedNumbers;
 
     do {
-      numbers = QuestionGenerator().generateTwoRandomNumbers(
+      generatedNumbers = QuestionGenerator().generateTwoRandomNumbers(
           widget.selectedOperation, widget.selectedRange);
 
+      // For LCM with three numbers, the list will have more elements
       if (widget.selectedOperation == Operation.lcmBeginner ||
           widget.selectedOperation == Operation.lcmIntermediate ||
-          widget.selectedOperation == Operation.lcmAdvanced ||
-          widget.selectedOperation == Operation.gcfBeginner ||
-          widget.selectedOperation == Operation.gcfIntermediate ||
-          widget.selectedOperation == Operation.gcfAdvanced) {
-        correctAnswer = numbers.last;
-        numbers = numbers.sublist(0, numbers.length - 1);
-      } else {
-        if (numbers.length >= 2) {
-          switch (widget.selectedOperation) {
-            case Operation.additionBeginner:
-            case Operation.additionIntermediate:
-            case Operation.additionAdvanced:
-              correctAnswer = numbers[0] + numbers[1];
-              break;
-            case Operation.subtractionBeginner:
-            case Operation.subtractionIntermediate:
-            case Operation.subtractionAdvanced:
-              correctAnswer = numbers[0] - numbers[1];
-              break;
-            case Operation.multiplicationBeginner:
-            case Operation.multiplicationIntermediate:
-            case Operation.multiplicationAdvanced:
-              correctAnswer = numbers[0] * numbers[1];
-              break;
-            case Operation.divisionBeginner:
-            case Operation.divisionIntermediate:
-            case Operation.divisionAdvanced:
-              correctAnswer = numbers[0] ~/ numbers[1];
-              break;
-            default:
-              correctAnswer = 0;
-          }
+          widget.selectedOperation == Operation.lcmAdvanced) {
+        if (widget.selectedRange.toString().contains('3Numbers')) {
+          numbers = generatedNumbers.sublist(0, 3); // [num1, num2, num3]
+          correctAnswer =
+              generatedNumbers[3]; // Correct answer is the 4th element
         } else {
-          correctAnswer = 0;
+          numbers = generatedNumbers.sublist(0, 2); // [num1, num2]
+          correctAnswer =
+              generatedNumbers[2]; // Correct answer is the 3rd element
         }
+      } else {
+        numbers = generatedNumbers.sublist(0, 2); // [num1, num2]
+        correctAnswer =
+            generatedNumbers[2]; // Correct answer is the 3rd element
       }
 
       questionText = _formatQuestionText();
@@ -233,73 +224,16 @@ class _PracticeScreenState extends State<PracticeScreen> {
     } while (_answeredQuestionsThisSession.contains(questionText) &&
         attempts < maxAttempts);
 
-    if (attempts >= maxAttempts) {
-      int num1, num2;
-      do {
-        num1 = (DateTime.now().millisecondsSinceEpoch % 10) + 1;
-        num2 = (DateTime.now().millisecondsSinceEpoch % 10) + 1;
-        numbers = [num1, num2];
-
-        switch (widget.selectedOperation) {
-          case Operation.additionBeginner:
-          case Operation.additionIntermediate:
-          case Operation.additionAdvanced:
-            correctAnswer = num1 + num2;
-            break;
-          case Operation.subtractionBeginner:
-          case Operation.subtractionIntermediate:
-          case Operation.subtractionAdvanced:
-            correctAnswer = num1 - num2;
-            break;
-          case Operation.multiplicationBeginner:
-          case Operation.multiplicationIntermediate:
-          case Operation.multiplicationAdvanced:
-            correctAnswer = num1 * num2;
-            break;
-          case Operation.divisionBeginner:
-          case Operation.divisionIntermediate:
-          case Operation.divisionAdvanced:
-            if (num2 != 0) {
-              correctAnswer = num1 ~/ num2;
-            } else {
-              num2 = 1;
-              correctAnswer = num1 ~/ num2;
-            }
-            break;
-          case Operation.lcmBeginner:
-          case Operation.lcmIntermediate:
-          case Operation.lcmAdvanced:
-            correctAnswer = _lcm(num1, num2);
-            break;
-          case Operation.gcfBeginner:
-          case Operation.gcfIntermediate:
-          case Operation.gcfAdvanced:
-            correctAnswer = _gcd(num1, num2);
-            break;
-        }
-
-        questionText = _formatQuestionText();
-      } while (_answeredQuestionsThisSession.contains(questionText));
-    }
-
-    answerOptions = generateAnswerOptions(correctAnswer);
-    _answeredQuestionsThisSession.add(questionText);
-    _isWrongAnswerQuestion = false;
-  }
-
-  void _setInitialQuestion() {
-    if (_wrongQuestionsToShowThisSession.isNotEmpty) {
-      _useWrongQuestion();
-      _isWrongAnswerQuestion = true;
-    } else {
-      regenerateNumbers();
-      _isWrongAnswerQuestion = false;
-    }
+    // If max attempts reached, we proceed anyway to avoid infinite loops
+    setState(() {
+      answerOptions = generateAnswerOptions(correctAnswer);
+      _answeredQuestionsThisSession.add(questionText);
+    });
   }
 
   void _useWrongQuestion() {
     if (_wrongQuestionsToShowThisSession.isEmpty) {
-      regenerateNumbers();
+      _generateNewQuestion();
       _isWrongAnswerQuestion = false;
       return;
     }
@@ -320,7 +254,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
         _isWrongAnswerQuestion = true;
       });
     } else {
-      regenerateNumbers();
+      _generateNewQuestion();
       _isWrongAnswerQuestion = false;
     }
   }
@@ -367,7 +301,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
         answeredQuestions.add('$currentQuestion = $selectedAnswer '
             '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
         answeredCorrectly.add(isCorrect);
-        // Play confetti based on answer correctness
         if (isCorrect) {
           print("Playing confetti for correct answer");
           confettiManager.correctConfettiController.play();
@@ -388,11 +321,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
             _shownWrongQuestionsThisSession.add(nextWAQ);
             _isWrongAnswerQuestion = true;
           } else {
-            regenerateNumbers();
+            _generateNewQuestion();
             _isWrongAnswerQuestion = false;
           }
         } else {
-          regenerateNumbers();
+          _generateNewQuestion();
           _isWrongAnswerQuestion = false;
         }
         _answeredQuestionsThisSession.add(currentQuestion);
@@ -891,7 +824,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                           },
                                     backgroundColor: billingService.isPremium
                                         ? theme.colorScheme.primary
-                                        : theme.colorScheme.surface.withOpacity(0.7),
+                                        : theme.colorScheme.surface
+                                            .withOpacity(0.7),
                                     child: Icon(
                                       Icons.pause,
                                       color: Colors.grey,
