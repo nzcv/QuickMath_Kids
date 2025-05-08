@@ -16,7 +16,6 @@ import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
 import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart'; // Import for volumeProvider
 
@@ -275,15 +274,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
       final secs = remaining % 60;
       return '${minutes.toString().padLeft(2, '0')}:${secs.toString().padLeft(2, '0')}';
     }
-  }
-
-  static Future<void> _saveWrongQuestion(Map<String, dynamic> data) async {
-    await WrongQuestionsService.saveWrongQuestion(
-      question: data['question'],
-      userAnswer: data['userAnswer'],
-      correctAnswer: data['correctAnswer'],
-      category: data['category'],
-    );
   }
 
   void checkAnswer(int selectedAnswer) async {

@@ -38,6 +38,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   bool _isDarkMode = false;
   final int _freeUserDailyLimit = 3;
   int _refreshKey = 0;
+  bool _isPopupVisible = true;
+  Offset _popupOffset = const Offset(16, 0);
+
   @override
   void initState() {
     super.initState();
@@ -102,6 +105,11 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         _isDarkMode = widget.isDarkMode;
       });
     }
+    // Reset popup visibility and position when returning to the screen
+    setState(() {
+      _isPopupVisible = true;
+      _popupOffset = Offset(16, MediaQuery.of(context).size.height * 0.3);
+    });
   }
 
   void _showTimeWheelPicker(BuildContext context) {
@@ -218,7 +226,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             Text(
                               remaining == -1
                                   ? 'Unlimited Access'
-                                  : '$remaining/$_freeUserDailyLimit remaining',
+                                  : '${remaining.toString()}/$_freeUserDailyLimit remaining',
                               style: theme.textTheme.titleMedium?.copyWith(
                                 color: statusColor,
                                 fontWeight: FontWeight.bold,
@@ -269,6 +277,137 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     return _freeUserDailyLimit - quizzesTaken;
   }
 
+  Widget _buildPremiumPopup(BuildContext context, ThemeData theme) {
+    return Consumer(
+      builder: (context, ref, child) {
+        final billingService = ref.watch(billingServiceProvider);
+        if (billingService.isPremium || !_isPopupVisible) {
+          return const SizedBox.shrink();
+        }
+
+        final screenSize = MediaQuery.of(context).size;
+        const popupWidth = 160.0;
+        const popupHeight = 180.0;
+
+        return Positioned(
+          left: _popupOffset.dx.clamp(0, screenSize.width - popupWidth),
+          top: _popupOffset.dy.clamp(0, screenSize.height - popupHeight),
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              setState(() {
+                _popupOffset = Offset(
+                  _popupOffset.dx + details.delta.dx,
+                  _popupOffset.dy + details.delta.dy,
+                );
+              });
+            },
+            child: Material(
+              elevation: 6,
+              borderRadius: BorderRadius.circular(12),
+              child: Container(
+                width: popupWidth,
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surfaceVariant,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    width: 1,
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16), // Space for the close button
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.star_rounded,
+                                color: Colors.amber,
+                                size: 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Go Premium!',
+                                style: theme.textTheme.titleSmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Unlock unlimited quizzes and more!',
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const PurchaseScreen(),
+                                  ),
+                                );
+                              },
+                              style: TextButton.styleFrom(
+                                backgroundColor: theme.colorScheme.primary,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                              ),
+                              child: Text(
+                                'Learn More',
+                                style: theme.textTheme.labelMedium?.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Positioned(
+                      right: 0,
+                      top: 0,
+                      child: IconButton(
+                        icon: Icon(
+                          Icons.close,
+                          color: theme.colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isPopupVisible = false;
+                          });
+                        },
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final billingService = ref.watch(billingServiceProvider);
@@ -310,222 +449,230 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 );
               },
             ),
-            body: Center(
-              child: ConstrainedBox(
-                constraints:
-                    BoxConstraints(maxWidth: isTablet ? 700 : double.infinity),
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(isTablet ? 24 : 16),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Image.asset(
-                          'assets/QuickMath_Kids_logo.png',
-                          width: isTablet ? 250 : 200,
-                          height: isTablet ? 250 : 200,
-                        ),
-                      ),
-                      const SizedBox(height: 15),
-                      Text(
-                        "Choose an Operation and Start Practicing",
-                        style: theme.textTheme.headlineMedium,
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 20),
-                      OperationDropdown(
-                        selectedOperation: _selectedOperation,
-                        onChanged: (Operation? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedOperation = newValue;
-                              _selectedRange = getDefaultRange(newValue);
-                              if (!getDropdownItems(_selectedOperation).any(
-                                  (item) => item.value == _selectedRange)) {
-                                _selectedRange =
-                                    getDropdownItems(_selectedOperation)
-                                        .first
-                                        .value!;
+            body: Stack(
+              children: [
+                Center(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                        maxWidth: isTablet ? 700 : double.infinity),
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.all(isTablet ? 24 : 16),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Image.asset(
+                              'assets/QuickMath_Kids_logo.png',
+                              width: isTablet ? 250 : 200,
+                              height: isTablet ? 250 : 200,
+                            ),
+                          ),
+                          const SizedBox(height: 15),
+                          Text(
+                            "Choose an Operation and Start Practicing",
+                            style: theme.textTheme.headlineMedium,
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(height: 20),
+                          OperationDropdown(
+                            selectedOperation: _selectedOperation,
+                            onChanged: (Operation? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  _selectedOperation = newValue;
+                                  _selectedRange = getDefaultRange(newValue);
+                                  if (!getDropdownItems(_selectedOperation).any(
+                                      (item) => item.value == _selectedRange)) {
+                                    _selectedRange =
+                                        getDropdownItems(_selectedOperation)
+                                            .first
+                                            .value!;
+                                  }
+                                  _savePreferences();
+                                });
                               }
-                              _savePreferences();
-                            });
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      RangeDropdown(
-                        selectedRange: _selectedRange,
-                        items: getDropdownItems(_selectedOperation),
-                        onChanged: (Range? newValue) {
-                          if (newValue != null) {
-                            setState(() {
-                              _selectedRange = newValue;
-                              _savePreferences();
-                            });
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 20),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 40),
-                        child: InkWell(
-                          onTap: () => _showTimeWheelPicker(context),
-                          child: InputDecorator(
-                            decoration: InputDecoration(
-                              labelText: 'Session Time Limit',
-                              filled: true,
-                              fillColor: theme.brightness == Brightness.dark
-                                  ? theme.colorScheme.surface
-                                  : Colors.white,
-                              contentPadding: EdgeInsets.symmetric(
-                                vertical: isTablet ? 20 : 10,
-                                horizontal: isTablet ? 30 : 20,
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          RangeDropdown(
+                            selectedRange: _selectedRange,
+                            items: getDropdownItems(_selectedOperation),
+                            onChanged: (Range? newValue) {
+                              if (newValue != null) {
+                                setState(() {
+                                  _selectedRange = newValue;
+                                  _savePreferences();
+                                });
+                              }
+                            },
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 40),
+                            child: InkWell(
+                              onTap: () => _showTimeWheelPicker(context),
+                              child: InputDecorator(
+                                decoration: InputDecoration(
+                                  labelText: 'Session Time Limit',
+                                  filled: true,
+                                  fillColor: theme.brightness == Brightness.dark
+                                      ? theme.colorScheme.surface
+                                      : Colors.white,
+                                  contentPadding: EdgeInsets.symmetric(
+                                    vertical: isTablet ? 20 : 10,
+                                    horizontal: isTablet ? 30 : 20,
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: theme.colorScheme.primary,
+                                        width: 2),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                    borderSide: BorderSide(
+                                        color: theme.colorScheme.secondary,
+                                        width: 2),
+                                  ),
+                                ),
+                                child: Text(
+                                  _selectedTimeLimit == null
+                                      ? 'No time limit'
+                                      : '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}',
+                                  style: theme.textTheme.bodyLarge,
+                                ),
                               ),
-                              enabledBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                    color: theme.colorScheme.primary, width: 2),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(10),
-                                borderSide: BorderSide(
-                                    color: theme.colorScheme.secondary,
-                                    width: 2),
-                              ),
-                            ),
-                            child: Text(
-                              _selectedTimeLimit == null
-                                  ? 'No time limit'
-                                  : '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}',
-                              style: theme.textTheme.bodyLarge,
                             ),
                           ),
-                        ),
-                      ),
-                      const SizedBox(height: 20),
-                      _buildQuizzesStatusCard(context, theme),
-                      const SizedBox(height: 20),
-                      ElevatedButton.icon(
-                        iconAlignment: IconAlignment.end,
-                        icon: const Icon(Icons.arrow_forward,
-                            color: Colors.white),
-                        onPressed: () async {
-                          final isPremium =
-                              ref.read(billingServiceProvider).isPremium;
-                          final remaining =
-                              isPremium ? -1 : await _getRemainingQuizzes();
+                          const SizedBox(height: 20),
+                          _buildQuizzesStatusCard(context, theme),
+                          const SizedBox(height: 20),
+                          ElevatedButton.icon(
+                            iconAlignment: IconAlignment.end,
+                            icon: const Icon(Icons.arrow_forward,
+                                color: Colors.white),
+                            onPressed: () async {
+                              final isPremium =
+                                  ref.read(billingServiceProvider).isPremium;
+                              final remaining = isPremium
+                                  ? -1
+                                  : await _getRemainingQuizzes();
 
-                          if (!isPremium && remaining <= 0) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.info,
-                                      color: theme.colorScheme.onError,
-                                      size: 24,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        'You’ve reached your daily limit of $_freeUserDailyLimit quizzes. Upgrade to Premium for unlimited access!',
-                                        style: TextStyle(
+                              if (!isPremium && remaining <= 0) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Row(
+                                      children: [
+                                        Icon(
+                                          Icons.info,
                                           color: theme.colorScheme.onError,
-                                          fontSize: 16,
+                                          size: 24,
                                         ),
-                                      ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
+                                          child: Text(
+                                            'You’ve reached your daily limit of $_freeUserDailyLimit quizzes. Upgrade to Premium for unlimited access!',
+                                            style: TextStyle(
+                                              color: theme.colorScheme.onError,
+                                              fontSize: 16,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ],
-                                ),
-                                backgroundColor: theme.colorScheme.error,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                margin: const EdgeInsets.all(16),
-                                elevation: 6,
-                                duration: const Duration(seconds: 5),
-                                action: SnackBarAction(
-                                  label: 'Upgrade',
-                                  textColor: Colors.white,
-                                  backgroundColor: theme.colorScheme.primary,
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const PurchaseScreen(),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            );
-                            return;
-                          }
+                                    backgroundColor: theme.colorScheme.error,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    margin: const EdgeInsets.all(16),
+                                    elevation: 6,
+                                    duration: const Duration(seconds: 5),
+                                    action: SnackBarAction(
+                                      label: 'Upgrade',
+                                      textColor: Colors.white,
+                                      backgroundColor: theme.colorScheme.primary,
+                                      onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const PurchaseScreen(),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
 
-                          widget.switchToPracticeScreen(_selectedOperation,
-                              _selectedRange, _selectedTimeLimit);
-                        },
-                        label: const Text('Start Oral Practice'),
-                        style: ElevatedButton.styleFrom(
-                          padding: EdgeInsets.symmetric(
-                            vertical: 12,
-                            horizontal: isTablet ? 24 : 18,
-                          ),
-                        ),
-                      ),
-                      if (kDebugMode) ...[
-                        const SizedBox(height: 20),
-                        ElevatedButton.icon(
-                          iconAlignment: IconAlignment.end,
-                          icon: const Icon(Icons.refresh, color: Colors.white),
-                          onPressed: () async {
-                            await ref
-                                .read(billingServiceProvider)
-                                .resetPremium();
-                            final prefs = await SharedPreferences.getInstance();
-                            final today =
-                                DateFormat('yyyy-MM-dd').format(DateTime.now());
-                            await prefs.setString('last_quiz_date', today);
-                            await prefs.setInt('daily_quizzes', 0);
-                            setState(() {
-                              _selectedIndex = 2;
-                              _selectedTimeLimit = 2 * 60;
-                              _savePreferences();
-                              _refreshKey++;
-                            });
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text(
-                                    'Premium status and settings reset to free tier.'),
-                                backgroundColor: theme.colorScheme.error,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                margin: const EdgeInsets.all(16),
-                                elevation: 6,
-                                duration: const Duration(seconds: 3),
+                              widget.switchToPracticeScreen(_selectedOperation,
+                                  _selectedRange, _selectedTimeLimit);
+                            },
+                            label: const Text('Start Oral Practice'),
+                            style: ElevatedButton.styleFrom(
+                              padding: EdgeInsets.symmetric(
+                                vertical: 12,
+                                horizontal: isTablet ? 24 : 18,
                               ),
-                            );
-                          },
-                          label: const Text('Reset Premium (Debug)'),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.redAccent,
-                            padding: EdgeInsets.symmetric(
-                              vertical: 12,
-                              horizontal: isTablet ? 24 : 18,
                             ),
                           ),
-                        ),
-                      ],
-                    ],
+                          if (kDebugMode) ...[
+                            const SizedBox(height: 20),
+                            ElevatedButton.icon(
+                              iconAlignment: IconAlignment.end,
+                              icon: const Icon(Icons.refresh, color: Colors.white),
+                              onPressed: () async {
+                                await ref
+                                    .read(billingServiceProvider)
+                                    .resetPremium();
+                                final prefs =
+                                    await SharedPreferences.getInstance();
+                                final today = DateFormat('yyyy-MM-dd')
+                                    .format(DateTime.now());
+                                await prefs.setString('last_quiz_date', today);
+                                await prefs.setInt('daily_quizzes', 0);
+                                setState(() {
+                                  _selectedIndex = 2;
+                                  _selectedTimeLimit = 2 * 60;
+                                  _savePreferences();
+                                  _refreshKey++;
+                                });
+
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: const Text(
+                                        'Premium status and settings reset to free tier.'),
+                                    backgroundColor: theme.colorScheme.error,
+                                    behavior: SnackBarBehavior.floating,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    margin: const EdgeInsets.all(16),
+                                    elevation: 6,
+                                    duration: const Duration(seconds: 3),
+                                  ),
+                                );
+                              },
+                              label: const Text('Reset Premium (Debug)'),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.redAccent,
+                                padding: EdgeInsets.symmetric(
+                                  vertical: 12,
+                                  horizontal: isTablet ? 24 : 18,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
                   ),
                 ),
-              ),
+                _buildPremiumPopup(context, theme),
+              ],
             ),
           ),
         );
