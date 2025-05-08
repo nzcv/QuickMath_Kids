@@ -62,7 +62,6 @@ class OperationDropdown extends ConsumerWidget {
 
     return Consumer(
       builder: (context, ref, child) {
-
         return Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40.0),
           child: SizedBox(
@@ -231,19 +230,22 @@ class RangeDropdown extends ConsumerWidget {
                       maxLines: 1,
                     ),
                   ),
-                  if (isLocked)
+                  if (isLocked) ...[
+                    const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.colorScheme.error.withOpacity(0.2),
-                      ),
-                      child: Icon(
-                        Icons.lock,
-                        size: 16,
-                        color: theme.colorScheme.error,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 4, vertical: 2),
+                      color: Colors.amber,
+                      child: const Text(
+                        'Premium',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
+                  ],
                 ],
               ),
             );
