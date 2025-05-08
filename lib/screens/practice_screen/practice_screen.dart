@@ -891,10 +891,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                           },
                                     backgroundColor: billingService.isPremium
                                         ? theme.colorScheme.primary
-                                        : Colors.grey,
+                                        : theme.colorScheme.surface.withOpacity(0.7),
                                     child: Icon(
                                       Icons.pause,
-                                      color: theme.colorScheme.onPrimary,
+                                      color: Colors.grey,
                                     ),
                                     tooltip: billingService.isPremium
                                         ? 'Pause Quiz'
