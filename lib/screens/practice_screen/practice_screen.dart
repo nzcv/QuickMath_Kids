@@ -18,7 +18,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
-import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
+import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart'; // Import for volumeProvider
 
 class PracticeScreen extends StatefulWidget {
   final Function(List<String>, List<bool>, int, Operation, Range, int?)
@@ -367,10 +367,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
         answeredQuestions.add('$currentQuestion = $selectedAnswer '
             '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
         answeredCorrectly.add(isCorrect);
-        // Play confetti only if not already playing
+        // Play confetti based on answer correctness
         if (isCorrect) {
           print("Playing confetti for correct answer");
           confettiManager.correctConfettiController.play();
+        } else {
+          print("Playing confetti for wrong answer");
+          confettiManager.wrongConfettiController.play();
         }
         if (_wrongQuestionsToShowThisSession.isNotEmpty) {
           String? nextWAQ = _wrongQuestionsToShowThisSession.firstWhere(
@@ -631,6 +634,15 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
+                    // Add confetti widgets to the stack
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: confettiManager.buildCorrectConfetti(),
+                    ),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: confettiManager.buildWrongConfetti(),
+                    ),
                     if (_isWrongAnswerQuestion)
                       Positioned(
                         top: 8.0 * adjustedScale,
@@ -879,22 +891,17 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                           },
                                     backgroundColor: billingService.isPremium
                                         ? theme.colorScheme.primary
-                                        : theme.colorScheme.onSurface
-                                            .withOpacity(0.3),
-                                    elevation: billingService.isPremium ? 6 : 2,
+                                        : Colors.grey,
                                     child: Icon(
                                       Icons.pause,
-                                      color: billingService.isPremium
-                                          ? theme.colorScheme.onPrimary
-                                          : theme.colorScheme.onSurface
-                                              .withOpacity(0.5),
+                                      color: theme.colorScheme.onPrimary,
                                     ),
                                     tooltip: billingService.isPremium
                                         ? 'Pause Quiz'
                                         : 'Premium feature',
                                   );
                                 },
-                              )
+                              ),
                             ],
                           ),
                         ),
