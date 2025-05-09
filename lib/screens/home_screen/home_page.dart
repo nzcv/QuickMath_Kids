@@ -47,7 +47,15 @@ class _StartScreenState extends ConsumerState<StartScreen> {
     _isDarkMode = widget.isDarkMode;
     _selectedTimeLimit = 2 * 60;
     _selectedIndex = 2;
-    _loadPreferences();
+    _loadPreferences().then((_) {
+      // Show popup after preferences are loaded
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _isPopupVisible = true;
+          _popupOffset = Offset(16, MediaQuery.of(context).size.height * 0.3);
+        });
+      });
+    });
   }
 
   Future<void> _loadPreferences() async {
@@ -105,10 +113,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         _isDarkMode = widget.isDarkMode;
       });
     }
-    // Reset popup visibility and position when returning to the screen
-    setState(() {
-      _isPopupVisible = true;
-      _popupOffset = Offset(16, MediaQuery.of(context).size.height * 0.3);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {
+          _isPopupVisible = true;
+          _popupOffset = Offset(16, MediaQuery.of(context).size.height * 0.3);
+        });
+      }
     });
   }
 
@@ -286,54 +298,64 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         }
 
         final screenSize = MediaQuery.of(context).size;
-        const popupWidth = 160.0;
-        const popupHeight = 180.0;
+        const popupWidth = 220.0; // Reduced from 280
+        const popupHeight = 150.0; // Reduced from 200
 
         return Positioned(
-          left: _popupOffset.dx.clamp(0, screenSize.width - popupWidth),
-          top: _popupOffset.dy.clamp(0, screenSize.height - popupHeight),
+          left: _popupOffset.dx.clamp(16, screenSize.width - popupWidth - 16),
+          top: _popupOffset.dy.clamp(80, screenSize.height - popupHeight - 16),
           child: GestureDetector(
             onPanUpdate: (details) {
               setState(() {
                 _popupOffset = Offset(
-                  _popupOffset.dx + details.delta.dx,
-                  _popupOffset.dy + details.delta.dy,
+                  (_popupOffset.dx + details.delta.dx)
+                      .clamp(16, screenSize.width - popupWidth - 16),
+                  (_popupOffset.dy + details.delta.dy)
+                      .clamp(80, screenSize.height - popupHeight - 16),
                 );
               });
             },
             child: Material(
-              elevation: 6,
+              elevation: 8,
               borderRadius: BorderRadius.circular(12),
+              color: Colors.transparent,
               child: Container(
                 width: popupWidth,
-                padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
+                    color: theme.colorScheme.primary.withOpacity(0.2),
                     width: 1,
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 8,
+                      spreadRadius: 1,
+                    ),
+                  ],
                 ),
                 child: Stack(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 16), // Space for the close button
+                      padding: const EdgeInsets.all(12), // Reduced padding
                       child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 Icons.star_rounded,
                                 color: Colors.amber,
-                                size: 20,
+                                size: 20, // Smaller icon
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'Go Premium!',
-                                style: theme.textTheme.titleSmall?.copyWith(
+                                'Go Premium',
+                                style: theme.textTheme.bodyLarge?.copyWith(
                                   color: theme.colorScheme.onSurfaceVariant,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -342,38 +364,36 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Unlock unlimited quizzes and more!',
+                            'Unlock all features',
                             style: theme.textTheme.bodySmall?.copyWith(
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
                           const SizedBox(height: 12),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
                               onPressed: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => const PurchaseScreen(),
+                                    builder: (context) =>
+                                        const PurchaseScreen(),
                                   ),
                                 );
                               },
-                              style: TextButton.styleFrom(
+                              style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.primary,
+                                foregroundColor: Colors.white,
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
+                                    vertical: 8), // Smaller button
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                               ),
                               child: Text(
-                                'Learn More',
-                                style: theme.textTheme.labelMedium?.copyWith(
-                                  color: Colors.white,
-                                ),
+                                'Upgrade',
+                                style: theme.textTheme.labelMedium,
                               ),
                             ),
                           ),
@@ -381,21 +401,23 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       ),
                     ),
                     Positioned(
-                      right: 0,
-                      top: 0,
+                      right: 4,
+                      top: 4,
                       child: IconButton(
                         icon: Icon(
                           Icons.close,
-                          color: theme.colorScheme.onSurfaceVariant,
-                          size: 20,
+                          color: theme.colorScheme.onSurfaceVariant
+                              .withOpacity(0.6),
+                          size: 18, // Smaller close button
                         ),
                         onPressed: () {
                           setState(() {
                             _isPopupVisible = false;
                           });
                         },
-                        padding: const EdgeInsets.all(4),
-                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),  
+                        splashRadius: 16,
                       ),
                     ),
                   ],
@@ -555,9 +577,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             onPressed: () async {
                               final isPremium =
                                   ref.read(billingServiceProvider).isPremium;
-                              final remaining = isPremium
-                                  ? -1
-                                  : await _getRemainingQuizzes();
+                              final remaining =
+                                  isPremium ? -1 : await _getRemainingQuizzes();
 
                               if (!isPremium && remaining <= 0) {
                                 ScaffoldMessenger.of(context).showSnackBar(
@@ -592,7 +613,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                     action: SnackBarAction(
                                       label: 'Upgrade',
                                       textColor: Colors.white,
-                                      backgroundColor: theme.colorScheme.primary,
+                                      backgroundColor:
+                                          theme.colorScheme.primary,
                                       onPressed: () {
                                         Navigator.push(
                                           context,
@@ -623,7 +645,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                             const SizedBox(height: 20),
                             ElevatedButton.icon(
                               iconAlignment: IconAlignment.end,
-                              icon: const Icon(Icons.refresh, color: Colors.white),
+                              icon: const Icon(Icons.refresh,
+                                  color: Colors.white),
                               onPressed: () async {
                                 await ref
                                     .read(billingServiceProvider)
