@@ -298,21 +298,24 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         }
 
         final screenSize = MediaQuery.of(context).size;
-        const popupWidth = 220.0; // Reduced from 280
-        const popupHeight = 150.0; // Reduced from 200
+        const popupWidth = 220.0;
+        const popupHeight = 150.0;
 
         return Positioned(
-          left: _popupOffset.dx.clamp(16, screenSize.width - popupWidth - 16),
-          top: _popupOffset.dy.clamp(80, screenSize.height - popupHeight - 16),
+          left: _popupOffset.dx,
+          top: _popupOffset.dy,
           child: GestureDetector(
             onPanUpdate: (details) {
               setState(() {
-                _popupOffset = Offset(
-                  (_popupOffset.dx + details.delta.dx)
-                      .clamp(16, screenSize.width - popupWidth - 16),
-                  (_popupOffset.dy + details.delta.dy)
-                      .clamp(80, screenSize.height - popupHeight - 16),
-                );
+                // Calculate new position
+                double newX = _popupOffset.dx + details.delta.dx;
+                double newY = _popupOffset.dy + details.delta.dy;
+
+                // Apply boundary constraints
+                newX = newX.clamp(0, screenSize.width - popupWidth);
+                newY = newY.clamp(0, screenSize.height - popupHeight);
+
+                _popupOffset = Offset(newX, newY);
               });
             },
             child: Material(
@@ -321,6 +324,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
               color: Colors.transparent,
               child: Container(
                 width: popupWidth,
+                height: popupHeight,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.surfaceVariant,
                   borderRadius: BorderRadius.circular(12),
@@ -339,7 +343,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 child: Stack(
                   children: [
                     Padding(
-                      padding: const EdgeInsets.all(12), // Reduced padding
+                      padding: const EdgeInsets.all(12),
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -350,7 +354,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               Icon(
                                 Icons.star_rounded,
                                 color: Colors.amber,
-                                size: 20, // Smaller icon
+                                size: 20,
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -385,8 +389,8 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: theme.colorScheme.primary,
                                 foregroundColor: Colors.white,
-                                padding: const EdgeInsets.symmetric(
-                                    vertical: 8), // Smaller button
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 8),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -408,7 +412,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           Icons.close,
                           color: theme.colorScheme.onSurfaceVariant
                               .withOpacity(0.6),
-                          size: 18, // Smaller close button
+                          size: 18,
                         ),
                         onPressed: () {
                           setState(() {
@@ -416,7 +420,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           });
                         },
                         padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),  
+                        constraints: const BoxConstraints(),
                         splashRadius: 16,
                       ),
                     ),
