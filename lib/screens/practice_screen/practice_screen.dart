@@ -817,7 +817,9 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                             .withOpacity(0.7),
                                     child: Icon(
                                       Icons.pause,
-                                      color: Colors.grey,
+                                      color: billingService.isPremium
+                                        ? Colors.white
+                                        : Colors.grey,
                                     ),
                                     tooltip: billingService.isPremium
                                         ? 'Pause Quiz'
