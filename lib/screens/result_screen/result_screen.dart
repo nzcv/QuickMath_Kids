@@ -285,6 +285,7 @@ class _ResultScreenState extends State<ResultScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  // In the home button onPressed, update to:
                   ElevatedButton.icon(
                     icon: const Icon(Icons.home, color: Colors.white),
                     onPressed: () {
@@ -296,18 +297,16 @@ class _ResultScreenState extends State<ResultScreen>
                               final isDarkMode = ref.watch(darkModeProvider);
                               return StartScreen(
                                 isDarkMode: isDarkMode,
-                                toggleDarkMode: (value) async {
-                                  ref.read(darkModeProvider.notifier).state =
-                                      value;
-                                  final prefs =
-                                      await SharedPreferences.getInstance();
-                                  await prefs.setBool('isDarkMode', value);
+                                toggleDarkMode: (value) {
+                                  ref
+                                      .read(darkModeProvider.notifier)
+                                      .toggleDarkMode(value);
                                 },
                               );
                             },
                           ),
                         ),
-                        (route) => false, // Clear the stack
+                        (route) => false,
                       );
                     },
                     label: const Text('Start Screen'),

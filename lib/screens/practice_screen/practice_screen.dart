@@ -21,7 +21,6 @@ import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 import 'package:QuickMath_Kids/main.dart'; // Import for darkModeProvider
-import 'package:shared_preferences/shared_preferences.dart';
 
 class PracticeScreen extends StatefulWidget {
   final Function(String, WidgetRef) triggerTTS;
@@ -457,17 +456,21 @@ class _PracticeScreenState extends State<PracticeScreen> {
             Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(
-                builder: (context) => StartScreen(
-                  isDarkMode: widget.isDarkMode,
-                  toggleDarkMode: (value) async {
-                    final ref = ProviderScope.containerOf(context);
-                    ref.read(darkModeProvider.notifier).state = value;
-                    final prefs = await SharedPreferences.getInstance();
-                    await prefs.setBool('isDarkMode', value);
+                builder: (context) => Consumer(
+                  builder: (context, ref, child) {
+                    final isDarkMode = ref.watch(darkModeProvider);
+                    return StartScreen(
+                      isDarkMode: isDarkMode,
+                      toggleDarkMode: (value) {
+                        ref
+                            .read(darkModeProvider.notifier)
+                            .toggleDarkMode(value);
+                      },
+                    );
                   },
                 ),
               ),
-              (route) => false, // Clear the stack
+              (route) => false,
             );
           },
         );
@@ -506,7 +509,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Consumer(

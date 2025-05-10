@@ -7,6 +7,8 @@ import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_screen.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/billing/purchase_screen.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:QuickMath_Kids/main.dart';
 
 class AppDrawer extends StatelessWidget {
   final BillingService billingService;
@@ -101,11 +103,8 @@ class AppDrawer extends StatelessWidget {
               icon: Icons.history_toggle_off,
               title: 'Quiz History',
               isPremiumRequired: !isPremium,
-              onTap: () => _navigateTo(
-                  context,
-                  isPremium
-                      ? QuizHistoryScreen()
-                      : const PurchaseScreen()),
+              onTap: () => _navigateTo(context,
+                  isPremium ? QuizHistoryScreen() : const PurchaseScreen()),
               backgroundColor: theme.colorScheme.surface,
             ),
             _buildDrawerItem(
@@ -136,24 +135,32 @@ class AppDrawer extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
             ),
+            // In the SwitchListTile part, update to:
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
-              child: SwitchListTile(
-                title: Text(
-                  "Dark Mode",
-                  style: theme.textTheme.bodyLarge?.copyWith(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                value: isDarkMode,
-                onChanged: toggleDarkMode,
-                activeColor: theme.colorScheme.primary,
-                thumbColor:
-                    WidgetStateProperty.all(theme.colorScheme.onPrimary),
-                trackColor: WidgetStateProperty.resolveWith((states) =>
-                    states.contains(WidgetState.selected)
-                        ? theme.colorScheme.primary.withOpacity(0.5)
-                        : theme.colorScheme.surface),
+              child: Consumer(
+                builder: (context, ref, child) {
+                  final isDarkMode = ref.watch(darkModeProvider);
+                  return SwitchListTile(
+                    title: Text(
+                      "Dark Mode",
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    value: isDarkMode,
+                    onChanged: (value) {
+                      ref.read(darkModeProvider.notifier).toggleDarkMode(value);
+                    },
+                    activeColor: theme.colorScheme.primary,
+                    thumbColor:
+                        WidgetStateProperty.all(theme.colorScheme.onPrimary),
+                    trackColor: WidgetStateProperty.resolveWith((states) =>
+                        states.contains(WidgetState.selected)
+                            ? theme.colorScheme.primary.withOpacity(0.5)
+                            : theme.colorScheme.surface),
+                  );
+                },
               ),
             ),
           ],

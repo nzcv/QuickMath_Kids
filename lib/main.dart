@@ -6,12 +6,26 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'app_theme.dart';
 
-final StateProvider<bool> darkModeProvider = StateProvider<bool>((ref) {
-  SharedPreferences.getInstance().then((prefs) {
-    ref.read(darkModeProvider.notifier).state = prefs.getBool('isDarkMode') ?? false;
-  });
-  return false;
+final darkModeProvider = StateNotifierProvider<DarkModeNotifier, bool>((ref) {
+  return DarkModeNotifier();
 });
+
+class DarkModeNotifier extends StateNotifier<bool> {
+  DarkModeNotifier() : super(false) {
+    _loadPrefs();
+  }
+
+  Future<void> _loadPrefs() async {
+    final prefs = await SharedPreferences.getInstance();
+    state = prefs.getBool('isDarkMode') ?? false;
+  }
+
+  Future<void> toggleDarkMode(bool value) async {
+    state = value;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('isDarkMode', value);
+  }
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,37 +33,38 @@ void main() async {
   final billingService = container.read(billingServiceProvider);
   await billingService.initialize();
   await billingService.restorePurchase();
+  
+  // Initialize dark mode
+  await container.read(darkModeProvider.notifier)._loadPrefs();
+  
   runApp(UncontrolledProviderScope(
     container: container,
     child: const MyApp(),
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends ConsumerWidget {
   const MyApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       FlutterNativeSplash.remove();
     });
 
-    return Consumer(
-      builder: (context, ref, child) {
-        final isDarkMode = ref.watch(darkModeProvider);
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          theme: AppTheme.getTheme(ref, isDarkMode, context),
-          home: StartScreen(
-            isDarkMode: isDarkMode,
-            toggleDarkMode: (value) async {
-              ref.read(darkModeProvider.notifier).state = value;
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setBool('isDarkMode', value);
-            },
-          ),
-        );
-      },
+    final isDarkMode = ref.watch(darkModeProvider);
+    
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: AppTheme.getTheme(ref, false, context), // Light theme
+      darkTheme: AppTheme.getTheme(ref, true, context), // Dark theme
+      themeMode: isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: StartScreen(
+        isDarkMode: isDarkMode,
+        toggleDarkMode: (value) {
+          ref.read(darkModeProvider.notifier).toggleDarkMode(value);
+        },
+      ),
     );
   }
 }
