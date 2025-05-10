@@ -4,25 +4,23 @@ import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.da
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 import 'package:QuickMath_Kids/screens/home_screen/timer_wheel_picker.dart';
 import 'package:QuickMath_Kids/screens/home_screen/drawer.dart';
+import 'package:QuickMath_Kids/screens/practice_screen/practice_screen.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
+import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import 'package:QuickMath_Kids/billing/purchase_screen.dart';
 import 'package:flutter/foundation.dart';
 
 class StartScreen extends ConsumerStatefulWidget {
-  final Function(Operation, Range, int?) switchToPracticeScreen;
-  final VoidCallback switchToStartScreen;
-  final Function(bool) toggleDarkMode;
   final bool isDarkMode;
+  final Function(bool) toggleDarkMode;
 
-  const StartScreen(
-    this.switchToPracticeScreen,
-    this.switchToStartScreen,
-    this.toggleDarkMode, {
+  const StartScreen({
     required this.isDarkMode,
+    required this.toggleDarkMode,
     super.key,
   });
 
@@ -35,7 +33,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   Range _selectedRange = Range.additionBeginner1to5;
   int? _selectedTimeLimit;
   int _selectedIndex = 0;
-  bool _isDarkMode = false;
   final int _freeUserDailyLimit = 3;
   int _refreshKey = 0;
   bool _isPopupVisible = true;
@@ -44,11 +41,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
   @override
   void initState() {
     super.initState();
-    _isDarkMode = widget.isDarkMode;
     _selectedTimeLimit = 2 * 60;
     _selectedIndex = 2;
     _loadPreferences().then((_) {
-      // Show popup after preferences are loaded
       WidgetsBinding.instance.addPostFrameCallback((_) {
         setState(() {
           _isPopupVisible = true;
@@ -103,25 +98,6 @@ class _StartScreenState extends ConsumerState<StartScreen> {
         'selectedOperation', Operation.values.indexOf(_selectedOperation));
     await prefs.setInt('selectedRange', Range.values.indexOf(_selectedRange));
     await prefs.setInt('selectedTimeLimit', _selectedTimeLimit ?? 0);
-  }
-
-  @override
-  void didUpdateWidget(StartScreen oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.isDarkMode != widget.isDarkMode) {
-      setState(() {
-        _isDarkMode = widget.isDarkMode;
-      });
-    }
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() {
-          _isPopupVisible = true;
-          _popupOffset = Offset(16, MediaQuery.of(context).size.height * 0.3);
-        });
-      }
-    });
   }
 
   void _showTimeWheelPicker(BuildContext context) {
@@ -215,11 +191,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          remaining == -1
-                              ? Icons.star_rounded
-                              : remaining <= 1
-                                  ? Icons.warning_rounded
-                                  : Icons.check_circle_rounded,
+                          _statusIcon,
                           color: statusColor,
                           size: 28,
                         ),
@@ -307,14 +279,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           child: GestureDetector(
             onPanUpdate: (details) {
               setState(() {
-                // Calculate new position
                 double newX = _popupOffset.dx + details.delta.dx;
                 double newY = _popupOffset.dy + details.delta.dy;
-
-                // Apply boundary constraints
                 newX = newX.clamp(0, screenSize.width - popupWidth);
                 newY = newY.clamp(0, screenSize.height - popupHeight);
-
                 _popupOffset = Offset(newX, newY);
               });
             },
@@ -469,8 +437,7 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                 final billingService = ref.watch(billingServiceProvider);
                 return AppDrawer(
                   billingService: billingService,
-                  switchToStartScreen: widget.switchToStartScreen,
-                  isDarkMode: _isDarkMode,
+                  isDarkMode: widget.isDarkMode,
                   toggleDarkMode: widget.toggleDarkMode,
                 );
               },
@@ -634,8 +601,19 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 return;
                               }
 
-                              widget.switchToPracticeScreen(_selectedOperation,
-                                  _selectedRange, _selectedTimeLimit);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => PracticeScreen(
+                                    selectedOperation: _selectedOperation,
+                                    selectedRange: _selectedRange,
+                                    sessionTimeLimit: _selectedTimeLimit,
+                                    triggerTTS: (text, ref) =>
+                                        TTSService().speak(text, ref),
+                                    isDarkMode: widget.isDarkMode,
+                                  ),
+                                ),
+                              );
                             },
                             label: const Text('Start Oral Practice'),
                             style: ElevatedButton.styleFrom(

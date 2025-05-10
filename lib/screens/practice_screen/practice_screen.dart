@@ -17,25 +17,24 @@ import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/billing/billing_service.dart';
-import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart'; // Import for volumeProvider
+import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
+import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
+import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
+import 'package:QuickMath_Kids/main.dart'; // Import for darkModeProvider
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PracticeScreen extends StatefulWidget {
-  final Function(List<String>, List<bool>, int, Operation, Range, int?)
-      switchToResultScreen;
-  final VoidCallback switchToStartScreen;
-  final Function(String) triggerTTS;
+  final Function(String, WidgetRef) triggerTTS;
+  final bool isDarkMode;
   final Operation selectedOperation;
   final Range selectedRange;
   final int? sessionTimeLimit;
-  final bool isDarkMode;
 
-  const PracticeScreen(
-    this.switchToResultScreen,
-    this.switchToStartScreen,
-    this.triggerTTS,
-    this.selectedOperation,
-    this.selectedRange,
-    this.sessionTimeLimit, {
+  const PracticeScreen({
+    required this.selectedOperation,
+    required this.selectedRange,
+    this.sessionTimeLimit,
+    required this.triggerTTS,
     required this.isDarkMode,
     super.key,
   });
@@ -199,23 +198,19 @@ class _PracticeScreenState extends State<PracticeScreen> {
       generatedNumbers = QuestionGenerator().generateTwoRandomNumbers(
           widget.selectedOperation, widget.selectedRange);
 
-      // For LCM with three numbers, the list will have more elements
       if (widget.selectedOperation == Operation.lcmBeginner ||
           widget.selectedOperation == Operation.lcmIntermediate ||
           widget.selectedOperation == Operation.lcmAdvanced) {
         if (widget.selectedRange.toString().contains('3Numbers')) {
-          numbers = generatedNumbers.sublist(0, 3); // [num1, num2, num3]
-          correctAnswer =
-              generatedNumbers[3]; // Correct answer is the 4th element
+          numbers = generatedNumbers.sublist(0, 3);
+          correctAnswer = generatedNumbers[3];
         } else {
-          numbers = generatedNumbers.sublist(0, 2); // [num1, num2]
-          correctAnswer =
-              generatedNumbers[2]; // Correct answer is the 3rd element
+          numbers = generatedNumbers.sublist(0, 2);
+          correctAnswer = generatedNumbers[2];
         }
       } else {
-        numbers = generatedNumbers.sublist(0, 2); // [num1, num2]
-        correctAnswer =
-            generatedNumbers[2]; // Correct answer is the 3rd element
+        numbers = generatedNumbers.sublist(0, 2);
+        correctAnswer = generatedNumbers[2];
       }
 
       questionText = _formatQuestionText();
@@ -223,7 +218,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     } while (_answeredQuestionsThisSession.contains(questionText) &&
         attempts < maxAttempts);
 
-    // If max attempts reached, we proceed anyway to avoid infinite loops
     setState(() {
       answerOptions = generateAnswerOptions(correctAnswer);
       _answeredQuestionsThisSession.add(questionText);
@@ -276,7 +270,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
   }
 
-  void checkAnswer(int selectedAnswer) async {
+  void checkAnswer(int selectedAnswer, WidgetRef ref) async {
     if (_isProcessingAnswer) return;
     try {
       setState(() {
@@ -292,10 +286,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
             '(${isCorrect ? "Correct" : "Wrong, The correct answer is $correctAnswer"})');
         answeredCorrectly.add(isCorrect);
         if (isCorrect) {
-          print("Playing confetti for correct answer");
           confettiManager.correctConfettiController.play();
         } else {
-          print("Playing confetti for wrong answer");
           confettiManager.wrongConfettiController.play();
         }
         if (_wrongQuestionsToShowThisSession.isNotEmpty) {
@@ -338,7 +330,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
               correct: true);
         }
       });
-      _triggerTTSSpeech();
+      _triggerTTSSpeech(ref);
 
       await Future.delayed(const Duration(milliseconds: 500));
       if (mounted) {
@@ -426,10 +418,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
     }
   }
 
-  void _triggerTTSSpeech() {
+  void _triggerTTSSpeech(WidgetRef ref) {
     _startInactivityTimer();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _ttsHelper.playSpeech(widget.selectedOperation, numbers);
+      _ttsHelper.playSpeech(widget.selectedOperation, numbers, ref);
       setState(() {
         hasListenedToQuestion = true;
       });
@@ -440,13 +432,18 @@ class _PracticeScreenState extends State<PracticeScreen> {
     _startInactivityTimer();
     stopTimer();
 
-    widget.switchToResultScreen(
-      answeredQuestions,
-      answeredCorrectly,
-      _quizTimer.secondsPassed,
-      widget.selectedOperation,
-      widget.selectedRange,
-      widget.sessionTimeLimit,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ResultScreen(
+          answeredQuestions: answeredQuestions,
+          answeredCorrectly: answeredCorrectly,
+          totalTime: _quizTimer.secondsPassed,
+          operation: widget.selectedOperation,
+          range: widget.selectedRange,
+          timeLimit: widget.sessionTimeLimit,
+        ),
+      ),
     );
   }
 
@@ -455,7 +452,25 @@ class _PracticeScreenState extends State<PracticeScreen> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return QuitDialog(onQuit: widget.switchToStartScreen);
+        return QuitDialog(
+          onQuit: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (context) => StartScreen(
+                  isDarkMode: widget.isDarkMode,
+                  toggleDarkMode: (value) async {
+                    final ref = ProviderScope.containerOf(context);
+                    ref.read(darkModeProvider.notifier).state = value;
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('isDarkMode', value);
+                  },
+                ),
+              ),
+              (route) => false, // Clear the stack
+            );
+          },
+        );
       },
     );
   }
@@ -491,6 +506,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
     );
   }
 
+  @override
   @override
   Widget build(BuildContext context) {
     return Consumer(
@@ -556,7 +572,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    // Add confetti widgets to the stack
                     Align(
                       alignment: Alignment.topCenter,
                       child: confettiManager.buildCorrectConfetti(),
@@ -605,7 +620,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                   alignment: Alignment.center,
                                   children: [
                                     ElevatedButton(
-                                      onPressed: _triggerTTSSpeech,
+                                      onPressed: () => _triggerTTSSpeech(ref),
                                       style: ElevatedButton.styleFrom(
                                         shape: const CircleBorder(),
                                         elevation: 8,
@@ -671,8 +686,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                           children: [
                                             buildAnswerButton(
                                               answerOptions[0],
-                                              () =>
-                                                  checkAnswer(answerOptions[0]),
+                                              () => checkAnswer(
+                                                  answerOptions[0], ref),
                                             ),
                                             SizedBox(
                                                 width: isTablet
@@ -680,8 +695,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                     : 12 * adjustedScale),
                                             buildAnswerButton(
                                               answerOptions[1],
-                                              () =>
-                                                  checkAnswer(answerOptions[1]),
+                                              () => checkAnswer(
+                                                  answerOptions[1], ref),
                                             ),
                                           ],
                                         ),
@@ -691,7 +706,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                 : 12 * adjustedScale),
                                         buildAnswerButton(
                                           answerOptions[2],
-                                          () => checkAnswer(answerOptions[2]),
+                                          () => checkAnswer(
+                                              answerOptions[2], ref),
                                         ),
                                       ],
                                     ),
@@ -703,7 +719,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             ),
                           ),
                         ),
-                        // Volume bar positioned in a row next to the floating action button
                         Padding(
                           padding: EdgeInsets.symmetric(
                             horizontal: isTablet
@@ -715,7 +730,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               Container(
-                                width: 200 * adjustedScale, // Adjustable width
+                                width: 200 * adjustedScale,
                                 decoration: BoxDecoration(
                                   color: theme.colorScheme.surface
                                       .withOpacity(0.7),
@@ -818,8 +833,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                     child: Icon(
                                       Icons.pause,
                                       color: billingService.isPremium
-                                        ? Colors.white
-                                        : Colors.grey,
+                                          ? Colors.white
+                                          : Colors.grey,
                                     ),
                                     tooltip: billingService.isPremium
                                         ? 'Pause Quiz'

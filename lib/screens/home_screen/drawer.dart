@@ -10,13 +10,11 @@ import 'package:QuickMath_Kids/billing/purchase_screen.dart';
 
 class AppDrawer extends StatelessWidget {
   final BillingService billingService;
-  final VoidCallback switchToStartScreen;
   final bool isDarkMode;
   final Function(bool) toggleDarkMode;
 
   const AppDrawer({
     required this.billingService,
-    required this.switchToStartScreen,
     required this.isDarkMode,
     required this.toggleDarkMode,
     super.key,
@@ -106,7 +104,7 @@ class AppDrawer extends StatelessWidget {
               onTap: () => _navigateTo(
                   context,
                   isPremium
-                      ? QuizHistoryScreen(switchToStartScreen)
+                      ? QuizHistoryScreen()
                       : const PurchaseScreen()),
               backgroundColor: theme.colorScheme.surface,
             ),

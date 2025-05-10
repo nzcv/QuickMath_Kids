@@ -4,9 +4,7 @@ import 'quiz_history_service.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 
 class QuizHistoryScreen extends StatefulWidget {
-  final Function switchToStartScreen;
-
-  const QuizHistoryScreen(this.switchToStartScreen, {super.key});
+  const QuizHistoryScreen({super.key});
 
   @override
   _QuizHistoryScreenState createState() => _QuizHistoryScreenState();
@@ -199,13 +197,6 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                                   answeredQuestions: List<String>.from(quiz['questions']),
                                   answeredCorrectly: List<bool>.from(quiz['correctness']),
                                   totalTime: quiz['totalTime'],
-                                  switchToStartScreen: () {
-                                    widget.switchToStartScreen();
-                                    Navigator.popUntil(
-                                      context,
-                                      (route) => route.isFirst,
-                                    );
-                                  },
                                   operation: Operation.values.firstWhere(
                                     (op) => op.toString().split('.').last == quiz['operation'],
                                     orElse: () => Operation.additionBeginner,

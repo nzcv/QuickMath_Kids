@@ -3,9 +3,12 @@ import 'package:QuickMath_Kids/screens/result_screen/result_row.dart';
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
 import 'package:QuickMath_Kids/quiz_history/quiz_history_service.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
+import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:QuickMath_Kids/main.dart'; // Import for darkModeProvider
 
 class ResultScreen extends StatefulWidget {
   final String? title;
@@ -15,19 +18,17 @@ class ResultScreen extends StatefulWidget {
   final Operation? operation;
   final Range? range;
   final int? timeLimit;
-  final Function switchToStartScreen;
   final bool isFromHistory;
 
-  const ResultScreen(
-    this.answeredQuestions,
-    this.answeredCorrectly,
-    this.totalTime,
-    this.switchToStartScreen, {
-    super.key,
-    this.title,
+  const ResultScreen({
+    required this.answeredQuestions,
+    required this.answeredCorrectly,
+    required this.totalTime,
     this.operation,
     this.range,
     this.timeLimit,
+    this.title,
+    super.key,
   }) : isFromHistory = false;
 
   const ResultScreen.fromHistory({
@@ -35,10 +36,9 @@ class ResultScreen extends StatefulWidget {
     required this.answeredQuestions,
     required this.answeredCorrectly,
     required this.totalTime,
-    required this.switchToStartScreen,
-    this.operation,
-    this.range,
-    this.timeLimit,
+    required this.operation,
+    required this.range,
+    required this.timeLimit,
     super.key,
   }) : isFromHistory = true;
 
@@ -116,45 +116,47 @@ class _ResultScreenState extends State<ResultScreen>
   }
 
   Future<void> _saveQuiz() async {
-  if (_quizTitle == null || widget.operation == null || widget.range == null)
-    return;
+    if (_quizTitle == null || widget.operation == null || widget.range == null)
+      return;
 
-  try {
-    await QuizHistoryService.saveQuiz(
-      title: _quizTitle!,
-      timestamp: DateTime.now().toIso8601String(),
-      operation: widget.operation!,
-      range: widget.range!,
-      timeLimit: widget.timeLimit,
-      totalTime: widget.totalTime,
-      answeredQuestions: widget.answeredQuestions,
-      answeredCorrectly: widget.answeredCorrectly,
-    );
-
-    final prefs = await SharedPreferences.getInstance();
-    final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
-    final lastQuizDate = prefs.getString('last_quiz_date');
-    int quizzesTaken = prefs.getInt('daily_quizzes') ?? 0;
-
-    if (lastQuizDate == today) {
-      quizzesTaken++;
-    } else {
-      quizzesTaken = 1;
-      await prefs.setString('last_quiz_date', today);
-    }
-    await prefs.setInt('daily_quizzes', quizzesTaken);
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Quiz saved successfully')),
+    try {
+      await QuizHistoryService.saveQuiz(
+        title: _quizTitle!,
+        timestamp: DateTime.now().toIso8601String(),
+        operation: widget.operation!,
+        range: widget.range!,
+        timeLimit: widget.timeLimit,
+        totalTime: widget.totalTime,
+        answeredQuestions: widget.answeredQuestions,
+        answeredCorrectly: widget.answeredCorrectly,
       );
+
+      final prefs = await SharedPreferences.getInstance();
+      final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final lastQuizDate = prefs.getString('last_quiz_date');
+      int quizzesTaken = prefs.getInt('daily_quizzes') ?? 0;
+
+      if (lastQuizDate == today) {
+        quizzesTaken++;
+      } else {
+        quizzesTaken = 1;
+        await prefs.setString('last_quiz_date', today);
+      }
+      await prefs.setInt('daily_quizzes', quizzesTaken);
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Quiz saved successfully')),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to save quiz: $e')),
+        );
+      }
     }
-  } catch (e) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Failed to save quiz: $e')),
-    );
-  }}}
+  }
 
   Future<void> _sharePDFReport() async {
     try {
@@ -192,10 +194,8 @@ class _ResultScreenState extends State<ResultScreen>
 
     return Scaffold(
       appBar: AppBar(
-          title: Text(
-        'Quiz Results',
-        textAlign: TextAlign.center,
-      )),
+        title: const Text('Quiz Results', textAlign: TextAlign.center),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
@@ -206,8 +206,7 @@ class _ResultScreenState extends State<ResultScreen>
               FadeTransition(
                 opacity: _fadeAnimation,
                 child: Card(
-                  color: Colors
-                      .white60,
+                  color: Colors.white60,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
                     child: Column(
@@ -275,8 +274,7 @@ class _ResultScreenState extends State<ResultScreen>
                                   : Icons.cancel,
                               color: widget.answeredCorrectly[index]
                                   ? Colors.green
-                                  : Colors
-                                      .red,
+                                  : Colors.red,
                             ),
                             title: Text(widget.answeredQuestions[index]),
                           );
@@ -289,7 +287,29 @@ class _ResultScreenState extends State<ResultScreen>
                 children: [
                   ElevatedButton.icon(
                     icon: const Icon(Icons.home, color: Colors.white),
-                    onPressed: () => widget.switchToStartScreen(),
+                    onPressed: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => Consumer(
+                            builder: (context, ref, child) {
+                              final isDarkMode = ref.watch(darkModeProvider);
+                              return StartScreen(
+                                isDarkMode: isDarkMode,
+                                toggleDarkMode: (value) async {
+                                  ref.read(darkModeProvider.notifier).state =
+                                      value;
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  await prefs.setBool('isDarkMode', value);
+                                },
+                              );
+                            },
+                          ),
+                        ),
+                        (route) => false, // Clear the stack
+                      );
+                    },
                     label: const Text('Start Screen'),
                   ),
                   ElevatedButton.icon(

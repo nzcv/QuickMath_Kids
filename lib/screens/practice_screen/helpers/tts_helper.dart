@@ -1,11 +1,12 @@
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class TTSHelper {
-  final Function(String) triggerTTS;
+  final Function(String, WidgetRef) triggerTTS;
 
   TTSHelper(this.triggerTTS);
 
-  void playSpeech(Operation selectedOperation, List<int> numbers) {
+  void playSpeech(Operation selectedOperation, List<int> numbers, WidgetRef ref) {
     String operatorWord = '';
     switch (selectedOperation) {
       case Operation.additionBeginner:
@@ -58,6 +59,6 @@ class TTSHelper {
         questionText = '${numbers[0]} $operatorWord ${numbers[1]} equals?';
     }
 
-    triggerTTS(questionText);
+    triggerTTS(questionText, ref);
   }
 }
