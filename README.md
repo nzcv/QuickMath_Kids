@@ -64,37 +64,37 @@ An interactive math practice app designed to make learning fun and engaging for 
 ## Free vs. Premium Plans
 QuickMath Kids offers a Free Plan for basic math practice and a Premium Plan for a one-time ₹300 purchase, unlocking advanced features for enhanced learning. Below is a comparison of the two plans:
 
-- **Daily Quiz Limit**
-  Free: 3 quizzes per day
-  Premium: Unlimited quizzes  
+  ### Daily Quiz Limit
+  * Free: 3 quizzes per day
+  * Premium: Unlimited quizzes  
 
-- **Session Time Customization**
-  Free: Fixed 2-minute sessions
-  Premium: Flexible, 1 to 60 minutes or no limit  
+  ### Session Time Customization
+    Free: Fixed 2-minute sessions
+    Premium: Flexible, 1 to 60 minutes or no limit  
 
-- **Operations & Ranges**
-  Free: Basic operations (addition, subtraction, multiplication, division) with limited ranges
-  Premium: All operations (including LCM, GCF) with exclusive mixed and advanced ranges  
+  ### Operations & Ranges
+    Free: Basic operations (addition, subtraction, multiplication, division) with limited ranges
+    Premium: All operations (including LCM, GCF) with exclusive mixed and advanced ranges  
 
-- **Quiz History**
-  Free: Not available
-  Premium: Track past quiz performances  
+  ### Quiz History
+    Free: Not available
+    Premium: Track past quiz performances  
 
-- **Wrong Answers History**
-  Free: Not available
-  Premium: Review and practice incorrect answers  
+  ### Wrong Answers History
+    Free: Not available
+    Premium: Review and practice incorrect answers  
 
-- **Pause Quiz Feature**
-  Free: Not available
-  Premium: Pause quizzes anytime  
+  ### Pause Quiz Feature
+    Free: Not available
+    Premium: Pause quizzes anytime  
 
-- **Settings Customization**
-  Free: Limited options
-  Premium: Advanced settings for a tailored experience  
+  ### Settings Customization
+    Free: Limited options
+    Premium: Advanced settings for a tailored experience  
 
-- **PDF Reports**
-  Free: Available for sharing results
-  Premium: Available with detailed progress insights  
+  ### PDF Reports
+    Free: Available for sharing results
+    Premium: Available with detailed progress insights  
 
 The Free Plan is great for casual practice, while the Premium Plan provides unlimited access and powerful tools to boost your child’s math skills. Upgrade to Premium for a one-time, non-refundable ₹300 payment via the in-app purchase screen!
 
