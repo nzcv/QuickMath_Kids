@@ -1,4 +1,4 @@
-package com.example.oral_app_new
+package com.guru.oral_app_new
 
 import io.flutter.embedding.android.FlutterActivity
 
