@@ -1,10 +1,13 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:timezone/data/latest.dart' as tz;
 
 class NotificationDemo extends StatefulWidget {
+  const NotificationDemo({super.key});
+
   @override
   _NotificationDemoState createState() => _NotificationDemoState();
 }
@@ -140,11 +143,11 @@ class _NotificationDemoState extends State<NotificationDemo> {
       initialTime: _selectedTime,
       builder: (context, child) {
         return Theme(
-          data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.teal,
+          data: Theme.of(context).copyWith(
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.primary, // Kumon blue
               onPrimary: Colors.white,
-              surface: Colors.tealAccent,
+              surface: Colors.white,
               onSurface: Colors.black,
             ),
           ),
@@ -165,12 +168,33 @@ class _NotificationDemoState extends State<NotificationDemo> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Error'),
-          content: Text(message),
+          title: Text(
+            'Error',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          content: Text(
+            message,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
           ],
         );
@@ -183,12 +207,33 @@ class _NotificationDemoState extends State<NotificationDemo> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Success'),
-          content: Text(message),
+          title: Text(
+            'Success',
+            style: GoogleFonts.poppins(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          content: Text(
+            message,
+            style: GoogleFonts.poppins(
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            ),
+          ),
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: const Text('OK'),
+              child: Text(
+                'OK',
+                style: GoogleFonts.poppins(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
             ),
           ],
         );
@@ -198,161 +243,276 @@ class _NotificationDemoState extends State<NotificationDemo> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Daily Motivation App'),
-        backgroundColor: Colors.teal,
-        elevation: 4,
-      ),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.tealAccent, Colors.white],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
+        title: Text(
+          'Daily Motivation Reminders',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: theme.colorScheme.onPrimary,
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Motivational Header
-              const Center(
-                child: Text(
-                  'Stay Inspired Every Day!',
-                  style: TextStyle(
-                    fontSize: 28,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.teal,
-                    shadows: [
-                      Shadow(
-                        blurRadius: 10.0,
-                        color: Colors.black26,
-                        offset: Offset(2.0, 2.0),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Time Selection
-              const Text(
-                'Set Your Daily Motivation',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  title: const Text('Time'),
-                  subtitle: Text(
-                    _selectedTime.format(context),
-                    style: const TextStyle(
-                        fontSize: 18, fontWeight: FontWeight.bold),
-                  ),
-                  trailing: const Icon(Icons.access_time, color: Colors.teal),
-                  onTap: () => _selectTime(context),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Schedule Button
-              ElevatedButton(
-                onPressed: _scheduleDailyNotification,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  textStyle: const TextStyle(fontSize: 18),
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 5,
-                ),
-                child: const Text(
-                  'Set Daily Motivation',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Clear Notifications Button
-              ElevatedButton(
-                onPressed: () async {
-                  await flutterLocalNotificationsPlugin.cancelAll();
-                  await _loadPendingNotifications();
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('All reminders cleared')),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  minimumSize: const Size(double.infinity, 50),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 5,
-                ),
-                child: const Text(
-                  'Clear All Reminders',
-                  style: TextStyle(color: Colors.white),
-                ),
-              ),
-              const SizedBox(height: 20),
-
-              // Scheduled Notifications List
-              const Text(
-                'Your Scheduled Motivations',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 10),
-              Expanded(
-                child: _pendingNotifications.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'No motivations scheduled yet!',
-                          style: TextStyle(fontSize: 16, color: Colors.grey),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: _pendingNotifications.length,
-                        itemBuilder: (context, index) {
-                          final notification = _pendingNotifications[index];
-                          final scheduledTime =
-                              DateTime.fromMillisecondsSinceEpoch(
-                                  notification.id * 1000);
-                          return Card(
-                            elevation: 2,
-                            margin: const EdgeInsets.symmetric(vertical: 4),
-                            child: ListTile(
-                              title: Text(notification.title ?? 'Motivation'),
-                              subtitle: Text(
-                                'Daily at ${TimeOfDay.fromDateTime(scheduledTime).format(context)}\n${notification.body}',
-                                style: const TextStyle(fontSize: 14),
+        backgroundColor: theme.colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        elevation: 0,
+      ),
+      body: Container(
+        color: theme.colorScheme.background,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isTablet ? 800 : 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.star,
+                                  color: Colors.amber[400], size: 36),
+                              const SizedBox(width: 12),
+                              Text(
+                                'Stay Motivated!',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.bold,
+                                  color: theme.colorScheme.primary,
+                                ),
                               ),
-                              trailing: IconButton(
-                                icon: const Icon(Icons.delete,
-                                    color: Colors.redAccent),
-                                onPressed: () async {
-                                  await flutterLocalNotificationsPlugin
-                                      .cancel(notification.id);
-                                  await _loadPendingNotifications();
-                                },
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'Set daily reminders to keep your motivation high and achieve your goals.',
+                            style: GoogleFonts.poppins(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              color:
+                                  theme.colorScheme.onSurface.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Card(
+                    elevation: 4,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                      child: ListTile(
+                        leading: CircleAvatar(
+                          radius: 24,
+                          backgroundColor:
+                              theme.colorScheme.primary.withOpacity(0.1),
+                          child: Icon(Icons.access_time,
+                              color: theme.colorScheme.primary, size: 28),
+                        ),
+                        title: Text(
+                          'Reminder Time',
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                            color: theme.colorScheme.onSurface,
+                          ),
+                        ),
+                        subtitle: Text(
+                          _selectedTime.format(context),
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color:
+                                theme.colorScheme.onSurface.withOpacity(0.7),
+                          ),
+                        ),
+                        onTap: () => _selectTime(context),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ElevatedButton(
+                    onPressed: _scheduleDailyNotification,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.primary,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      'Set Daily Reminder',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () async {
+                      await flutterLocalNotificationsPlugin.cancelAll();
+                      await _loadPendingNotifications();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            'All reminders cleared',
+                            style: GoogleFonts.poppins(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                          backgroundColor: theme.colorScheme.primary,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: theme.colorScheme.error,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 32, vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 2,
+                    ),
+                    child: Text(
+                      'Clear All Reminders',
+                      style: GoogleFonts.poppins(
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    'Scheduled Reminders',
+                    style: GoogleFonts.poppins(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: theme.colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  _pendingNotifications.isEmpty
+                      ? Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Center(
+                              child: Text(
+                                'No reminders scheduled yet!',
+                                style: GoogleFonts.poppins(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
+                                  color:
+                                      theme.colorScheme.onSurface.withOpacity(0.7),
+                                ),
                               ),
                             ),
-                          );
-                        },
+                          ),
+                        )
+                      : ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: _pendingNotifications.length,
+                          itemBuilder: (context, index) {
+                            final notification = _pendingNotifications[index];
+                            final scheduledTime =
+                                DateTime.fromMillisecondsSinceEpoch(
+                                    notification.id * 1000);
+                            return Card(
+                              elevation: 4,
+                              margin: const EdgeInsets.symmetric(vertical: 6),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: ListTile(
+                                leading: CircleAvatar(
+                                  radius: 24,
+                                  backgroundColor:
+                                      theme.colorScheme.primary.withOpacity(0.1),
+                                  child: Icon(Icons.notifications,
+                                      color: theme.colorScheme.primary, size: 28),
+                                ),
+                                title: Text(
+                                  notification.title ?? 'Motivation',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
+                                ),
+                                subtitle: Text(
+                                  'Daily at ${TimeOfDay.fromDateTime(scheduledTime).format(context)}\n${notification.body}',
+                                  style: GoogleFonts.poppins(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.7),
+                                  ),
+                                ),
+                                trailing: IconButton(
+                                  icon: Icon(Icons.delete,
+                                      color: theme.colorScheme.error),
+                                  onPressed: () async {
+                                    await flutterLocalNotificationsPlugin
+                                        .cancel(notification.id);
+                                    await _loadPendingNotifications();
+                                  },
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: TextButton.icon(
+                      onPressed: () => Navigator.pop(context),
+                      icon: Icon(
+                        Icons.cancel,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
                       ),
+                      label: Text(
+                        'Not Now',
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color:
+                              theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
