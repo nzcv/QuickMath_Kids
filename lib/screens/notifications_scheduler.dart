@@ -18,15 +18,18 @@ class _NotificationDemoState extends State<NotificationDemo> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   List<PendingNotificationRequest> _pendingNotifications = [];
 
-  // List of motivational messages for notifications
+  // List of motivational messages focused on daily practice and self-motivation
   final List<String> _motivationalMessages = [
-    'Keep pushing forward, you’ve got this!',
-    'Today is your day to shine!',
-    'Stay focused and make it happen!',
-    'You’re stronger than you know!',
-    'Seize the moment and achieve greatness!',
-    'Every step you take is progress!',
-    'Believe in yourself and soar!',
+    'Practice daily to master your skills!',
+    'Push yourself to practice today—you can do it!',
+    'You’ve got the power to excel—keep practicing!',
+    'Every practice session brings you closer to mastery!',
+    'Stay committed to your daily practice!',
+    'Challenge yourself with today’s practice!',
+    'Believe in yourself and practice every day!',
+    'Your daily effort is the key to success!',
+    'Keep practicing—you’re unstoppable!',
+    'One practice a day keeps progress on its way!',
   ];
 
   @override
