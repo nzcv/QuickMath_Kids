@@ -13,8 +13,6 @@ class _NotificationDemoState extends State<NotificationDemo> {
       FlutterLocalNotificationsPlugin();
 
   TimeOfDay _selectedTime = TimeOfDay.now();
-  final TextEditingController _titleController = TextEditingController();
-  final TextEditingController _messageController = TextEditingController();
 
   @override
   void initState() {
@@ -81,16 +79,6 @@ class _NotificationDemoState extends State<NotificationDemo> {
   }
 
   Future<void> _scheduleNotification() async {
-    if (_titleController.text.isEmpty) {
-      _showErrorDialog('Please enter a title for the reminder');
-      return;
-    }
-
-    if (_messageController.text.isEmpty) {
-      _showErrorDialog('Please enter a message for the reminder');
-      return;
-    }
-
     DateTime now = DateTime.now();
     DateTime scheduledDate = DateTime(
       now.year,
@@ -131,8 +119,8 @@ class _NotificationDemoState extends State<NotificationDemo> {
       // This will work even when app is closed
       await flutterLocalNotificationsPlugin.zonedSchedule(
         notificationId, // Use the unique ID
-        _titleController.text,
-        _messageController.text,
+        'Reminder',
+        'Scheduled reminder',
         tzScheduledDate,
         notificationDetails,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -255,30 +243,7 @@ class _NotificationDemoState extends State<NotificationDemo> {
               trailing: Icon(Icons.access_time),
               onTap: () => _selectTime(context),
             ),
-            SizedBox(height: 20),
-
-            // Title Input
-            TextField(
-              controller: _titleController,
-              decoration: InputDecoration(
-                labelText: 'Reminder Title',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.title),
-              ),
-            ),
-            SizedBox(height: 15),
-
-            // Message Input
-            TextField(
-              controller: _messageController,
-              decoration: InputDecoration(
-                labelText: 'Reminder Message',
-                border: OutlineInputBorder(),
-                prefixIcon: Icon(Icons.message),
-              ),
-              maxLines: 2,
-            ),
-            SizedBox(height: 25),
+            SizedBox(height: 40),
 
             // Schedule Button
             ElevatedButton(
@@ -327,12 +292,5 @@ class _NotificationDemoState extends State<NotificationDemo> {
         ),
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    _titleController.dispose();
-    _messageController.dispose();
-    super.dispose();
   }
 }
