@@ -18,7 +18,7 @@ class _NotificationDemoState extends State<NotificationDemo> {
   TimeOfDay _selectedTime = TimeOfDay.now();
   List<PendingNotificationRequest> _pendingNotifications = [];
 
-  // List of motivational messages
+  // List of motivational messages for notifications
   final List<String> _motivationalMessages = [
     'Keep pushing forward, you’ve got this!',
     'Today is your day to shine!',
@@ -314,39 +314,54 @@ class _NotificationDemoState extends State<NotificationDemo> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  Card(
-                    elevation: 4,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                      child: ListTile(
-                        leading: CircleAvatar(
-                          radius: 24,
-                          backgroundColor:
-                              theme.colorScheme.primary.withOpacity(0.1),
-                          child: Icon(Icons.access_time,
-                              color: theme.colorScheme.primary, size: 28),
+                  GestureDetector(
+                    onTap: () => _selectTime(context),
+                    child: Card(
+                      elevation: 4,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                            vertical: 12, horizontal: 16),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                Icons.access_time,
+                                color: theme.colorScheme.primary,
+                                size: 28,
+                              ),
+                              onPressed: () => _selectTime(context),
+                            ),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Reminder Time',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    '${_selectedTime.format(context)} - Tap to set time',
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      color: theme.colorScheme.onSurface
+                                          .withOpacity(0.7),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        title: Text(
-                          'Reminder Time',
-                          style: GoogleFonts.poppins(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
-                            color: theme.colorScheme.onSurface,
-                          ),
-                        ),
-                        subtitle: Text(
-                          _selectedTime.format(context),
-                          style: GoogleFonts.poppins(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w400,
-                            color:
-                                theme.colorScheme.onSurface.withOpacity(0.7),
-                          ),
-                        ),
-                        onTap: () => _selectTime(context),
                       ),
                     ),
                   ),
@@ -462,20 +477,11 @@ class _NotificationDemoState extends State<NotificationDemo> {
                                       color: theme.colorScheme.primary, size: 28),
                                 ),
                                 title: Text(
-                                  notification.title ?? 'Motivation',
+                                  'Daily at ${TimeOfDay.fromDateTime(scheduledTime).format(context)}',
                                   style: GoogleFonts.poppins(
                                     fontSize: 18,
                                     fontWeight: FontWeight.w600,
                                     color: theme.colorScheme.onSurface,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  'Daily at ${TimeOfDay.fromDateTime(scheduledTime).format(context)}\n${notification.body}',
-                                  style: GoogleFonts.poppins(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: theme.colorScheme.onSurface
-                                        .withOpacity(0.7),
                                   ),
                                 ),
                                 trailing: IconButton(
