@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'wrong_answer_service.dart';
+import '../question_logic/wrong_answer_service.dart';
 
 class WrongAnswersScreen extends StatefulWidget {
   const WrongAnswersScreen({Key? key}) : super(key: key);

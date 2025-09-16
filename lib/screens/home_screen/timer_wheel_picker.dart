@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:QuickMath_Kids/billing/purchase_screen.dart';
+import 'package:QuickMath_Kids/screens/purchase_screen.dart';
 
 class TimeWheelPicker extends StatefulWidget {
   final int initialIndex;

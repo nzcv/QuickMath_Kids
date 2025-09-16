@@ -5,13 +5,13 @@ import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters
 import 'package:QuickMath_Kids/screens/home_screen/timer_wheel_picker.dart';
 import 'package:QuickMath_Kids/screens/home_screen/drawer.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/practice_screen.dart';
-import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'package:QuickMath_Kids/services/billing_service.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
-import 'package:QuickMath_Kids/billing/purchase_screen.dart';
+import 'package:QuickMath_Kids/screens/purchase_screen.dart';
 import 'package:flutter/foundation.dart';
 
 class StartScreen extends ConsumerStatefulWidget {

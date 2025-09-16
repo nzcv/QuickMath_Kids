@@ -13,10 +13,10 @@ import 'package:QuickMath_Kids/screens/practice_screen/helpers/answer_option_hel
 import 'package:QuickMath_Kids/screens/practice_screen/helpers/operation_helper.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/timer_card.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/ui/answer_button.dart';
-import 'package:QuickMath_Kids/wrong_answer_storing/wrong_answer_service.dart';
+import 'package:QuickMath_Kids/question_logic/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
-import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'package:QuickMath_Kids/services/billing_service.dart';
 import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';

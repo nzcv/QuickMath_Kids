@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'package:QuickMath_Kids/services/billing_service.dart';
 
 class AppTheme {
   static double _scaleFactor(BuildContext context) {

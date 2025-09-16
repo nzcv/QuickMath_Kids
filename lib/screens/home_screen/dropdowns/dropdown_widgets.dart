@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
-import 'package:QuickMath_Kids/billing/billing_service.dart';
-import 'package:QuickMath_Kids/billing/purchase_screen.dart';
+import 'package:QuickMath_Kids/services/billing_service.dart';
+import 'package:QuickMath_Kids/screens/purchase_screen.dart';
 
 class OperationDropdown extends ConsumerWidget {
   final Operation selectedOperation;

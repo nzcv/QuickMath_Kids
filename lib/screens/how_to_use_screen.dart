@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HowToUseScreen extends StatelessWidget {
   const HowToUseScreen({super.key});
@@ -6,95 +7,100 @@ class HowToUseScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'How to Use QuickMath Kids',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: theme.colorScheme.primary,
-        elevation: 4,
-        shadowColor: theme.colorScheme.primary.withOpacity(0.5),
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              theme.colorScheme.background,
-              theme.colorScheme.background.withOpacity(0.8),
-            ],
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: theme.colorScheme.onPrimary,
           ),
         ),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              const SizedBox(height: 20),
-              _buildHeader(context),
-              const SizedBox(height: 20),
-              _buildIntro(context),
-              const SizedBox(height: 20),
-              _buildStep(
-                context,
-                "1. Select Your Math Operation",
-                "From the home screen, pick an operation to practice: Addition, Subtraction, Multiplication, or Division.",
-                Icons.calculate,
+        backgroundColor: theme.colorScheme.primary,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        elevation: 0,
+      ),
+      body: Container(
+        color: theme.colorScheme.background,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isTablet ? 800 : 600),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: <Widget>[
+                  const SizedBox(height: 20),
+                  _buildHeader(context),
+                  const SizedBox(height: 24),
+                  _buildIntro(context),
+                  const SizedBox(height: 24),
+                  _buildStep(
+                    context,
+                    "1. Select Your Math Operation",
+                    "From the home screen, pick an operation to practice: Addition, Subtraction, Multiplication, or Division.",
+                    Icons.calculate,
+                  ),
+                  _buildStep(
+                    context,
+                    "2. Choose a Difficulty Range",
+                    "Select a range that matches your skill level, like 'Up to +5' or 'Up to +10'.",
+                    Icons.tune,
+                  ),
+                  _buildStep(
+                    context,
+                    "3. Set a Time Limit (Optional)",
+                    "Tap the time limit field to open the scroll wheel. Choose a duration (1-60 minutes) or select 'No time limit'.",
+                    Icons.timer,
+                  ),
+                  _buildStep(
+                    context,
+                    "4. Begin Your Practice",
+                    "Hit 'Start Oral Practice' to launch the quiz. Questions will be spoken aloud.",
+                    Icons.play_circle_filled,
+                  ),
+                  _buildStep(
+                    context,
+                    "5. Answer Questions",
+                    "Listen to each question (tap the voice button to replay), then pick the correct answer.",
+                    Icons.volume_up,
+                  ),
+                  _buildStep(
+                    context,
+                    "6. Manage Your Session",
+                    "Pause to take a break or quit to return to the start screen.",
+                    Icons.pause_circle_outline,
+                  ),
+                  _buildStep(
+                    context,
+                    "7. Review Wrong Answers",
+                    "Check 'Wrong Answers History' in the drawer to practice missed questions.",
+                    Icons.history,
+                  ),
+                  _buildStep(
+                    context,
+                    "8. See Your Results",
+                    "View your time, total questions, and correct answers. Wrong answers are saved.",
+                    Icons.bar_chart,
+                  ),
+                  _buildStep(
+                    context,
+                    "9. Share Your Progress",
+                    "Tap 'Share Report' to create and send a PDF of your quiz performance.",
+                    Icons.share,
+                  ),
+                  const SizedBox(height: 24),
+                  _buildFooter(context),
+                ],
               ),
-              _buildStep(
-                context,
-                "2. Choose a Difficulty Range",
-                "Select a range that matches your skill level, like 'Up to +5' or 'Up to +10'.",
-                Icons.tune,
-              ),
-              _buildStep(
-                context,
-                "3. Set a Time Limit (Optional)",
-                "Tap the time limit field to open the scroll wheel. Choose a duration (1-60 minutes) or select 'No time limit'.",
-                Icons.timer,
-              ),
-              _buildStep(
-                context,
-                "4. Begin Your Practice",
-                "Hit 'Start Oral Practice' to launch the quiz. Questions will be spoken aloud.",
-                Icons.play_circle_filled,
-              ),
-              _buildStep(
-                context,
-                "5. Answer Questions",
-                "Listen to each question (tap the voice button to replay), then pick the correct answer.",
-                Icons.volume_up,
-              ),
-              _buildStep(
-                context,
-                "6. Manage Your Session",
-                "Pause to take a break or quit to return to the start screen.",
-                Icons.pause_circle_outline,
-              ),
-              _buildStep(
-                context,
-                "7. Review Wrong Answers",
-                "Check 'Wrong Answers History' in the drawer to practice missed questions.",
-                Icons.history,
-              ),
-              _buildStep(
-                context,
-                "8. See Your Results",
-                "View your time, total questions, and correct answers. Wrong answers are saved.",
-                Icons.bar_chart,
-              ),
-              _buildStep(
-                context,
-                "9. Share Your Progress",
-                "Tap 'Share Report' to create and send a PDF of your quiz performance.",
-                Icons.share,
-              ),
-              const SizedBox(height: 20),
-              _buildFooter(context),
-            ],
+            ),
           ),
         ),
       ),
@@ -106,21 +112,14 @@ class HowToUseScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(Icons.school, color: theme.colorScheme.primary, size: 32),
-        const SizedBox(width: 10),
+        Icon(Icons.school, color: theme.colorScheme.primary, size: 36),
+        const SizedBox(width: 12),
         Text(
           "Get Started!",
-          style: TextStyle(
-            color: theme.colorScheme.primary,
+          style: GoogleFonts.poppins(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            shadows: [
-              Shadow(
-                color: theme.colorScheme.primary.withOpacity(0.3),
-                offset: const Offset(2, 2),
-                blurRadius: 4,
-              ),
-            ],
+            color: theme.colorScheme.primary,
           ),
         ),
       ],
@@ -130,20 +129,21 @@ class HowToUseScreen extends StatelessWidget {
   Widget _buildIntro(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Row(
           children: [
-            Icon(Icons.info_outline, color: theme.colorScheme.primary),
+            Icon(Icons.info_outline, color: theme.colorScheme.primary, size: 28),
             const SizedBox(width: 12),
             Expanded(
               child: Text(
                 "QuickMath Kids makes math fun with audio-based questions. Follow these steps to start learning!",
-                style: TextStyle(
-                  color: theme.colorScheme.onSurface,
+                style: GoogleFonts.poppins(
                   fontSize: 16,
+                  fontWeight: FontWeight.w400,
+                  color: theme.colorScheme.onSurface.withOpacity(0.8),
                 ),
               ),
             ),
@@ -159,17 +159,15 @@ class HowToUseScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: Card(
-        elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        color: theme.brightness == Brightness.dark
-            ? Colors.grey[800]
-            : Colors.white,
+        elevation: 4,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               CircleAvatar(
+                radius: 24,
                 backgroundColor: theme.colorScheme.primary.withOpacity(0.1),
                 child: Icon(
                   icon,
@@ -184,18 +182,19 @@ class HowToUseScreen extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: TextStyle(
-                        color: theme.colorScheme.primary,
+                      style: GoogleFonts.poppins(
                         fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
+                        color: theme.colorScheme.onSurface,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       description,
-                      style: TextStyle(
-                        color: theme.colorScheme.onSurface,
-                        fontSize: 16,
+                      style: GoogleFonts.poppins(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w400,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
                   ],
@@ -219,11 +218,11 @@ class HowToUseScreen extends StatelessWidget {
         ),
         child: Text(
           "Enjoy math anytime, anywhere, offline!",
-          style: TextStyle(
-            color: theme.colorScheme.primary,
+          style: GoogleFonts.poppins(
             fontSize: 16,
-            fontStyle: FontStyle.italic,
             fontWeight: FontWeight.w500,
+            color: theme.colorScheme.primary,
+            fontStyle: FontStyle.italic,
           ),
         ),
       ),

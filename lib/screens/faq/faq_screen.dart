@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'faq_data.dart';
 
 class FAQScreen extends StatefulWidget {
@@ -49,100 +49,137 @@ class _FAQScreenState extends State<FAQScreen> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isTablet = screenWidth > 600;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text("QuickMath Kids FAQ"),
+        title: Text(
+          "QuickMath Kids FAQ",
+          style: GoogleFonts.poppins(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: theme.colorScheme.onPrimary,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: theme.colorScheme.primary,
-        elevation: 4,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          onPressed: () => Navigator.pop(context),
+        ),
+        elevation: 0,
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: "Search FAQs...",
-                prefixIcon:
-                    Icon(Icons.search, color: theme.colorScheme.primary),
-                suffixIcon: IconButton(
-                  icon: Icon(Icons.clear, color: theme.colorScheme.primary),
-                  onPressed: () {
-                    _searchController.clear();
-                    _filterFAQs();
-                  },
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide(color: theme.colorScheme.primary),
-                ),
-                focusedBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide:
-                      BorderSide(color: theme.colorScheme.primary, width: 2),
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: AnimatedOpacity(
-              opacity: filteredFAQs.isEmpty ? 0.5 : 1.0,
-              duration: const Duration(milliseconds: 300),
-              child: filteredFAQs.isEmpty
-                  ? Center(
-                      child: Text(
-                        "No results found.",
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: theme.colorScheme.onSurface.withOpacity(0.6),
-                        ),
+      body: Container(
+        color: theme.colorScheme.background,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: isTablet ? 800 : 600),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: "Search FAQs...",
+                      hintStyle: GoogleFonts.poppins(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w400,
+                        color: theme.colorScheme.onSurface.withOpacity(0.7),
                       ),
-                    )
-                  : ListView.builder(
-                      controller: _scrollController,
-                      itemCount: filteredFAQs.length,
-                      itemBuilder: (context, index) {
-                        return Card(
-                          color: isDarkMode
-                              ? theme.colorScheme.surfaceVariant
-                              : Colors.white,
-                          margin: const EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 8),
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: ExpansionTile(
-                            title: Text(
-                              filteredFAQs[index].question,
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
+                      prefixIcon:
+                          Icon(Icons.search, color: theme.colorScheme.primary),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.clear, color: theme.colorScheme.primary),
+                        onPressed: () {
+                          _searchController.clear();
+                          _filterFAQs();
+                        },
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide(color: theme.colorScheme.primary),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide:
+                            BorderSide(color: theme.colorScheme.primary, width: 2),
+                      ),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: AnimatedOpacity(
+                    opacity: filteredFAQs.isEmpty ? 0.5 : 1.0,
+                    duration: const Duration(milliseconds: 300),
+                    child: filteredFAQs.isEmpty
+                        ? Center(
+                            child: Text(
+                              "No results found.",
+                              style: GoogleFonts.poppins(
                                 fontSize: 16,
-                                color: theme.colorScheme.primary,
+                                fontWeight: FontWeight.w400,
+                                color:
+                                    theme.colorScheme.onSurface.withOpacity(0.7),
                               ),
                             ),
-                            children: [
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Text(
-                                  filteredFAQs[index].answer,
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: theme.colorScheme.onSurface,
-                                  ),
+                          )
+                        : ListView.builder(
+                            controller: _scrollController,
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                            itemCount: filteredFAQs.length,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                elevation: 4,
+                                margin: const EdgeInsets.symmetric(vertical: 6),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                              ),
-                            ],
+                                child: ExpansionTile(
+                                  leading: CircleAvatar(
+                                    radius: 24,
+                                    backgroundColor:
+                                        theme.colorScheme.primary.withOpacity(0.1),
+                                    child: Icon(
+                                      Icons.question_answer,
+                                      color: theme.colorScheme.primary,
+                                      size: 28,
+                                    ),
+                                  ),
+                                  title: Text(
+                                    filteredFAQs[index].question,
+                                    style: GoogleFonts.poppins(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.w600,
+                                      color: theme.colorScheme.onSurface,
+                                    ),
+                                  ),
+                                  children: [
+                                    Padding(
+                                      padding: const EdgeInsets.all(16.0),
+                                      child: Text(
+                                        filteredFAQs[index].answer,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          color: theme.colorScheme.onSurface
+                                              .withOpacity(0.7),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
                     ),
+                  ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _scrollToTop,

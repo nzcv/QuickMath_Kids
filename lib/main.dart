@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
-import 'package:QuickMath_Kids/billing/billing_service.dart';
+import 'package:QuickMath_Kids/services/billing_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
