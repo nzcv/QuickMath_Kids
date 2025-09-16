@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:QuickMath_Kids/question_logic/tts_translator.dart';
 
 final volumeProvider = StateProvider<double>((ref) => 1.0);
@@ -21,9 +22,9 @@ class SettingsScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(
           'Voice Settings',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
             color: theme.colorScheme.onBackground,
           ),
         ),
@@ -73,8 +74,9 @@ class SettingsScreen extends ConsumerWidget {
                       const SizedBox(width: 16),
                       Text(
                         'Voice Configuration',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
@@ -144,8 +146,9 @@ class SettingsScreen extends ConsumerWidget {
                       const SizedBox(width: 16),
                       Text(
                         'Test Voice Settings',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
                           color: theme.colorScheme.onSurface,
                         ),
                       ),
@@ -192,7 +195,7 @@ class SettingsScreen extends ConsumerWidget {
                               const SizedBox(width: 12),
                               Text(
                                 'Test Voice',
-                                style: TextStyle(
+                                style: GoogleFonts.poppins(
                                   color: theme.colorScheme.onPrimary,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -243,8 +246,9 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(width: 12),
             Text(
               label,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: GoogleFonts.poppins(
                 fontWeight: FontWeight.w500,
+                fontSize: 16,
                 color: theme.colorScheme.onSurface,
               ),
             ),
@@ -259,8 +263,9 @@ class SettingsScreen extends ConsumerWidget {
               child: Text(
                 value.toStringAsFixed(1),
                 textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
+                style: GoogleFonts.poppins(
                   fontWeight: FontWeight.w600,
+                  fontSize: 14,
                   color: theme.colorScheme.primary,
                 ),
               ),

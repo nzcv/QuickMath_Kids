@@ -1,6 +1,7 @@
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:flutter/material.dart';
-import 'quiz_history_service.dart';
+import 'package:google_fonts/google_fonts.dart';
+import '../services/quiz_history_service.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 
 class QuizHistoryScreen extends StatefulWidget {
@@ -44,7 +45,16 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
         _quizzes.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove quiz: $e')),
+        SnackBar(
+          content: Text(
+            'Failed to remove quiz: $e',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+          ),
+        ),
       );
     }
   }
@@ -53,16 +63,44 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear Quiz History'),
-        content: const Text('Are you sure you want to clear all quiz history? This action cannot be undone.'),
+        title: Text(
+          'Clear Quiz History',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to clear all quiz history? This action cannot be undone.',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+            child: Text(
+              'Clear',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.red,
+              ),
+            ),
           ),
         ],
       ),
@@ -75,11 +113,29 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
           _quizzes.clear();
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Quiz history cleared')),
+          SnackBar(
+            content: Text(
+              'Quiz history cleared',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to clear history: $e')),
+          SnackBar(
+            content: Text(
+              'Failed to clear history: $e',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       }
     }
@@ -90,22 +146,53 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
     final newTitle = await showDialog<String>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Rename Quiz'),
+        title: Text(
+          'Rename Quiz',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
         content: TextField(
           controller: controller,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             labelText: 'New Title',
             hintText: 'Enter a new title',
+            labelStyle: GoogleFonts.poppins(
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+            ),
+            hintStyle: GoogleFonts.poppins(
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
+            ),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, controller.text.trim()),
-            child: const Text('Save'),
+            child: Text(
+              'Save',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
           ),
         ],
       ),
@@ -120,11 +207,29 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
           _quizzes.sort((a, b) => b['timestamp'].compareTo(a['timestamp']));
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Quiz renamed successfully')),
+          SnackBar(
+            content: Text(
+              'Quiz renamed successfully',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to rename quiz: $e')),
+          SnackBar(
+            content: Text(
+              'Failed to rename quiz: $e',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       }
     }
@@ -136,7 +241,14 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz History'),
+        title: Text(
+          'Quiz History',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
         actions: [
           if (!_isLoading && _quizzes.isNotEmpty)
             IconButton(
@@ -155,9 +267,23 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                     children: [
                       Icon(Icons.history, size: 64, color: theme.colorScheme.primary),
                       const SizedBox(height: 16),
-                      Text('No quiz history yet!', style: theme.textTheme.headlineSmall),
+                      Text(
+                        'No quiz history yet!',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text('Complete a quiz to save it here', style: theme.textTheme.bodyLarge),
+                      Text(
+                        'Complete a quiz to save it here',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -181,7 +307,11 @@ class _QuizHistoryScreenState extends State<QuizHistoryScreen> {
                         child: ListTile(
                           title: Text(
                             quiz['title'],
-                            style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.bold),
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
                           trailing: IconButton(
                             icon: const Icon(Icons.edit),

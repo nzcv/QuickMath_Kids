@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:QuickMath_Kids/screens/support_screen.dart';
-import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
+import 'package:QuickMath_Kids/screens/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/faq/faq_screen.dart';
 import 'package:QuickMath_Kids/screens/how_to_use_screen.dart';
 import 'package:QuickMath_Kids/screens/notifications_scheduler.dart';
 import 'package:QuickMath_Kids/screens/wrong_answer_screen.dart';
-import 'package:QuickMath_Kids/quiz_history/quiz_history_screen.dart';
+import 'package:QuickMath_Kids/screens/quiz_history_screen.dart';
 import 'package:QuickMath_Kids/services/billing_service.dart';
 import 'package:QuickMath_Kids/screens/purchase_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

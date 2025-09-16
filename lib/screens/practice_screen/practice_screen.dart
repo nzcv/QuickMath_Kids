@@ -17,7 +17,7 @@ import 'package:QuickMath_Kids/question_logic/wrong_answer_service.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:QuickMath_Kids/app_theme.dart';
 import 'package:QuickMath_Kids/services/billing_service.dart';
-import 'package:QuickMath_Kids/screens/settings_screen/settings_screen.dart';
+import 'package:QuickMath_Kids/screens/settings_screen.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_screen.dart';
 import 'package:QuickMath_Kids/screens/home_screen/home_page.dart';
 import 'package:QuickMath_Kids/main.dart'; // Import for darkModeProvider

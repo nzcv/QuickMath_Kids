@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../question_logic/wrong_answer_service.dart';
 
 class WrongAnswersScreen extends StatefulWidget {
@@ -31,9 +32,8 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
     });
   }
 
-  // Update _removeWrongQuestion to use question text instead of index
   Future<void> _removeWrongQuestion(int index) async {
-    final questionToRemove = _wrongQuestions[index]; // Keep the whole map
+    final questionToRemove = _wrongQuestions[index];
     setState(() {
       _wrongQuestions.removeAt(index);
     });
@@ -43,10 +43,19 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
           questionToRemove['question'] as String);
     } catch (e) {
       setState(() {
-        _wrongQuestions.insert(index, questionToRemove); // Insert the full map
+        _wrongQuestions.insert(index, questionToRemove);
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to remove question: $e')),
+        SnackBar(
+          content: Text(
+            'Failed to remove question: $e',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+          ),
+        ),
       );
     }
   }
@@ -55,17 +64,44 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
     bool? confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Clear All Wrong Answers'),
-        content: const Text(
-            'Are you sure you want to clear all wrong answers? This action cannot be undone.'),
+        title: Text(
+          'Clear All Wrong Answers',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 18,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
+        content: Text(
+          'Are you sure you want to clear all wrong answers? This action cannot be undone.',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(
+              'Cancel',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+              ),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Clear', style: TextStyle(color: Colors.red)),
+            child: Text(
+              'Clear',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.red,
+              ),
+            ),
           ),
         ],
       ),
@@ -78,11 +114,29 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
           _wrongQuestions.clear();
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('All wrong answers cleared')),
+          SnackBar(
+            content: Text(
+              'All wrong answers cleared',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to clear questions: $e')),
+          SnackBar(
+            content: Text(
+              'Failed to clear questions: $e',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       }
     }
@@ -94,7 +148,14 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Wrong Answers History'),
+        title: Text(
+          'Wrong Answers History',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
         actions: [
           if (!_isLoading && _wrongQuestions.isNotEmpty)
             IconButton(
@@ -114,11 +175,23 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                       Icon(Icons.check_circle_outline,
                           size: 64, color: theme.colorScheme.primary),
                       const SizedBox(height: 16),
-                      Text('No wrong answers yet!',
-                          style: theme.textTheme.headlineSmall),
+                      Text(
+                        'No wrong answers yet!',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                      ),
                       const SizedBox(height: 8),
-                      Text('Keep practicing to improve your skills',
-                          style: theme.textTheme.bodyLarge),
+                      Text(
+                        'Keep practicing to improve your skills',
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface.withOpacity(0.7),
+                        ),
+                      ),
                     ],
                   ),
                 )
@@ -155,16 +228,22 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     question['category'] ?? 'Unknown category',
-                                    style: theme.textTheme.bodySmall?.copyWith(
-                                        color: theme.colorScheme.primary),
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: theme.colorScheme.primary,
+                                    ),
                                   ),
                                 ],
                               ),
                               const SizedBox(height: 12),
                               Text(
                                 'Question: ${question['question'] ?? 'N/A'}',
-                                style: const TextStyle(
-                                    color: Colors.deepOrange, fontSize: 16),
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 16,
+                                  color: Colors.deepOrange,
+                                ),
                               ),
                               const SizedBox(height: 8),
                               Row(
@@ -174,8 +253,11 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     'Your answer: ${question['userAnswer'] ?? 'N/A'}',
-                                    style: TextStyle(
-                                        color: theme.colorScheme.error),
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      color: theme.colorScheme.error,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -188,8 +270,11 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     'Correct answer: ${question['correctAnswer'] ?? 'N/A'}',
-                                    style: TextStyle(
-                                        color: theme.colorScheme.primary),
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      color: theme.colorScheme.primary,
+                                    ),
                                   ),
                                 ],
                               ),
@@ -201,7 +286,11 @@ class _WrongAnswersScreenState extends State<WrongAnswersScreen> {
                                   const SizedBox(width: 8),
                                   Text(
                                     'Times answered correctly: ${question['correctCount'] ?? 0}',
-                                    style: TextStyle(color: Colors.yellow[700]),
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w400,
+                                      fontSize: 14,
+                                      color: Colors.yellow[700],
+                                    ),
                                   ),
                                 ],
                               ),

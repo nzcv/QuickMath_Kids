@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:flutter/services.dart';
 
@@ -24,7 +25,14 @@ class SupportScreen extends StatelessWidget {
       print('Error launching email: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Unable to open email client. Please try again or use master.guru.raghav@gmail.com manually.'),
+          content: Text(
+            'Unable to open email client. Please try again or use master.guru.raghav@gmail.com manually.',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+          ),
           backgroundColor: Theme.of(context).colorScheme.error,
           duration: const Duration(seconds: 5),
         ),
@@ -39,7 +47,14 @@ class SupportScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Get Support'),
+        title: Text(
+          'Get Support',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: theme.colorScheme.onSurface,
+          ),
+        ),
         elevation: 0,
       ),
       body: SingleChildScrollView(
@@ -56,9 +71,9 @@ class SupportScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'We’re Here to Help!',
-                style: theme.textTheme.headlineMedium?.copyWith(
+                style: GoogleFonts.poppins(
                   fontSize: isTablet ? 24 : 20,
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.w600,
                   color: theme.colorScheme.onSurface,
                 ),
                 textAlign: TextAlign.center,
@@ -76,8 +91,9 @@ class SupportScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Support Hours',
-                        style: theme.textTheme.titleLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
                           color: theme.colorScheme.primary,
                         ),
                       ),
@@ -93,13 +109,21 @@ class SupportScreen extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             'Monday - Saturday',
-                            style: theme.textTheme.bodyLarge,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
+                              color: theme.colorScheme.onSurface,
+                            ),
                           ),
                         ],
                       ),
                       Text(
                         '12:30 PM - 4:30 PM (IST)',
-                        style: theme.textTheme.bodyLarge,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
+                          color: theme.colorScheme.onSurface,
+                        ),
                       ),
                     ],
                   ),
@@ -126,8 +150,10 @@ class SupportScreen extends StatelessWidget {
                           const SizedBox(width: 12),
                           Text(
                             'Email Support',
-                            style: theme.textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 18,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                         ],
@@ -135,7 +161,9 @@ class SupportScreen extends StatelessWidget {
                       const SizedBox(height: 12),
                       Text(
                         'Send us an email and we’ll get back to you within 2-4 hours during support hours.',
-                        style: theme.textTheme.bodyLarge?.copyWith(
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w400,
+                          fontSize: 14,
                           color: theme.colorScheme.onSurface.withOpacity(0.8),
                         ),
                       ),
@@ -145,9 +173,10 @@ class SupportScreen extends StatelessWidget {
                           Expanded(
                             child: Text(
                               'master.guru.raghav@gmail.com',
-                              style: theme.textTheme.bodyLarge?.copyWith(
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 14,
                                 color: theme.colorScheme.primary,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ),
@@ -161,7 +190,14 @@ class SupportScreen extends StatelessWidget {
                               Clipboard.setData(const ClipboardData(text: 'master.guru.raghav@gmail.com'));
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: const Text('Email copied to clipboard!'),
+                                  content: Text(
+                                    'Email copied to clipboard!',
+                                    style: GoogleFonts.poppins(
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
                                   backgroundColor: theme.colorScheme.primary,
                                   duration: const Duration(seconds: 2),
                                 ),
@@ -175,7 +211,14 @@ class SupportScreen extends StatelessWidget {
                         child: ElevatedButton.icon(
                           onPressed: () => _launchGmail(context),
                           icon: const Icon(Icons.send, color: Colors.white),
-                          label: const Text('Open Gmail'),
+                          label: Text(
+                            'Open Gmail',
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 16,
+                              color: Colors.white,
+                            ),
+                          ),
                           style: ElevatedButton.styleFrom(
                             padding: EdgeInsets.symmetric(
                               horizontal: isTablet ? 30 : 20,
@@ -216,10 +259,10 @@ class SupportScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Tip: Include a detailed description of your issue and clear screenshots for faster assistance.',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
                           fontSize: isTablet ? 16 : 14,
+                          color: theme.colorScheme.onSurface,
                         ),
                         textAlign: TextAlign.center,
                       ),
@@ -250,10 +293,10 @@ class SupportScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         'Make sure to go through the FAQ section in the app before reaching out.',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: theme.colorScheme.onSurface,
-                          fontWeight: FontWeight.bold,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
                           fontSize: isTablet ? 16 : 14,
+                          color: theme.colorScheme.onSurface,
                         ),
                         textAlign: TextAlign.center,
                       ),
