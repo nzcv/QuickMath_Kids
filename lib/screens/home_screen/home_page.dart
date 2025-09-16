@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_widgets.dart';
 import 'package:QuickMath_Kids/screens/home_screen/dropdowns/dropdown_parameters.dart';
 import 'package:QuickMath_Kids/screens/home_screen/timer_wheel_picker.dart';
@@ -203,7 +204,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               remaining == -1
                                   ? 'Premium Member'
                                   : 'Daily Quizzes',
-                              style: theme.textTheme.labelLarge?.copyWith(
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w500,
+                                fontSize: 14,
                                 color: theme.colorScheme.onSurfaceVariant,
                               ),
                             ),
@@ -211,9 +214,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               remaining == -1
                                   ? 'Unlimited Access'
                                   : '${remaining.toString()}/$_freeUserDailyLimit remaining',
-                              style: theme.textTheme.titleMedium?.copyWith(
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
                                 color: statusColor,
-                                fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
@@ -327,9 +331,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 'Go Premium',
-                                style: theme.textTheme.bodyLarge?.copyWith(
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
                                   color: theme.colorScheme.onSurfaceVariant,
-                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
@@ -337,7 +342,9 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Unlock all features',
-                            style: theme.textTheme.bodySmall?.copyWith(
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
+                              fontSize: 14,
                               color: theme.colorScheme.onSurfaceVariant,
                             ),
                           ),
@@ -365,7 +372,11 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               ),
                               child: Text(
                                 'Upgrade',
-                                style: theme.textTheme.labelMedium,
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
                               ),
                             ),
                           ),
@@ -429,7 +440,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
           data: theme,
           child: Scaffold(
             appBar: AppBar(
-              title: const Text('QuickMath Kids'),
+              title: Text(
+                'QuickMath Kids',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                  color: theme.colorScheme.onSurface,
+                ),
+              ),
               actions: [],
             ),
             drawer: Consumer(
@@ -464,7 +482,11 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                           const SizedBox(height: 15),
                           Text(
                             "Choose an Operation and Start Practicing",
-                            style: theme.textTheme.headlineMedium,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
+                              fontSize: isTablet ? 24 : 20,
+                              color: theme.colorScheme.onSurface,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 20),
@@ -508,6 +530,12 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                               child: InputDecorator(
                                 decoration: InputDecoration(
                                   labelText: 'Session Time Limit',
+                                  labelStyle: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w500,
+                                    fontSize: 14,
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.7),
+                                  ),
                                   filled: true,
                                   fillColor: theme.brightness == Brightness.dark
                                       ? theme.colorScheme.surface
@@ -533,7 +561,11 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                   _selectedTimeLimit == null
                                       ? 'No time limit'
                                       : '${_selectedTimeLimit! ~/ 60} minute${_selectedTimeLimit! ~/ 60 == 1 ? '' : 's'}',
-                                  style: theme.textTheme.bodyLarge,
+                                  style: GoogleFonts.poppins(
+                                    fontWeight: FontWeight.w400,
+                                    fontSize: 14,
+                                    color: theme.colorScheme.onSurface,
+                                  ),
                                 ),
                               ),
                             ),
@@ -565,9 +597,10 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                         Expanded(
                                           child: Text(
                                             'You’ve reached your daily limit of $_freeUserDailyLimit quizzes. Upgrade to Premium for unlimited access!',
-                                            style: TextStyle(
+                                            style: GoogleFonts.poppins(
+                                              fontWeight: FontWeight.w500,
+                                              fontSize: 14,
                                               color: theme.colorScheme.onError,
-                                              fontSize: 16,
                                             ),
                                           ),
                                         ),
@@ -615,7 +648,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                 ),
                               );
                             },
-                            label: const Text('Start Oral Practice'),
+                            label: Text(
+                              'Start Oral Practice',
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 16,
+                                color: Colors.white,
+                              ),
+                            ),
                             style: ElevatedButton.styleFrom(
                               padding: EdgeInsets.symmetric(
                                 vertical: 12,
@@ -648,8 +688,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
 
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: const Text(
-                                        'Premium status and settings reset to free tier.'),
+                                    content: Text(
+                                      'Premium status and settings reset to free tier.',
+                                      style: GoogleFonts.poppins(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 14,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                     backgroundColor: theme.colorScheme.error,
                                     behavior: SnackBarBehavior.floating,
                                     shape: RoundedRectangleBorder(
@@ -661,7 +707,14 @@ class _StartScreenState extends ConsumerState<StartScreen> {
                                   ),
                                 );
                               },
-                              label: const Text('Reset Premium (Debug)'),
+                              label: Text(
+                                'Reset Premium (Debug)',
+                                style: GoogleFonts.poppins(
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.redAccent,
                                 padding: EdgeInsets.symmetric(

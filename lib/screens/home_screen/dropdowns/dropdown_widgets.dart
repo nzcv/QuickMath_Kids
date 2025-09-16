@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/services/billing_service.dart';
 import 'package:QuickMath_Kids/screens/purchase_screen.dart';
@@ -76,7 +77,9 @@ class OperationDropdown extends ConsumerWidget {
                       Expanded(
                         child: Text(
                           _getDisplayName(operation),
-                          style: theme.textTheme.bodyLarge?.copyWith(
+                          style: GoogleFonts.poppins(
+                            fontWeight: FontWeight.w400,
+                            fontSize: 14,
                             color: theme.brightness == Brightness.dark
                                 ? theme.colorScheme.onSurface
                                 : theme.colorScheme.onBackground,
@@ -185,9 +188,17 @@ class RangeDropdown extends ConsumerWidget {
   void _showPremiumSnackBar(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: const Text('You need premium access for this'),
+        content: Text(
+          'You need premium access for this',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w500,
+            fontSize: 14,
+            color: Colors.white,
+          ),
+        ),
         action: SnackBarAction(
           label: 'Unlock',
+          textColor: Colors.white,
           onPressed: () => _navigateToPurchaseScreen(context),
         ),
       ),
@@ -219,7 +230,9 @@ class RangeDropdown extends ConsumerWidget {
                   Expanded(
                     child: Text(
                       getRangeDisplayName(range),
-                      style: theme.textTheme.bodyLarge?.copyWith(
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
                         color: isLocked
                             ? theme.colorScheme.onSurface.withOpacity(0.5)
                             : theme.brightness == Brightness.dark
@@ -236,12 +249,12 @@ class RangeDropdown extends ConsumerWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 4, vertical: 2),
                       color: Colors.amber,
-                      child: const Text(
+                      child: Text(
                         'Premium',
-                        style: TextStyle(
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.w600,
                           fontSize: 12,
                           color: Colors.black,
-                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ),
@@ -259,7 +272,9 @@ class RangeDropdown extends ConsumerWidget {
             onChanged(newValue);
           },
           isExpanded: true,
-          style: theme.textTheme.bodyLarge?.copyWith(
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
             color: theme.brightness == Brightness.dark
                 ? theme.colorScheme.onSurface
                 : theme.colorScheme.onBackground,

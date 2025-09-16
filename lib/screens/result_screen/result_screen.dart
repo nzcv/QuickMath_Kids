@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:QuickMath_Kids/screens/result_screen/result_row.dart';
 import 'package:QuickMath_Kids/screens/result_screen/pdf_sharing.dart';
 import 'package:QuickMath_Kids/services/quiz_history_service.dart';
@@ -88,13 +89,36 @@ class _ResultScreenState extends State<ResultScreen>
       barrierDismissible: false,
       builder: (context) {
         final controller = TextEditingController(text: uniqueTitle);
+        final theme = Theme.of(context);
         return AlertDialog(
-          title: const Text('Save Quiz'),
+          title: Text(
+            'Save Quiz',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
           content: TextField(
             controller: controller,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: 'Enter quiz title',
               hintText: 'e.g., 28-03-2025',
+              labelStyle: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: theme.colorScheme.onSurface.withOpacity(0.7),
+              ),
+              hintStyle: GoogleFonts.poppins(
+                fontWeight: FontWeight.w400,
+                fontSize: 14,
+                color: theme.colorScheme.onSurface.withOpacity(0.5),
+              ),
+            ),
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: theme.colorScheme.onSurface,
             ),
           ),
           actions: [
@@ -107,7 +131,14 @@ class _ResultScreenState extends State<ResultScreen>
                 });
                 _saveQuiz();
               },
-              child: const Text('Save'),
+              child: Text(
+                'Save',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
             ),
           ],
         );
@@ -146,13 +177,31 @@ class _ResultScreenState extends State<ResultScreen>
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Quiz saved successfully')),
+          SnackBar(
+            content: Text(
+              'Quiz saved successfully',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Failed to save quiz: $e')),
+          SnackBar(
+            content: Text(
+              'Failed to save quiz: $e',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
+          ),
         );
       }
     }
@@ -174,7 +223,14 @@ class _ResultScreenState extends State<ResultScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error sharing PDF: ${e.toString()}'),
+            content: Text(
+              'Error sharing PDF: ${e.toString()}',
+              style: GoogleFonts.poppins(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.white,
+              ),
+            ),
           ),
         );
       }
@@ -194,7 +250,18 @@ class _ResultScreenState extends State<ResultScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Quiz Results', textAlign: TextAlign.center),
+        title: Text(
+          'Quiz Results',
+          style: GoogleFonts.poppins(
+            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            color: theme.colorScheme.onSurface,
+            textStyle: TextStyle(
+              fontStyle: FontStyle.normal,
+            ),
+          ),
+          textAlign: TextAlign.center,
+        ),
       ),
       body: SafeArea(
         child: Padding(
@@ -255,9 +322,11 @@ class _ResultScreenState extends State<ResultScreen>
                           opacity: _fadeAnimation,
                           child: Text(
                             'No questions attended!',
-                            style: theme.textTheme.bodyLarge?.copyWith(
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w400,
                               fontSize: 18,
                               fontStyle: FontStyle.italic,
+                              color: theme.colorScheme.onSurface,
                             ),
                           ),
                         ),
@@ -276,7 +345,14 @@ class _ResultScreenState extends State<ResultScreen>
                                   ? Colors.green
                                   : Colors.red,
                             ),
-                            title: Text(widget.answeredQuestions[index]),
+                            title: Text(
+                              widget.answeredQuestions[index],
+                              style: GoogleFonts.poppins(
+                                fontWeight: FontWeight.w400,
+                                fontSize: 14,
+                                color: theme.colorScheme.onSurface,
+                              ),
+                            ),
                           );
                         },
                       ),
@@ -285,7 +361,6 @@ class _ResultScreenState extends State<ResultScreen>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  // In the home button onPressed, update to:
                   ElevatedButton.icon(
                     icon: const Icon(Icons.home, color: Colors.white),
                     onPressed: () {
@@ -309,7 +384,14 @@ class _ResultScreenState extends State<ResultScreen>
                         (route) => false,
                       );
                     },
-                    label: const Text('Start Screen'),
+                    label: Text(
+                      'Start Screen',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                   ElevatedButton.icon(
                     icon: const Icon(Icons.share, color: Colors.white),
@@ -317,7 +399,14 @@ class _ResultScreenState extends State<ResultScreen>
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.green,
                     ),
-                    label: const Text('Share Report'),
+                    label: Text(
+                      'Share Report',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                    ),
                   ),
                 ],
               ),

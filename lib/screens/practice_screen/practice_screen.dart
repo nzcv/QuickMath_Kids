@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:QuickMath_Kids/question_logic/question_generator.dart';
 import 'package:QuickMath_Kids/question_logic/enum_values.dart';
 import 'package:QuickMath_Kids/screens/practice_screen/modals/quit_modal.dart';
@@ -485,12 +486,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
       builder: (BuildContext context) {
         final theme = Theme.of(context);
         return AlertDialog(
-          title: Text('Hint',
-              style: theme.textTheme.titleLarge
-                  ?.copyWith(color: theme.colorScheme.onSurface)),
-          content: Text(currentHintMessage,
-              style: theme.textTheme.bodyLarge
-                  ?.copyWith(color: theme.colorScheme.onSurface)),
+          title: Text(
+            'Hint',
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w600,
+              fontSize: 18,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
+          content: Text(
+            currentHintMessage,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: theme.colorScheme.onSurface,
+            ),
+          ),
           backgroundColor: theme.colorScheme.surface,
           shape:
               RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -500,8 +511,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
                 Navigator.pop(context);
                 _startInactivityTimer();
               },
-              child: Text('Close',
-                  style: TextStyle(color: theme.colorScheme.primary)),
+              child: Text(
+                'Close',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 14,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
             ),
           ],
         );
@@ -537,9 +554,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
           data: theme,
           child: Scaffold(
             appBar: AppBar(
-              title: Text('Practice',
-                  style: theme.textTheme.titleLarge
-                      ?.copyWith(color: theme.colorScheme.onPrimary)),
+              title: Text(
+                'Practice',
+                style: GoogleFonts.poppins(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 20,
+                  color: theme.colorScheme.onPrimary,
+                ),
+              ),
               backgroundColor: theme.colorScheme.primary.withOpacity(0.7),
               actions: [
                 Padding(
@@ -548,8 +570,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     onPressed: _showQuitDialog,
                     icon: Icon(Icons.exit_to_app_rounded,
                         color: theme.colorScheme.onPrimary),
-                    label: Text('Quit',
-                        style: TextStyle(color: theme.colorScheme.onPrimary)),
+                    label: Text(
+                      'Quit',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
                     style: ElevatedButton.styleFrom(
                         backgroundColor: theme.colorScheme.error),
                   ),
@@ -560,8 +588,14 @@ class _PracticeScreenState extends State<PracticeScreen> {
                     onPressed: endQuiz,
                     icon: Icon(Icons.assessment,
                         color: theme.colorScheme.onPrimary),
-                    label: Text('Results',
-                        style: TextStyle(color: theme.colorScheme.onPrimary)),
+                    label: Text(
+                      'Results',
+                      style: GoogleFonts.poppins(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: theme.colorScheme.onPrimary,
+                      ),
+                    ),
                     style:
                         ElevatedButton.styleFrom(backgroundColor: Colors.green),
                   ),
@@ -598,10 +632,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           ),
                           child: Text(
                             'Previous Wrong Answer',
-                            style: TextStyle(
-                              color: Colors.white,
+                            style: GoogleFonts.poppins(
+                              fontWeight: FontWeight.w600,
                               fontSize: 12 * adjustedScale,
-                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ),
@@ -823,7 +857,13 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                                 .showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                    'Pause feature is available for premium users'),
+                                                  'Pause feature is available for premium users',
+                                                  style: GoogleFonts.poppins(
+                                                    fontWeight: FontWeight.w500,
+                                                    fontSize: 14,
+                                                    color: Colors.white,
+                                                  ),
+                                                ),
                                                 duration: Duration(seconds: 2),
                                               ),
                                             );
