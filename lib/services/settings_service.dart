@@ -1,4 +1,4 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 final speechRateProvider = StateProvider<double>((ref) => 0.5);
 final pitchProvider = StateProvider<double>((ref) => 1.0);
