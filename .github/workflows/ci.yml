@@ -30,10 +30,11 @@ jobs:
       - name: Build Flutter application for Android
         run: flutter upgrade && flutter build apk --target-platform=android-arm64 --debug
       - name: Rename arm64-v8a APK
-        run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk android-arm64-v8a.apk      
+        run: mv build/app/outputs/flutter-apk/app-debug.apk android-arm64-v8a.apk      
       - name: Upload arm64-v8a APK
         uses: actions/upload-artifact@v4
         with:
           name: android-arm64-v8a.apk
 
           path: android-arm64-v8a.apk      
+
