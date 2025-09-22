@@ -1,0 +1,38 @@
+name: ci
+on:
+  push:
+    branches: main
+    paths-ignore:
+      - README.md
+      - README_CN.md
+      - LICENSE
+  pull_request:
+    paths-ignore:
+      - README.md
+      - README_CN.md
+      - LICENSE
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v4
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2  # 使用 v2 版本的 Flutter action
+        with:
+            channel: stable
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: zulu
+          java-version: 8
+      - name: Build Flutter application for Android
+        run: flutter upgrade && flutter build apk --target-platform=android-arm64 --debug
+      - name: Rename arm64-v8a APK
+        run: mv build/app/outputs/flutter-apk/app-arm64-v8a-release.apk android-arm64-v8a.apk      
+      - name: Upload arm64-v8a APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-arm64-v8a.apk
+          path: android-arm64-v8a.apk      
